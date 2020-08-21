@@ -1,3 +1,3 @@
 # THIS FILE IS GENERATED FROM MultiSim SETUP.PY
 
-version = '0.9.8'
+version = '0.9.9'

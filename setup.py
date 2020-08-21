@@ -41,8 +41,7 @@ EXTRAS = {
 
 def write_version_py(version, filename='multisim/version.py'):
     """Write version to file for module wide access."""
-    cnt = """
-# THIS FILE IS GENERATED FROM MultiSim SETUP.PY
+    cnt = """# THIS FILE IS GENERATED FROM MultiSim SETUP.PY
 
 version = '%(version)s'
 """
@@ -157,5 +156,5 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     # $ setup.py publish support.
-    cmdclass={'upload': UploadCommand,},
+    cmdclass={'upload': UploadCommand},
 )
