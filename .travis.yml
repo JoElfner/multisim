@@ -1,0 +1,30 @@
+language: python
+python:
+  - "3.7.7"
+  - "3.8"
+dist: xenial
+
+before_install:
+  - git clone https://github.com/TravisToolbox/pycodestyle-travis.git
+
+install:
+  - pip install -r requirements.txt
+  - pip install -r test_requirements.txt
+  - pip install -e .
+  # - ./pycodestyle-travis/install.sh
+
+script:
+    - black --skip-string-normalization --line-length 79 --check ./multisim/
+    - flake8
+    - pytest --import-mode=importlib
+
+# script:
+  # - pytest --flake8
+  # - black --check --skip-string-normalization
+  # - mypy
+  # - ./pycodestyle-travis/scan.sh
+  # - python3 ./tests/test_sim_init.py || python ./tests/test_sim_init.py
+
+# after_success:
+#   # Upload coverage data to codecov
+#   - codecov

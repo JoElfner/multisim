@@ -1,0 +1,10 @@
+[flake8]
+extend-ignore = D203, E203, E501, W503
+exclude =
+    .git,
+    .pytest_cache
+    __pycache__,
+    docs/source/conf.py,
+    build,
+    dist
+    multisim/deprecated
