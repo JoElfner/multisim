@@ -3110,7 +3110,8 @@ def plt_prediction_realization(
     ),
     err_loc='bottom right',
     legend_kwds=dict(),
-    auto_label=True, sprache='eng'
+    auto_label=True,
+    sprache='eng'
 ):
     """
     Make a prediction realization plot.
@@ -3255,7 +3256,8 @@ def plt_prediction_realization(
             err_kwds=err_kwds,
             err_loc=err_loc,
             legend_kwds=legend_kwds,
-            auto_label=auto_label, sprache=sprache,
+            auto_label=auto_label,
+            sprache=sprache,
             err_vals={k: perf_ind.loc[k] for k in _errs},
             ax=ax_pr,
         )
@@ -3383,7 +3385,8 @@ def plot_pr_scatter(
     ),
     err_loc='bottom right',
     legend_kwds=dict(),
-    auto_label=True, sprache='eng',
+    auto_label=True,
+    sprache='eng',
     plot_every=1,
     fig_kwds=dict(figsize=(8 / 2.54, 8 / 2.54)),
     err_vals=None,

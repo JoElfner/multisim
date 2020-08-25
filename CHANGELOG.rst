@@ -18,6 +18,7 @@ Changelog
 * DEP: Some non-optimized parts removed from the package.
 * BUG: :py:func:`utility_functions.plt_prediction_realization` bugs resolved.
 * ENH: Many commented lines removed.
+* ENH: :py:func:`utility_functions` minor changes to argument handling and error naming conventions.
 
 0.9.8 - 2020-07-23
 ==================
