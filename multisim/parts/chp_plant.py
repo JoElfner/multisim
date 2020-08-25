@@ -60,8 +60,6 @@ class CHPPlant(Pipe):
         self.constr_type = 'CHPPlant'  # define construction type
 
         # since this part is a subclass of Pipe, initialize Pipe:
-        # super(CHPPlant, self).__init__(
-        #     name, master_cls, **kwds, constr_type=self.constr_type)
         super().__init__(
             name, master_cls, **kwds, constr_type=self.constr_type
         )
@@ -466,7 +464,6 @@ class CHPPlant(Pipe):
     def init_part(self, start_modulation=0, fluegas_flow=70 / 61.1, **kwds):
         """Initialize part. Do stuff which requires built part dict."""
         # since this part is a subclass of Pipe, call init_part of Pipe:
-        # super(CHPPlant, self).init_part(**kwds)
         super().init_part(**kwds)
 
         # check for default args, print messages and set them to kwds

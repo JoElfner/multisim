@@ -26,9 +26,11 @@ Other enhancements could be:
 
 7. Move to Python 3.8, using type hints and assignment expressions.
 
+8. There is a lot of chaos in `utility_functions`. This needs some heavy refactoring and tidying.
+
 MultiSim depends mainly on `numpy`, `numba`, `pandas`, `scipy`, and
 `matplotlib`. For some parts `sklearn` is a dependency.
 
-For building, distribution and installation instructions, see INSTALL.rst.txt_.
+For building, distribution and installation instructions, see INSTALL.rst_.
 
-.. _INSTALL.rst.txt:   https://github.com/JoElfner/multisim/blob/master/INSTALL.rst.txt
+.. _INSTALL.rst:   https://github.com/JoElfner/multisim/blob/master/INSTALL.rst

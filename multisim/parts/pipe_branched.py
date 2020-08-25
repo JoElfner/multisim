@@ -46,8 +46,6 @@ class PipeBranched(Pipe):
     def __init__(self, name, master_cls, **kwargs):
         self.constr_type = 'PipeBranched'  # define construction type
         # since this part is a subclass of Pipe, initialize Pipe:
-        # super(PipeBranched, self).__init__(
-        #     name, master_cls, **kwargs, constr_type=self.constr_type)
         super().__init__(
             name, master_cls, **kwargs, constr_type=self.constr_type
         )
@@ -115,7 +113,6 @@ class PipeBranched(Pipe):
 
     def init_part(self, **kwargs):
         # since this part is a subclass of Pipe, call init_part of Pipe:
-        # super(PipeBranched, self).init_part(**kwargs)
         super().init_part(**kwargs)
 
         # add massflow grid argument to input args at correct position:

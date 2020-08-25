@@ -16,6 +16,8 @@ Changelog
 * DEP: Removed roughly 5k lines of deprecated or commented code. Many more to go...
 * MAINT: Fully :py:func:`black`'ed and :py:func:`flake8`'ed all parts of the package.
 * DEP: Some non-optimized parts removed from the package.
+* BUG: :py:func:`utility_functions.plt_prediction_realization` bugs resolved.
+* ENH: Many commented lines removed.
 
 0.9.8 - 2020-07-23
 ==================

@@ -24,7 +24,7 @@ to GitHub_ and PyPI_ are included.
 The direct links to the GitHub repository and to the PyPI project are:
 
   - MultiSim on GitHub https://github.com/JoElfner/multisim
-  - MultiSim on PyPI https://pypi.org/project/MultiSim/
+  - MultiSim on PyPI https://pypi.org/project/MultiSim/ (currently deprecated)
 
 PREREQUISITES
 =============
@@ -51,7 +51,7 @@ __ https://pandas.pydata.org/
 
 __ http://numba.pydata.org/
 
-6) matplotlib__ >= 3.0, preferably as part of the SciPy ecosystem
+6) matplotlib__ >= 3.3, preferably as part of the SciPy ecosystem
 
 __ https://matplotlib.org/
 
@@ -74,16 +74,18 @@ __ https://pypi.org/project/twine/
 __ http://www.sphinx-doc.org/
 
 
+INSTALLING MULTISIM
+===================
+
+Either install it directly from PyPI using `pip` (currently deprecated) *or* make a local clone of the GitHub repository and `build and install it <#PACKAGING-MULTISIM>`_.
+
+
 PACKAGING MULTISIM
 ==================
 
-As long as no collaboration is planned for MultiSim, local packaging should be
-chosen over solely working with the GitHub repository to facilitate testing,
-checks and keeping things straightforward.
-
 To package MultiSim into an installable package, use your preferred command
 line tool, f.i. Anaconda prompt, to navigate to the package`s top-level folder
-and build the package. For the current dev`s computer, this is f.i.:
+and build the package:
 
 .. code:: bash
 

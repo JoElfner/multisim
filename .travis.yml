@@ -11,19 +11,12 @@ install:
   - pip install -r requirements.txt
   - pip install -r test_requirements.txt
   - pip install -e .
-  # - ./pycodestyle-travis/install.sh
 
 script:
     - black --skip-string-normalization --line-length 79 --check ./multisim/
     - flake8
     - pytest --import-mode=importlib
-
-# script:
-  # - pytest --flake8
-  # - black --check --skip-string-normalization
-  # - mypy
-  # - ./pycodestyle-travis/scan.sh
-  # - python3 ./tests/test_sim_init.py || python ./tests/test_sim_init.py
+    # - mypy
 
 # after_success:
 #   # Upload coverage data to codecov

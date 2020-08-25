@@ -16,7 +16,6 @@ from .. import precomp_funs as _pf
 class PID(Controls):
     def __init__(self, name, master_cls, **kwargs):
         # initialize general controller functions:
-        # super(PID, self).__init__(name, master_cls, **kwargs)
         super().__init__(name, master_cls, **kwargs)
 
         # assert correct controller type
@@ -582,48 +581,14 @@ class PID(Controls):
             ) * self._invert
             # clip value to max/min:
             self._clip_cv_to_saturation()
-        # =============================================================================
-        #             self.cv = (self._cv_sat_min if self.cv < self._cv_sat_min
-        #                        else self._cv_sat_max if self.cv > self._cv_sat_max
-        #                        else self.cv)
-        # =============================================================================
 
         # check if controller is depending on another controller:
         self._subcontroller_check(pid=True)
 
 
-# =============================================================================
-#         if self.sub_ctrl:  # if yes check for kind of dependency:
-#             if self._concurrent:  # if concurrent with master controller:
-# #                if not self._master_act_cv[0]:  # if master actuator cv is 0:
-# #                if self._master_act_cv[0] == self._master_act_llim:
-# #                    # if master actuator cv at lower lim. -> deactivated
-# #                    self.cv = 0.  # also set own cv to 0
-#                 if self._master_act_cv[0] == self._master_act_offst:
-#                     # if master actuator cv at off_state -> deactivated
-#                     self.cv = self._off_state  # also set own cv to off state
-#                     # also erase i-term since no CV means no error:
-#                     # (derivs and prev err don't matter, since they only
-#                     # accumulate for up to two steps)
-#                     self.i_term = 0.
-#             else:  # if sequential with master controller:
-# #                if self._master_act_cv[0]:  # if master actuator cv is NOT 0:
-# #                if self._master_act_cv[0] != self._master_act_llim:
-# #                    # if master actuator cv NOT at lower lim. -> activated
-# #                    self.cv = 0.  # set own cv to 0, opposing master act cv
-#                 if self._master_act_cv[0] != self._master_act_offst:
-#                     # if master actuator cv NOT at off_state -> activated
-#                     # thus if master is on, this control is off
-#                     self.cv = self._off_state  # set own cv to off state
-#                     # also erase i-term since no CV means no error:
-#                     self.i_term = 0.
-# =============================================================================
-
-
 class BangBang(Controls):
     def __init__(self, name, master_cls, **kwargs):
         # initialize general controller functions:
-        # super(BangBang, self).__init__(name, master_cls, **kwargs)
         super().__init__(name, master_cls, **kwargs)
 
         # get hysteresis
@@ -678,60 +643,15 @@ class BangBang(Controls):
 
         # allow direction inversion:
         self._cv_invert()
-        # =============================================================================
-        #         self.cv *= self._invert
-        # =============================================================================
 
         # check if controller is depending on another controller:
         self._subcontroller_check()
 
 
-# =============================================================================
-#         if self.sub_ctrl:  # if yes check for kind of dependency:
-#             if self._concurrent:  # if concurrent with master controller:
-# #                if self._master_act_cv[0] == self._master_act_llim:
-# #                    # if master actuator cv at lower lim. -> deactivated
-# #                    self.cv = 0.  # also set own cv to 0
-#                 if self._master_act_cv[0] == self._master_act_offst:
-#                     # if master actuator cv at off_state -> deactivated
-#                     self.cv = self._off_state  # also set own cv to off state
-#             else:  # if sequential with master controller:
-# #                if self._master_act_cv[0] != self._master_act_llim:
-# #                    # if master actuator cv NOT at lower lim. -> activated
-# #                    self.cv = 0.  # set own cv to 0, opposing master act cv
-#                 if self._master_act_cv[0] != self._master_act_offst:
-#                     # if master actuator cv NOT at off_state -> activated
-#                     self.cv = self._off_state  # also set own cv to off state
-# =============================================================================
-
-
 class TwoSensors(Controls):
     def __init__(self, name, master_cls, **kwargs):
         # initialize general controller functions:
-        # super(TwoSensors, self).__init__(name, master_cls, **kwargs)
         super().__init__(name, master_cls, **kwargs)
-
-        # get hysteresis
-        #        err_str = (
-        #            self._base_err + self._arg_err.format('hysteresis') +
-        #            'A hysteresis must be passed to a bang-bang controller with '
-        #            '`hysteresis=X`, where X is an integer or float value. The '
-        #            'controller will activate the actuator as soon as the '
-        #            'process variable (PV) is lower than the setpoint (SP) minus half '
-        #            'the hysteresis (`PV < SP - hysteresis / 2`) and deactivate the '
-        #            'actuator when the PV is higher than the SP plus half the '
-        #            'hysteresis (`PV > SP + hysteresis / 2`).\n'
-        #            'If a negative hysteresis is given, this behavior will be '
-        #            'reversed. The controller will activate the actuator when '
-        #            '`PV > SP + abs(hysteresis) / 2` and deactivate the controller '
-        #            'when `PV < SP - abs(hysteresis) / 2`.')
-        #        assert ('hysteresis' in kwargs and
-        #                isinstance(kwargs['hysteresis'], (int, float))), err_str
-        #        if kwargs['hysteresis'] >= 0.:  # check for reversed behavior
-        #            self._reversed = False
-        #        else:
-        #            self._reversed = True
-        #        self._hysteresis = float(abs(kwargs['hysteresis']))  # save pos. hyst.
 
         # check if slope was initialized and print warning if true
         if self._slope:
@@ -886,7 +806,6 @@ class ModelPredCHP(Controls):
 
     def __init__(self, name, master_cls, **kwds):
         # initialize general controller functions:
-        # super(TwoSensors, self).__init__(name, master_cls, **kwds)
         super().__init__(name, master_cls, **kwds)
 
         # get off sensor and on value (on sensor is PV origin and off value is
@@ -2189,7 +2108,6 @@ class ModelPredCHP(Controls):
         # set it to zero or lower mod range limit, depending on which
         # value is closer.
 
-        # TEST THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # Also try to bring some continuity to the optimization by making
         # the choice depending on the last opt step result
         # (could be refarctored by:
@@ -2366,32 +2284,12 @@ class ModelPredCHP(Controls):
 
         # clip value to max/min:
         self._clip_cv_to_saturation()
-        # =============================================================================
-        #         self.cv = (self._cv_sat_min if self.cv < self._cv_sat_min
-        #                     else self._cv_sat_max if self.cv > self._cv_sat_max
-        #                     else self.cv)
-        # =============================================================================
 
         # allow direction inversion:
         self._cv_invert()
-        # =============================================================================
-        #         self.cv *= self._invert
-        # =============================================================================
 
         # check if controller is depending on another controller:
         self._subcontroller_check()
-
-    # =============================================================================
-    #         if self.sub_ctrl:  # if yes check for kind of dependency:
-    #             if self._concurrent:  # if concurrent with master controller:
-    #                 if self._master_act_cv[0] == self._master_act_offst:
-    #                     # if master actuator cv at off_state -> deactivated
-    #                     self.cv = self._off_state  # also set own cv to off state
-    #             else:  # if sequential with master controller:
-    #                 if self._master_act_cv[0] != self._master_act_offst:
-    #                     # if master actuator cv NOT at off_state -> activated
-    #                     self.cv = self._off_state  # also set own cv to off state
-    # =============================================================================
 
     def _preopt_x0(self, x0):
         # copy to avoid altering input

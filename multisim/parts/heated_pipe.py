@@ -47,8 +47,6 @@ class HeatedPipe(Pipe):
     def __init__(self, name, master_cls, **kwargs):
         self.constr_type = 'HeatedPipe'  # define construction type
         # since this part is a subclass of Pipe, initialize Pipe:
-        # super(HeatedPipe, self).__init__(
-        #     name, master_cls, **kwargs, constr_type=self.constr_type)
         super().__init__(
             name, master_cls, **kwargs, constr_type=self.constr_type
         )
@@ -192,7 +190,6 @@ class HeatedPipe(Pipe):
 
     def init_part(self, **kwargs):
         # since this part is a subclass of Pipe, call init_part of Pipe:
-        # super(HeatedPipe, self).init_part(**kwargs)
         super().init_part(**kwargs)
 
     def _special_array_init(self, num_steps):

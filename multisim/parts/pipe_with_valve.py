@@ -46,8 +46,6 @@ class PipeWith3wValve(Pipe):
     def __init__(self, name, master_cls, **kwargs):
         self.constr_type = 'PipeWith3wValve'  # define construction type
         # since this part is a subclass of Pipe, initialize Pipe:
-        # super(PipeWith3wValve, self).__init__(
-        #     name, master_cls, **kwargs, constr_type=self.constr_type)
         super().__init__(
             name, master_cls, **kwargs, constr_type=self.constr_type
         )
@@ -168,7 +166,6 @@ class PipeWith3wValve(Pipe):
 
     def init_part(self, start_portA_opening, **kwargs):
         # since this part is a subclass of Pipe, call init_part of Pipe:
-        # super(PipeWith3wValve, self).init_part(**kwargs)
         super().init_part(**kwargs)
 
         # set starting valve opening:

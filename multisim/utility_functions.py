@@ -2926,6 +2926,8 @@ def fit_time_series(
         target_freq = pd.tseries.frequencies.to_offset(freq)
         pred_evenly, pred_freq = is_evenly_spaced(pred, return_freq=True)
         rlz_evenly, rlz_freq = is_evenly_spaced(rlz, return_freq=True)
+        # if target freq is not set, take rlz freq as target freq
+        target_freq = target_freq if target_freq is not None else rlz_freq
         # if not evenly spaced or frequency is not the target frequency:
         if (
             not pred_evenly
@@ -2954,6 +2956,7 @@ def fit_time_series(
                 rlz = process_unevenly_spaced_timeseries(  # make evenly spaced
                     data=rlz, freq=freq, how=how
                 )
+        # else do nothing and just assert that shapes match
         assert pred.shape == rlz.shape, err_shape  # assert that shapes match
     else:  # if other indices
         assert pred.shape == rlz.shape, err_shape  # assert that shapes match
@@ -2977,7 +2980,7 @@ def ts_performance_indicators(
     how=None
 ):
 
-    pred_rlz = fit_time_series(  # fit the timeseries
+    pred_rlz = fit_time_series(  # fit the timeseries, in necessary
         pred=pred,
         rlz=rlz,
         resample_uneven=resample_uneven,
@@ -3054,15 +3057,15 @@ def ts_performance_indicators(
         ],
         index=[
             'n_samples',
-            'mean_bias_err',
-            'mean_abs_err',
-            'nmbe',
-            'mse',
-            'rmse',
-            'cv_rmse',
-            'nrmse',
-            'nrmse_iqr',
-            'r_squared',
+            'MBE',
+            'MAE',
+            'NMBE',
+            'MSE',
+            'RMSE',
+            'CV(RMSE)',
+            'NRMSE',
+            'NRMSE_IQR',
+            'R2',
         ],
     )
 
@@ -3107,7 +3110,7 @@ def plt_prediction_realization(
     ),
     err_loc='bottom right',
     legend_kwds=dict(),
-    sprache='eng'
+    auto_label=True, sprache='eng'
 ):
     """
     Make a prediction realization plot.
@@ -3176,7 +3179,7 @@ def plt_prediction_realization(
     df = fit_time_series(
         pred=pred,
         rlz=rlz,
-        resample_uneven=True,
+        resample_uneven=resample_uneven,
         freq=freq,
         how=how,
         return_df=True,
@@ -3198,10 +3201,10 @@ def plt_prediction_realization(
     perf_ind = ts_performance_indicators(
         pred=df.iloc[:, 0],
         rlz=df.iloc[:, 1],  # columns pred and rlz in df
-        exclude_zeros=True,
+        exclude_zeros=False,  # already excluded, if True, a few lines before
         exclude_values=None,
         exclude_range=None,
-        resample_uneven=True,
+        resample_uneven=resample_uneven,
         freq=freq_perf,
         how=how,
     )
@@ -3216,7 +3219,9 @@ def plt_prediction_realization(
     line_colors = 'black'  # line colors for bisecting and rmse lines
 
     # translate to errors tuple:
-    _errs = (k.replace('CVRMSE', 'CV(RMSE)') for k in errors.keys())
+    _errs = tuple(
+        k.replace('CVRMSE', 'CV(RMSE)') for k, v in errors.items() if v
+    )
 
     # Plot the data, either as a hexbin, 2d-kde or scatter plot.
     if plot_type == 'hexbin':
@@ -3250,13 +3255,8 @@ def plt_prediction_realization(
             err_kwds=err_kwds,
             err_loc=err_loc,
             legend_kwds=legend_kwds,
-            sprache=sprache,
-            err_vals={
-                'R2': perf_ind.loc['r_squared'],
-                'MSE': perf_ind.loc['mse'],
-                'CV(RMSE)': perf_ind.loc['cv_rmse'],
-                'NMBE': perf_ind.loc['nmbe'],
-            },
+            auto_label=auto_label, sprache=sprache,
+            err_vals={k: perf_ind.loc[k] for k in _errs},
             ax=ax_pr,
         )
 
@@ -3383,7 +3383,7 @@ def plot_pr_scatter(
     ),
     err_loc='bottom right',
     legend_kwds=dict(),
-    sprache='eng',
+    auto_label=True, sprache='eng',
     plot_every=1,
     fig_kwds=dict(figsize=(8 / 2.54, 8 / 2.54)),
     err_vals=None,
@@ -3449,11 +3449,12 @@ def plot_pr_scatter(
     ax.set_ylim(ax.get_xlim())
 
     # axis labels as SI conform labels, legend, grid and finally tight layout
-    si_axlabel(ax, label=ylabel)
-    si_axlabel(ax, label=xlabel, which='x')
+    if auto_label:
+        si_axlabel(ax, label=ylabel)
+        si_axlabel(ax, label=xlabel, which='x')
     ax.grid(True, which='both')
     ax.legend(**legend_kwds)
-    fig.tight_layout(pad=0)
+    # fig.tight_layout(pad=0)
 
     return fig, ax
 
