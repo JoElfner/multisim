@@ -4822,7 +4822,6 @@ class Models:
         # Set simulation environment to initialized:
         self._initialized = True
 
-
     def start_sim(self):
         """Run the simulation."""
 
