@@ -749,46 +749,9 @@ class TwoSensors(Controls):
 
         # allow direction inversion:
         self._cv_invert()
-        # =============================================================================
-        #         self.cv *= self._invert
-        # =============================================================================
-
-        #        if self.pv < (self.sp - self._hysteresis / 2):
-        #            if self._reversed:  # reversed action
-        # #                self.cv = self._llim  # switch off (to lower lim.)
-        #                self.cv = self._off_state  # switch off (to off state)
-        #            else:
-        # #                self.cv = self._ulim  # switch on (to upper lim.)
-        #                self.cv = self._cv_sat_max  # switch on (to upper sat lim.)
-        #        elif self.pv > (self.sp + self._hysteresis / 2):
-        #            if self._reversed:  # reversed action
-        # #                self.cv = self._ulim  # switch on (to upper lim.)
-        #                self.cv = self._cv_sat_max  # switch on (to upper sat lim.)
-        #            else:
-        # #                self.cv = self._llim  # switch off (to lower lim.)
-        #                self.cv = self._off_state  # switch off (to off state)
 
         # check if controller is depending on another controller:
         self._subcontroller_check()
-
-
-# =============================================================================
-#         if self.sub_ctrl:  # if yes check for kind of dependency:
-#             if self._concurrent:  # if concurrent with master controller:
-# #                if self._master_act_cv[0] == self._master_act_llim:
-# #                    # if master actuator cv at lower lim. -> deactivated
-# #                    self.cv = 0.  # also set own cv to 0
-#                 if self._master_act_cv[0] == self._master_act_offst:
-#                     # if master actuator cv at off_state -> deactivated
-#                     self.cv = self._off_state  # also set own cv to off state
-#             else:  # if sequential with master controller:
-# #                if self._master_act_cv[0] != self._master_act_llim:
-# #                    # if master actuator cv NOT at lower lim. -> activated
-# #                    self.cv = 0.  # set own cv to 0, opposing master act cv
-#                 if self._master_act_cv[0] != self._master_act_offst:
-#                     # if master actuator cv NOT at off_state -> activated
-#                     self.cv = self._off_state  # also set own cv to off state
-# =============================================================================
 
 
 class ModelPredCHP(Controls):

@@ -1276,8 +1276,9 @@ class Models:
         """
         Assign dynamic boundary conditions to the simulation environment.
 
-        With this method, static boundary conditions like open ports or ambient
-        temperatures can be converted to dynamic time dependent values.
+        With this method, static boundary conditions like **open ports**,
+        **ambient temperatures** or **controller set points** can be converted
+        to dynamic time dependent values.
 
         Boundary conditions assigned with this method have to be timeseries
         in a pandas Series or DataFrame with a DateTimeIndex.
@@ -1457,7 +1458,7 @@ class Models:
             # create view to array with idx:
             trgt_idx = slice(array_index, array_index + 1)
             trgt_arr_view = getattr(self.parts[part], variable_name)[trgt_idx]
-        # add dynamic BC for a controller
+        # add dynamic BC for a controller SET POINT (SP)
         elif open_port is None and part is None and control is not None:
             err_str = (
                 'Error while assigning boundary condition to: `{2}`\n'
@@ -1626,9 +1627,6 @@ class Models:
                 elif source == 'intermediate':
                     values = self.T
                 # numba version:
-                """
-                TODO: If updating num or nnum, only update the one which is
-                really needed/wanted to save time!"""
                 _pf.upd_p_arr(
                     self._models.ports_all,
                     self.port_ids,
@@ -1653,40 +1651,6 @@ class Models:
         else:
             err_str = '\'all_ports\' only allows boolean values True/False!'
             raise ValueError(err_str)
-
-    def __upd_p_dict(self, values):
-        """
-        Deprecated port updating method.
-
-        This method was using ports dicts. Safe to remove?
-
-        Parameters
-        ----------
-        values : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
-        """
-        print(
-            'Warning, upd_p_dict is deprecated! Using this function may'
-            'result in errors.'
-        )
-        for i in range(self.port_num):
-            # get values to update ports with:
-
-            """
-            TODO
-            REPLACE STRING CREATION WITH FOR DICT KEY WITH FAST DICT
-            LOOKUP!!! is that possible while looping over port_names?
-            replace range(len(...)) with simple loop over port_names
-            and use a port mapping dict in each part instance? but that
-            would make it complicated to get the values with _port_own_idx
-            perhaps it is the easiest like it is now...
-            """
-            self.ports[self._own_ports[i]] = values.flat[self._port_own_idx[i]]
 
     def _get_port_connections(self):
         """
@@ -1957,12 +1921,8 @@ class Models:
             'Port `{4}` of part `{5}` has already been connected to another '
             'port or boundary condition.'
         ).format(first_part, first_port, scnd_part, scnd_port, '{0}', '{1}')
-        # probably won't work correctly:
-        # =============================================================================
-        #         assert first_port not in self.port_links, err_str.format(first_port)
-        #         assert scnd_port not in self.port_links, err_str.format(scnd_port)
-        # =============================================================================
-        # thus replaced by checking connected parts:
+
+        # check connected parts:
         if (first_part != 'BoundaryCondition') and hasattr(
             self.parts[first_part], '_ports_connected'
         ):
@@ -3985,51 +3945,12 @@ class Models:
                     # value of the step will be altered in each iteration!
                     T_prev = self.parts[part].res[stepnum - 1].ravel().copy()
                     # solve using scipy.optimize.root
-                    # =============================================================================
-                    #                     if (part == 'Hex_TWE'): # and np.all(self.parts[part]._input_args[4] != 0):
-                    #                         self.tpr = T_prev.copy()
-                    #                         self._hh2 = _h / 2
-                    #                         self.sni = solve_num_impl[part]
-                    #                         import copy
-                    #                         self.iargs = copy.deepcopy(self.parts[part]._input_args)
-                    #                         breakpoint()
-                    # =============================================================================
                     self.parts[part].T[:] = _root(
                         solve_num_impl[part],
                         T_prev,
                         args=(T_prev, _h / 2, self.parts[part]._input_args),
                         method='hybr',
                     ).x.reshape(self.parts[part].T.shape)
-                # =============================================================================
-                #                     self.parts[part].T[:] = fixed_point(
-                #                         solve_num_impl[part], T_prev,
-                #                         args=(T_prev, _h/2, self.parts[part]._input_args),
-                #                     ).reshape(self.parts[part].T.shape)
-                # =============================================================================
-                # about 3 times slower than pure root solving due to
-                # low convergence rate of fixed point solver
-                # =============================================================================
-                #                     try:
-                #                         self.parts[part].T[:] = fixed_point(
-                #                             solve_num_impl[part], T_prev,
-                #                             args=(T_prev, _h/2, self.parts[part]._input_args),
-                #                             xtol=1e-4, maxiter=100
-                #                         ).reshape(self.parts[part].T.shape)
-                #                     except RuntimeError:
-                #                         self.parts[part].T[:] = root(
-                #                             fixed_point_to_root, T_prev,
-                #                             args=(solve_num_impl[part], T_prev, _h/2,
-                #                                   self.parts[part]._input_args),
-                #                             method='hybr').x.reshape(self.parts[part].T.shape)
-                # =============================================================================
-                # solve using scipy.optimize.fixed_point
-                #                    if stepnum == 2:
-                #                        raise ValueError
-                #                    T_prev = self.parts[part].res[stepnum - 1].copy()
-                #                    self.parts[part].T[:] = fixed_point(
-                #                        solve_num_impl[part], T_prev,
-                #                        args=(T_prev, _h/2, self.parts[part]._input_args),
-                #                    )
 
                 # solve predictor step for all non-numeric parts:
                 for part in solve_nonnum:
@@ -4079,49 +4000,8 @@ class Models:
                         args=(T_prev, _h / 2, self.parts[part]._input_args),
                         method='hybr',
                     ).x.reshape(self.parts[part].T.shape)
-                # =============================================================================
-                #                     if (part == 'Hex_TWE'): # and np.all(self.parts[part]._input_args[4] != 0):
-                #                         self.tpr = T_prev.copy()
-                #                         self._hh2 = _h / 2
-                #                         self.sni = solve_num_impl[part]
-                #                         import copy
-                #                         self.iargs = copy.deepcopy(self.parts[part]._input_args)
-                #                         breakpoint()
-                # =============================================================================
-                # =============================================================================
-                #                     self.parts[part].T[:] = fixed_point(
-                #                         solve_num_impl[part], T_prev,
-                #                         args=(T_prev, _h/2, self.parts[part]._input_args),
-                #                         method='iteration', xtol=1e-4
-                #                     ).reshape(self.parts[part].T.shape)
-                # =============================================================================
-                # about 3 times slower than pure root solving due to
-                # low convergence rate of fixed point solver
-                # =============================================================================
-                #                     try:
-                #                         self.parts[part].res[stepnum] = fixed_point(
-                #                             solve_num_impl[part], T_prev,
-                #                             args=(T_prev, _h/2, self.parts[part]._input_args),
-                #                             xtol=1e-4, maxiter=100
-                #                         ).reshape(self.parts[part].T.shape)
-                #                     except RuntimeError:
-                #                         self.parts[part].res[stepnum] = root(
-                #                             fixed_point_to_root, T_prev,
-                #                             args=(solve_num_impl[part], T_prev, _h/2,
-                #                                   self.parts[part]._input_args),
-                #                             method='hybr').x.reshape(self.parts[part].T.shape)
-                # =============================================================================
-                #                    # solve using scipy.optimize.fixed_point
-                #                    T_prev = self.parts[part].res[stepnum - 1].copy()
-                #                    self.parts[part].res[stepnum] = fixed_point(
-                #                        solve_num_impl[part], T_prev,
-                #                        args=(T_prev, _h/2, self.parts[part]._input_args),
-                #                    )
 
-                #                self.parts[part].res[stepnum] = (
-                #                        self.parts[part].res[stepnum - 1]
-                #                        + (_h / 2) * (self.parts[part]._df0
-                #                                      + self.parts[part]._df1))
+                # this got moved to numba:
                 #                # GET TRUCATION ERROR FOR HEUN COMPARED WITH LOWER ORDER EULER
                 #                # TO CALC. NEW STEPSIZE:
                 #                # truncation error approximation is the difference of the total
@@ -4131,7 +4011,6 @@ class Models:
                 #                # mean square error weighting over the cells.
                 #                # To get the systems truncation error, the norms have to be
                 #                # added up by taking the root of the sum of the squares.
-                #                # TODO: Move this error stuff to numba for more than 15x speed!
                 # #                # get sum of squares of part's local errors:
                 # #                self.parts[part]._trnc_err = (
                 # #                        ((self.parts[part].res[stepnum]
@@ -4169,12 +4048,7 @@ class Models:
                 # solve corrector step for all non-numeric parts:
                 for part in solve_nonnum:
                     self.solve_nonnum[part](_h)
-                # #            # update numeric ports:
-                #            self._update_ports(source='results', all_ports=True, nnum=False)
-                # #            # update non-numeric ports (they only have intermediate values as
-                # #            # they have no differential method!)
-                #            self._update_ports(
-                #                    source='intermediate', all_ports=True, nnum=True)
+
                 # update all ports:
                 _pf._upddate_ports_result(
                     ports_all=self.ports_all,
@@ -4184,18 +4058,20 @@ class Models:
                     src_list=self._ports_src_res_idx,
                 )
 
+                # numba implementation of adaptive step control. currently
+                # not used due to bugs...
                 # =============================================================================
-                #                 (_h, timestep,
-                #                  self._step_accepted, err_rms) = self.__adaptive_step_control(
-                #                     _h, err, self._num_cells_tot_nmrc_expl,
-                #                     self._solver_state, stepnum,
-                #                     self._max_factor, self.__min_factor,
-                #                     self._steps_since_fail, self._fctr_rec_stps,
-                #                     self._failed_steps,
-                #                     self.__safety, self.__order,
-                #                     self.__max_stepsize, self.__min_stepsize,
-                #                     self.ports_all, self.__parr_bkp,
-                #                 )
+                # (_h, timestep,
+                #  self._step_accepted, err_rms) = self.__adaptive_step_control(
+                #      _h, err, self._num_cells_tot_nmrc_expl,
+                #      self._solver_state, stepnum,
+                #      self._max_factor, self.__min_factor,
+                #      self._steps_since_fail, self._fctr_rec_stps,
+                #      self._failed_steps,
+                #      self.__safety, self.__order,
+                #      self.__max_stepsize, self.__min_stepsize,
+                #      self.ports_all, self.__parr_bkp,
+                # )
                 # =============================================================================
 
                 # ADAPTIVE TIMESTEP CALCULATION:
@@ -4207,13 +4083,6 @@ class Models:
                 # check for good timesteps:
                 # err_rms already has the relative and absolute tolerance
                 # included, thus only checking against its value:
-                #                if .9 < err_rms < 1.1:
-                #                    # error is at tolerance. To avoid recomputing too many
-                #                    # steps, the step will be accepted in this range without
-                #                    # changing the step size.
-                #                    self._step_accepted = True
-                #                    # save successful timestep to simulation environment:
-                #                    self.timestep = _h
                 if 0.0 < err_rms < 1.0:  # accept and increase stepsize
                     # error is lower than tolerance, thus step is accepted.
                     self._step_accepted = True
@@ -4327,8 +4196,6 @@ class Models:
         self._new_step = _h
         # save error to array to enable stepwise system error lookup:
         self._sys_trnc_err[stepnum] = err_rms
-
-    #        self.time_vec[stepnum] = _h
 
     @staticmethod
     # @nb.njit
@@ -4752,37 +4619,11 @@ class Models:
         # update flow net for the first time:
         self._update_FlowNet()
 
-        # collapse port arrays:
-        #        self._collapse_port_arrays()
-
         # construct port indexing arrays and get constant values of connected
         # ports:
         self._get_port_connections()
         # calculate U*A values for wall-wall-port connections:
         self._calc_UAwll_port()
-
-        #        for name, part in self.parts.items():
-        #            if part.constr_type == 'Pipe':
-        #                for arg in ['_UA_port_wll', '_port_link_idx',
-        #                            '_port_subs_gsp', '_A_p_fld_mean']:
-        #                    part._ra[arg.lstrip('_')] = part.__dict__[arg]
-        #                    # also return view to recarr for this arg, if arg is array:
-        #                    if type(part.__dict__[arg]) == np.ndarray:
-        #                        part.__dict__[arg] = part._ra[arg.lstrip('_')][:]
-        #
-        #                part.T = part._T_ext[1:-1]  # reassign T view
-
-        #        for part in self.parts.values():
-        #            if part.collapse_arrays:
-        #                part._UA_port_wll = part._UA_port_wll.flat[
-        #                        part._port_own_idx_2D]
-        #                part._A_p_fld_mean = part._A_p_fld_mean.flat[
-        #                        part._port_own_idx_2D]
-        #                part._port_subs_gsp = part._port_subs_gsp.flat[
-        #                        part._port_own_idx_2D]
-
-        #        # collapse port arrays:
-        #        self._collapse_port_arrays()
 
         # ARRAY PREALLOCATION:
         # get maximum steps before saving to disk:
@@ -4926,63 +4767,6 @@ class Models:
             self._solve_njit_args.append(self.parts[part]._input_args)
         self._solve_njit_args = tuple(self._solve_njit_args)
 
-    #       # FOR REDUCED NUMBER OF INPUT ARGS:
-    #        # for fast methods:
-    #        for name, part in self.parts.items():
-    #            if hasattr(part, '_input_arg_names_fast'):
-    #                part._input_args_fast = []  # create empty input args list
-    #                for arg in part._input_arg_names_fast:
-    #                    part._input_args_fast.append(part.__dict__[arg])
-    #                # make to tuple, since numba can only expand tuple args with *:
-    #                part._input_args_fast = tuple(part._input_args_fast)
-
-    # FOR USING STRUCT ARRAYS FOR FLOATS AND TUPLE FOR THE REST:
-    #        for name, part in self.parts.items():
-    #            if part.constr_type == 'Pipe':
-    #                part.flts = []
-    #                flt_names = []
-    #                part.rest = []
-    #                rest_names=[]
-    #                i = 0
-    #                for arg in part._input_arg_names_recarr:
-    #                    part.flts.append(part.__dict__[arg])
-    #                    if arg[0] == '_':
-    #                        flt_names.append(arg[1:])
-    #                    else:
-    #                        flt_names.append(arg)
-    #                for arg in part._input_arg_names_rest:
-    #                    part.rest.append(part.__dict__[arg])
-    #                    i += 1
-    #                part.rest = tuple(part.rest)
-    #
-    #                #flts = ([5.7, 3.8, 120.6, 0.002, 64560.7, 53456.2, 12.0, 12.4, 23.7,
-    #                #         75.1, 98.9, 1e6, 74.0089])
-    #
-    #                part.strct_flt = np.array(
-    #                    [(part.flts[0], part.flts[1], part.flts[2], part.flts[3],
-    #                      part.flts[4], part.flts[5], part.flts[6], part.flts[7],
-    #                      part.flts[8], part.flts[9], part.flts[10], part.flts[11],
-    #                      part.flts[12], part.flts[13], part.flts[14])],
-    #                    dtype=[('lam_wll', 'float64'), ('lam_ins', 'float64'),
-    #                           ('mcp_wll', 'float64'), ('UA_tb_wll', 'float64'),
-    #                           ('grid_spacing', 'float64'), ('d_i', 'float64'),
-    #                           ('flow_length', 'float64'), ('r_total', 'float64'),
-    #                           ('r_ln_wll', 'float64'), ('r_ln_ins', 'float64'),
-    #                           ('r_rins', 'float64'), ('A_cell', 'float64'),
-    #                           ('V_cell', 'float64'), ('A_shell_i', 'float64'),
-    #                           ('A_shell_ins', 'float64')])
-    #                #strct_int = np.array(
-    #                #    [(flts[0], flts[1], flts[2], flts[3], flts[4], flts[5], flts[6], flts[7],
-    #                #      flts[8], flts[9], flts[10], flts[11], flts[12])],
-    #                #    dtype=[('lam_wll', 'int32'), ('lam_ins', 'int32'),
-    #                #           ('mcp_wll', 'float64'), ('UA_tb_wll', 'float64'),
-    #                #           ('grid_spacing', 'float64'), ('d_i', 'float64'),
-    #                #           ('flow_length', 'float64'), ('r_total', 'float64'),
-    #                #           ('r_rins', 'float64'), ('A_cell', 'float64'),
-    #                #           ('V_cell', 'float64'), ('A_shell_i', 'float64'),
-    #                #           ('A_shell_ins', 'float64')])
-    #                part.recarr = part.strct_flt.view(np.recarray)
-
     def _prep_inputs_for_njits(self):
         self._njit_interm_res = tuple(
             [self.parts[k].T.reshape(-1) for k in self.solve_num_njit.keys()]
@@ -4990,40 +4774,6 @@ class Models:
         self._njit_final_res = tuple(
             [self.parts[k].res.reshape(-1) for k in self.solve_num_njit.keys()]
         )
-
-    # =============================================================================
-    #         reshape(-1) all T-arrays
-    #         reshape all res arrays so that 2D and 3D are all in 2D shape
-    #         pass tuple with shapes into function?
-    #
-    #         res shape test:
-    #         res2 = np.arange(9).reshape((3, 3))
-    #         res3 = np.arange(27).reshape((3, 3, 3))
-    #
-    #         res2.reshape(3, -1)
-    #         res3.reshape(3, -1)
-    #         --> first dim (Zeit) bleibt erhalten, der Rest wird in Vektor
-    #         umgewandelt
-    #
-    #         rücktransf mit
-    #         res2.reshape(3, -1).reshape(3, 3)
-    #         res3.reshape(3, -1).reshape(3, 3, 3)
-    #         erhält view und ist somit korrekt, benötigt aber shape! außerhalb
-    #         oder innerhalb?
-    # =============================================================================
-
-    # =============================================================================
-    #     def _construct_jitclass(self):
-    #         part = 'tes'
-    #         specs = {}
-    #         for arg in self.parts[part]._input_arg_names_sorted:
-    #             specs[arg] = nb.typeof(self.parts[part].__dict__[arg])
-    #         self.parts[part]._tes_jcls = nb.jitclass(spec=specs)(tes_d_jcls)()
-    #         # set all attributes:
-    #         for arg in self.parts[part]._input_arg_names_sorted:
-    #             setattr(self.parts[part]._tes_jcls, arg,
-    #                     self.parts[part].__dict__[arg])
-    # =============================================================================
 
     def _reset_simenv(self):
         # reset timeframe:
@@ -5055,207 +4805,23 @@ class Models:
         if reset_simenv:
             self._reset_simenv()
 
+        # Initialiaze simulation arrays
         self._initialize_arrays(
             max_steps_b4_save_to_disk=self._save_every_n_steps
         )
 
+        # Construct inputs to differential functions
         self._create_diff_inputs()
 
+        # prepare inputs for numba jitted functions. NOT NEEDED CURRENTLY
         self._prep_inputs_for_njits()
 
-        #        self._construct_jitclass()
+        # prepare numba jitclass. DEPRECATED!
+        # self._construct_jitclass()
 
-        # open disk save store:
-        # deprecated since context manager is used in free memory instead
-        # print('removed hdf')
-        # if self.__save_to_disk:
-        #     self._disk_store['store_tmp'] = pd.HDFStore(
-        #         self._disk_store['path_tmp'], mode='r+')
-
-        # set simulation environment initialization:
+        # Set simulation environment to initialized:
         self._initialized = True
 
-    #    def initialize_sim(self, *, max_steps_b4_save_to_disk=1e5):
-    #        """
-    #        initialize_sim initializes the simulation environment. This is
-    #        mandatory before starting the simulation.
-    #        """
-    #
-    #        # construct the model environment by calling all postponed part, port
-    #        # or control adding and initialization functions and connecting ports
-    #        # in the correct order:
-    #        self._call_postponed()
-    #
-    #        # check if all parts have been initialized:
-    #        for part in self.parts:
-    #            if not self.parts[part].initialized:
-    #                err_str = ('Part `' + part + '` not initialized! Initialize '
-    #                           'the part by calling its '
-    #                           '`{0}.parts[\'' + part + '\'].init_part()` '
-    #                           'method.').format(self._simenv_name)
-    #                raise UserWarning(err_str)
-    #        # check if all parts which can be actuators have their controls
-    #        # specified or are set to static:
-    #        for part in self.parts:
-    #            if self.parts[part].control_req:
-    #                if not self.parts[part].ctrl_defined:
-    #                    raise UserWarning(
-    #                        self.parts[part].constr_type + ' `' + part +
-    #                        '` needs to be controlled or defined as '
-    #                        '`ctrl_required=False`.')
-    #        # check if all controls are initialized:
-    #        for controller in self.ctrl_l:
-    #            if not controller.initialized:
-    #                raise UserWarning(
-    #                        'Controller `' + controller.name + '` is not '
-    #                        'initialized! '
-    #                        'Initialize the controller by calling its '
-    #                        '`{0}.ctrls[\'' + controller.name + '\']'
-    #                        '.init_controller()` method.'
-    #                        ).format(self._simenv_name)
-    #
-    #        # check if solver was set:
-    #        err_str = ('The solver method was not set! Set the solver method '
-    #                   'with `{0}.set_solver()`, before initializing the '
-    #                   'simulation.').format(self._simenv_name)
-    #        assert self._solver_set, err_str
-    #
-    #        # check if timeframe was set:
-    #        err_str = ('The timeframe for the simulation environment has to be '
-    #                   'set before initializing the simulation environment by '
-    #                   'calling the method `{0}.set_timeframe()`.'
-    #                   ).format(self._simenv_name)
-    #        assert self._timeframe_set, err_str
-    #
-    #        # calculate flow net to get routine for updating massflows:
-    #        self._get_topology()
-    #        # update flow net for the first time:
-    #        self._update_FlowNet()
-    #
-    #        # construct port indexing arrays and get constant values of connected
-    #        # ports:
-    #        self._get_port_connections()
-    #        # calculate U*A values for wall-wall-port connections:
-    #        self._calc_UAwll_port()
-    #
-    #
-    #
-    #        """
-    #        TODO: Optimierung
-    #        collaps port arrays in PipeOpt
-    #        """
-    #        # %% collaps
-    #        for part in self.parts.values():
-    #            if part.constr_type == 'Pipe' or part.constr_type == 'HeatedPipe':
-    #                part._T_port = part._T_port[part._port_own_idx]
-    #                part._UA_port_wll = part._UA_port_wll[part._port_own_idx]
-    #                part._UA_port_fld = part._UA_port_fld[part._port_own_idx]
-    #                part._UA_port = part._UA_port[part._port_own_idx]
-    #                part._port_gsp = part._port_gsp[part._port_own_idx]
-    #                part._A_p_fld_mean = part._A_p_fld_mean[part._port_own_idx]
-    #                part._lam_port_fld = part._lam_port_fld[part._port_own_idx]
-    #                part._lam_fld_own_p = part._lam_fld_own_p[part._port_own_idx]
-    #                part._port_subs_gsp = part._port_subs_gsp[part._port_own_idx]
-    #                part._cp_port = part._cp_port[part._port_own_idx]
-    #            elif part.constr_type == 'TES':
-    #                part._T_port = part._T_port.flat[part._port_own_idx_2D]
-    #                part._UA_port_wll = part._UA_port_wll.flat[part._port_own_idx_2D]
-    #                part._UA_port_fld = part._UA_port_fld.flat[part._port_own_idx_2D]
-    #                part._UA_port = part._UA_port.flat[part._port_own_idx_2D]
-    #                part._port_gsp = part._port_gsp.flat[part._port_own_idx_2D]
-    #                part._A_p_fld_mean = part._A_p_fld_mean.flat[part._port_own_idx_2D]
-    #                part._lam_port_fld = part._lam_port_fld.flat[part._port_own_idx_2D]
-    #                part._lam_fld_own_p = part._lam_fld_own_p.flat[part._port_own_idx_2D]
-    #                part._port_subs_gsp = part._port_subs_gsp.flat[part._port_own_idx_2D]
-    #                part._cp_port = part._cp_port.flat[part._port_own_idx_2D]
-    #
-    #        # ARRAY PREALLOCATION:
-    #        # get maximum steps before saving to disk:
-    #        self._msb4save = int(max_steps_b4_save_to_disk)
-    #        # get total RAM to be able to estimate maximum number of allowed array
-    #        # cells:
-    #        self._ram = psutil.virtual_memory().total
-    #        # maximum cell allocation of half the ram for float64 arrays (thus /8):
-    #        self._num_max_cells = self._ram * 0.5 / 8
-    #        # get number of maximum timesteps when all arrays should be saved in
-    #        # RAM:
-    #        self._max_steps = self._num_max_cells / self._num_cells_tot_nmrc
-    #        # preallocate result arrays with 0K temperature for the full amount
-    #        # of timesteps (for dynamic timestepping an estimate has to be made at
-    #        # perhaps around 5*num_steps) for numeric parts.
-    #        if self.adaptive_steps:
-    #            self.num_steps = int(5 * self.num_steps)
-    #            # also save original amount of steps to use that again when
-    #            # enlarging arrays:
-    #            self.__base_num_steps = self.num_steps + 1
-    #            # give all parts a new truncation error variable if adaptive steps:
-    #            for part in self.parts:
-    #                if self.parts[part].solve_numeric:  # only for numeric parts!
-    #                    self.parts[part].__new_trnc_err = 0.
-    #        # if number of steps is above msb4sav or greater than maximum number of
-    #        # steps, limit to these numbers and enable saving to disk when this
-    #        # number of steps is reached in calculation:
-    #        if self.num_steps > self._msb4save or self.num_steps > self._max_steps:
-    #            # limit num steps:
-    #            self.num_steps = (
-    #                    self._msb4save if self._max_steps > self._msb4save
-    #                    else self._max_steps)
-    #            # set save to disk to True
-    #            self.__save_to_disk = True
-    #            print('__save_to_disk SET TO TRUE! This is not yet supported, '
-    #                  'thus reverted to False!')
-    #            self.__save_to_disk = False
-    #        else:
-    #            # else don't save to disk
-    #            self.__save_to_disk = False
-    #
-    #        # initial conditions are set for the first row of the res array:
-    #        print('init sim: num_steps', self.num_steps)
-    #        for part in self.parts:
-    #            # if a part which has to be calculated numerically:
-    #            if self.parts[part].solve_numeric:
-    #                self.parts[part].res = np.zeros(
-    #                        (self.num_steps + 1,) + self.parts[part].T.shape)
-    #                self.parts[part].res[0] = self.parts[part].T
-    #                # massflow result array:
-    #                self.parts[part].res_dm = np.zeros(
-    #                        (self.num_steps + 1, self.parts[part].dm.shape[0]))
-    #                # update ports with the init values:
-    #                self.parts[part]._update_ports(source='results')
-    #                if hasattr(self.parts[part], 'res_dQ'):
-    #                    self.parts[part].res_dQ = np.zeros(
-    #                        (self.num_steps + 1,)
-    #                        + self.parts[part]._dQ_heating.shape)
-    #
-    #        # if part is a part which has NOT to be calculated numerically:
-    #        for part in self.solve_nonnum:
-    #            # preallocate all arrays and call one init. solver step
-    #            self.parts[part].res = np.zeros(
-    #                        (self.num_steps + 1,) + self.parts[part].T.shape)
-    #            self.parts[part].res[0] = self.parts[part].T
-    #            self.parts[part].res_dm = np.zeros(
-    #                    (self.num_steps + 1, self.parts[part].dm.shape[0]))
-    #            self.parts[part].solve(self.timestep)
-    #            self.parts[part]._update_ports(source='intermediate', nnum=True)
-    #
-    #        # initialize time vector
-    #        self.time_vec = np.zeros(self.num_steps + 1)
-    #        self.time_vec[0] = 0
-    #        # initialize system truncation error:
-    #        self._sys_trnc_err = np.zeros_like(self.time_vec)
-    #        self._failed_steps = np.zeros_like(self.time_vec)
-    #        # initialize solver state vector:
-    #        self._solver_state = np.zeros_like(self.time_vec)
-    #        # initialize backup for ports array to enable redoing steps:
-    #        self.__parr_bkp = np.zeros_like(self.ports_all)
-    #
-    #        self._create_port_updater()
-    #
-    #        # create data classes:
-    # #        self._create_dataclasses()
-    #
-    #        # set simulation environment initialization:
-    #        self._initialized = True
 
     def start_sim(self):
         """Run the simulation."""
