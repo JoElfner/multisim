@@ -13,7 +13,7 @@ install:
   - pip install -e .
 
 script:
-    - black --skip-string-normalization --line-length 79 --check ./multisim/
+    - black --skip-string-normalization --line-length 79 --diff --check ./multisim/
     - flake8
     - pytest --import-mode=importlib
     # - mypy
