@@ -162,7 +162,6 @@ class HEXCondPoly(SimEnv):
         self.num_gp = 4
 
         # %% start part construction:
-        #        super().__init__()
         self.name = name
         self.part_id = self._models.num_parts - 1
         # save smallest possible float number for avoiding 0-division:
@@ -184,8 +183,6 @@ class HEXCondPoly(SimEnv):
         # (sup in, dmd out) and i=1 is the bottom side (sup out, dmd in)
         # and j is the index for the flow sides with j=0 sup and j=1 dmd:
         self.T = np.zeros((2, 2), dtype=np.float64)
-
-        # self.T = np.zeros(4, dtype=np.float64)
         Tshp = self.T.shape  # save shape since it is needed often
         self._T_init = np.zeros(Tshp)  # init temp for resetting env.
         # views to supply and demand side:
@@ -193,8 +190,6 @@ class HEXCondPoly(SimEnv):
         self._T_dmd = self.T[:, 1]  # view to demand side
 
         # preallocate temperature grid for ports:
-        # self._T_port = np.zeros_like(self.T)
-
         self._T_port = np.zeros(4)
         Tpshp = self._T_port.shape  # save shape since it is needed often
 
@@ -272,7 +267,6 @@ class HEXCondPoly(SimEnv):
         self._solved_ports = list()
         # preallocate grids for von Neumann stability checking:
         self._vN_diff = np.zeros(4)
-        #        self._vN_dm = np.zeros(1)  # this is a scalar for dm_invariant=True
         self._trnc_err = 0.0
         # add truncation error cell weight to only calculate the error for cell
         # 1,1 where heat conduction is considered:

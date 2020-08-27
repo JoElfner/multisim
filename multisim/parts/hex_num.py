@@ -42,10 +42,6 @@ class HexNum(SimEnv):
 
     """
 
-    # pylint: disable=too-many-instance-attributes
-    # pylint: disable=too-many-statements
-    # pylint: disable=C0103
-
     def __init__(self, name, master_cls, **kwargs):
         self._models = master_cls
 
@@ -62,11 +58,12 @@ class HexNum(SimEnv):
 
         # check kind of hex:
         hex_types = ['plate_hex']
-        err_str = self._base_err + self._arg_err.format(
-            'HEx_type'
-        ) + 'The construction type has to be given with `HEx_type=X`, with ' '`X` being one of the following strings:\n' + str(
-            hex_types
-        )
+        err_str = (
+            self._base_err
+            + self._arg_err.format('HEx_type')
+            + 'The construction type has to be given with `HEx_type=X`, with '
+            '`X` being one of the following strings:\n{0}'
+        ).format(hex_types)
         assert (
             'HEx_type' in kwargs and kwargs['HEx_type'] in hex_types
         ), err_str
@@ -212,11 +209,6 @@ class HexNum(SimEnv):
         # preallocate temperature grid for outer surface temperature:
         self._T_s = np.zeros(Tshp)
 
-        #        # preallocate view to reshaped temperature array for alpha calculation
-        #        # (fluid temperature must be in row 0, wall temp. in row 1)
-        #        self._T_resh_1 = self.T[:, 0:2]
-        #        self._T_resh_2 = self.T[:, 2:0:-1]
-
         # preallocate lambda grids and alpha grid for heat conduction:
         self._lam_T = np.zeros(Tshp)
         self._lam_fld = self._lam_T[:, ::2]  # view to fluid columns
@@ -252,13 +244,9 @@ class HexNum(SimEnv):
         self._dm_bot = np.zeros_like(self._T_fld)  # pos. flow from bottom
         # array for positive inflow through ports in diff calculations
         self._dm_port = np.zeros(Tpshp)
-        #        self._dm_port = np.zeros(2)  # array for inflow through prts
-        #        self._dm_io = np.zeros(Tpshp)  # array for I/O flow
         # this I/O flow array MUST NOT BE CHANGED by anything else than
         # _update_FlowNet() method!
         self._dm_io = np.zeros(2)  # array for I/O flow, one cell per channel
-        #        self._dm_sup = self._dm_io[:, 0]  # view to supply side
-        #        self._dm_dmd = self._dm_io[:, 2]  # view to demand side
         self._dm_sup = self._dm_io[:1]  # view to supply side
         self._dm_dmd = self._dm_io[1:]  # view to demand side
 
@@ -341,8 +329,6 @@ class HexNum(SimEnv):
         self._trnc_err = 0.0
         # add truncation error cell weight to only calculate the error for cell
         # 1,1 where heat conduction is considered:
-        #        self._trnc_err_cell_weight = np.zeros(Tshp)
-        #        self._trnc_err_cell_weight[1, 1] = 1.
         self._trnc_err_cell_weight = 1.0
         # counter for how many times THIS part has breached von Neumann stab.
         self._stability_breaches = np.zeros(1).astype(int)  # array for view
@@ -557,16 +543,14 @@ class HexNum(SimEnv):
         self._corr_Re = np.array([reynolds_correction], dtype=np.float64)
 
         # %% geometry/grid definition
-        #        # set array for each cell's distance from the start of the heat
-        #        # exchanger. This is for constant cross section, VDI Wärmeatlas 2013
-        #        # p 101, the arithmetic mean. Since multiple passes means "restarting"
-        #        # the flow after each pass by strong diversions, this value is
-        #        # independent of passes: FALSE! WRONG!
-        #        # set cell dist to length while still using mean Nusselt numbers.
-        #        # As soon as local Nusselt numbers with Simpson integration are
-        #        # implemented, change this to an array with [tiny, length/2, length]
-        #        self._cell_dist = np.array([self.length])
-        #        self._cell_dist = np.array([self.length])
+        # set array for each cell's distance from the start of the heat
+        # exchanger. This is for constant cross section, VDI Wärmeatlas 2013
+        # p 101, the arithmetic mean. Since multiple passes means "restarting"
+        # the flow after each pass by strong diversions, this value is
+        # independent of passes: FALSE! WRONG!
+        # set cell dist to length while still using mean Nusselt numbers.
+        # As soon as local Nusselt numbers with Simpson integration are
+        # implemented, change this to an array with [tiny, length/2, length]
         # set array for each cell midpoint's distance from the start of the hex
         self._cell_dist = np.arange(
             start=self.grid_spacing / 2,
@@ -1330,130 +1314,6 @@ class HexNum(SimEnv):
         """
 
         _pf.hexnum_diff(*self._input_args, timestep)
-
-        #        self._process_flows[0] = _process_flow_multi_flow(
-        #            process_flows=self._process_flows, dm_io=self._dm_io,
-        #            dm_top=self._dm_top, dm_bot=self._dm_bot, dm_port=self._dm_port,
-        #            stepnum=self.stepnum, res_dm=self.res_dm)
-        #
-        #        self._flow_per_channel = np.abs(self._dm_io / self._channel_divisor)
-        #
-        #        water_mat_props_ext_view(  # only pass fluid columns to T_ext
-        #            T_ext=self._T_ext[:, 1::2], cp_T=self._cp_T,
-        #            lam_T=self._lam_fld, rho_T=self._rho_T, ny_T=self._ny_T)
-        #
-        #        _lambda_mean_view(lam_T=self._lam_fld, out=self._lam_mean)
-        #
-        #        UA_plate_tb_fld(  # only pass the fluid columns to out
-        #            A_cell=self.A_channel, grid_spacing=self.grid_spacing,
-        #            lam_mean=self._lam_mean, out=self._UA_dim1[:, ::2])
-        #
-        #        UA_plate_tb_wll(  # only pass the wall column to out
-        #            UA_tb_wll=self._UA_dim1_wll, out=self._UA_dim1[:, 1])
-        #
-        #        """
-        #        TODO: Replace this with local Nusselt equations!!!
-        #        """
-        #        phex_alpha_i_wll_sep_discretized(
-        #            dm=self._dm_sup/self._num_channels_sup, T_fld=self._T_sup,
-        #            T_wll=self._T_sup,
-        #            rho=self._rho_T[:, 0], ny=self._ny_T[:, 0],
-        #            lam_fld=self._lam_fld[:, 0], A=self.A_channel, d_h=self._d_h,
-        #            x=self._cell_dist, corr_Re=self._corr_Re,
-        #            alpha=self._alpha_i[:, 0])
-        #        phex_alpha_i_wll_sep_discretized(
-        #            dm=self._dm_dmd/self._num_channels_dmd, T_fld=self._T_dmd,
-        #            T_wll=self._T_dmd,
-        #            rho=self._rho_T[:, 1], ny=self._ny_T[:, 1],
-        #            lam_fld=self._lam_fld[:, 1], A=self.A_channel, d_h=self._d_h,
-        #            x=self._cell_dist, corr_Re=self._corr_Re,
-        #            alpha=self._alpha_i[:, 1])
-        #
-        #        self._UA_dim2[:, 1:3] = UA_fld_wll_plate(
-        #            A=self.A_plate_eff, s_wll=self._s_plate / 2,
-        #            alpha_fld=self._alpha_i, lam_wll=self._lam_wll)
-        #
-        #        cell_temp_props_fld(
-        #            T_ext_fld=self._T_ext[:, 1::2], V_cell=self.V_cell_fld,
-        #            cp_T=self._cp_T, rho_T=self._rho_T, rhocp_fld=self._rhocp[:, ::2],
-        #            mcp_fld=self._mcp[:, ::2], ui_fld=self._ui[:, ::2])
-        #
-        #        specific_inner_energy_wll(
-        #            T_wll=self._T_ext[1:-1, 2], cp_wll=self._cp_wll,
-        #            ui=self._ui[:, 1])
-        #
-        #        self._dT_cond_port = _process_ports_collapsed(
-        #            ports_all=self.ports_all,
-        #            port_link_idx=self._port_link_idx,
-        #            port_own_idx=self._port_own_idx,
-        #            T=self._T_ext[1:-1, 1:-1], mcp=self._mcp, UA_port=self._UA_port,
-        #            UA_port_wll=self._UA_port_wll, A_p_fld_mean=self._A_p_fld_mean,
-        #            port_gsp=self._port_gsp, grid_spacing=self.grid_spacing,
-        #            lam_T=self._lam_T, cp_port=self._cp_port,
-        #            lam_port_fld=self._lam_port_fld, T_port=self._T_port)
-        #
-        #        """
-        #        TODO remove ua amb shell and include it in calc
-        #        """
-        #        self._UA_amb_shell[:] = 0.
-        #
-        #        (self._step_stable, self._vN_max_step,
-        #         self._max_factor) = _vonNeumann_stability_invar_hexnum(
-        #            part_id=self.part_id, stability_breaches=self._stability_breaches,
-        #            UA_dim1=self._UA_dim1, UA_dim2=self._UA_dim2,
-        #            UA_port=self._UA_port,
-        #            dm_io=self._flow_per_channel,
-        #            rho_T=self._rho_T, rhocp=self._rhocp,
-        #            grid_spacing=self.grid_spacing, port_subs_gsp=self._port_subs_gsp,
-        #            r_total=self._dist_min, V_cell=self.V_cell_fld,
-        #            step_stable=self._step_stable,
-        #            vN_max_step=self._vN_max_step,
-        #            max_factor=self._max_factor,
-        #            stepnum=self.stepnum, timestep=timestep)
-        #
-        #        # CALCULATE DIFFERENTIALS
-        #        # calculate heat transfer by conduction
-        #        self.dT_cond[:] = (
-        #            # heat conduction in first dimension (axis 0), top -> bottom:
-        #            (+ self._UA_dim1[:-1] * (self._T_ext[:-2, 1:-1]
-        #                                     - self._T_ext[1:-1, 1:-1])
-        #             # heat conduction in first dimension (axis 0), bottom -> top:
-        #             + self._UA_dim1[1:] * (self._T_ext[2:, 1:-1]
-        #                                    - self._T_ext[1:-1, 1:-1])
-        #             # heat conduction in second dimension (axis 1), left -> right:
-        #             + self._UA_dim2[:, :-1] * (self._T_ext[1:-1, :-2]
-        #                                        - self._T_ext[1:-1, 1:-1])
-        #             # heat conduction in second dimension (axis 1), right -> left:
-        #             + self._UA_dim2[:, 1:] * (self._T_ext[1:-1, 2:]
-        #                                       - self._T_ext[1:-1, 1:-1])
-        #             # heat conduction to ambient (currently set to 0):
-        #             + self._UA_amb_shell * (self._T_amb - self._T_ext[1:-1, 1:-1]))
-        #            / self._mcp)
-        #        # calculate heat transfer by advection in the fluid channels
-        #        self.dT_adv[:, ::2] = (
-        #            # advective heat transport (only axis 0), top -> bottom:
-        #            (+ self._dm_top * (self._cp_T[:-2] * self._T_ext[:-2, 1::2]
-        #                               - self._ui[:, ::2])
-        #             #  advective heat transport (only axis 0), bottom -> top:
-        #             + self._dm_bot * (self._cp_T[2:] * self._T_ext[2:, 1::2]
-        #                               - self._ui[:, ::2]))
-        #            / self._mcp[:, ::2])
-        #
-        #        # sum up heat conduction and advection for port values:
-        #        for i in range(self._port_own_idx.size):
-        #            idx = self._port_own_idx[i]  # idx port values at temp/diff array
-        #            # conduction
-        #            self.dT_cond.flat[idx] += self._dT_cond_port[i]
-        #            # advection
-        #            self.dT_adv.flat[idx] += (
-        #                self._dm_port[i] * (self._cp_port[i] * self._T_port[i]
-        #                                    - self._ui.flat[idx])
-        #                / self._mcp.flat[idx])
-        #
-        #        # divide advective transfer by the number of channels:
-        #        self.dT_adv[:, ::2] /= self._channel_divisor
-        #        # sum up the differentials for conduction and advection
-        #        self.dT_total[:] = self.dT_cond + self.dT_adv
 
         return self.dT_total
 

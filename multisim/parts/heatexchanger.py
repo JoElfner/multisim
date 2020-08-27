@@ -146,40 +146,11 @@ class HeatExchanger(SimEnv):
         #        self._num_A = self.num_plates - 2  # number of eff. transfer areas
         # number of eff. heat transfer areas PER pass:
         self._num_A = int((self.num_plates - 2) / self.passes)
-        #        err_str = ('The heat exchanger\'s number of channels on the supply '
-        #                   'side has to be passed to its `add_part()` method with '
-        #                   '`channels_sup_side=X` as an integer value >1!')
-        #        assert ('channels_sup_side' in kwargs and
-        #                type(kwargs['channels_sup_side']) == int and
-        #                kwargs['channels_sup_side'] >= 1), err_str
-        #        self.num_channels_sup = kwargs['channels_sup_side']
-        #        err_str = ('The heat exchanger\'s number of channels on the demand '
-        #                   'side has to be passed to its `add_part()` method with '
-        #                   '`channels_dmd_side=X` as an integer value >1!')
-        #        assert ('channels_dmd_side' in kwargs and
-        #                type(kwargs['channels_dmd_side']) == int and
-        #                kwargs['channels_dmd_side'] >= 1), err_str
-        #        self.num_channels_dmd = kwargs['channels_dmd_side']
-        #        err_str = ('The heat exchanger\'s number of passes on the supply side '
-        #                   'has to be passed to its `add_part()` method with '
-        #                   '`passes_sup_side=X` as an integer value >1!')
-        #        assert ('passes_sup_side' in kwargs and
-        #                type(kwargs['passes_sup_side']) == int and
-        #                kwargs['passes_sup_side'] >= 1), err_str
-        #        self.num_passes_sup = kwargs['passes_sup_side']
-        #        err_str = ('The heat exchanger\'s number of passes on the demand side '
-        #                   'has to be passed to its `add_part()` method with '
-        #                   '`passes_dmd_side=X` as an integer value >=1!')
-        #        assert ('passes_dmd_side' in kwargs and
-        #                type(kwargs['passes_dmd_side']) == int and
-        #                kwargs['passes_dmd_side'] >= 1), err_str
-        #        self.num_passes_dmd = kwargs['passes_dmd_side']
 
         # set number of gridpoints to 4:
         self.num_gp = 4
 
         # %% start part construction:
-        #        super().__init__()
         self.name = name
         self.part_id = self._models.num_parts - 1
         # save smallest possible float number for avoiding 0-division:
@@ -192,89 +163,50 @@ class HeatExchanger(SimEnv):
         # and i=2 is the bottom side (sup out, wall bot, dmd in) and j is the
         # index for the flows and the wall with j=0 sup, j=1 wall and j=2 dmd:
         self.T = np.zeros((3, 3), dtype=np.float64)
-        """"""
+        # why this? I guess 3,3 is deprecated? I should have commented this...
         self.T = np.zeros(4, dtype=np.float64)
         Tshp = self.T.shape  # save shape since it is needed often
         self._T_init = np.zeros(Tshp)  # init temp for resetting env.
-        #        self.T = np.zeros(3, dtype=np.float64)  # old 1 row T
         # views to supply and demand side:
-        """
-        self._T_sup = self.T[:, 0]  # view to supply side
-        self._T_dmd = self.T[:, 2]  # view to demand side
-        """
         self._T_sup = self.T[:2]  # view to supply side
         self._T_dmd = self.T[2:]  # view to demand side
         # preallocate temperature grids for logarithmic mean temperatures
-        """
-
-        self._T_lm = self.T[1, :]  # view to log mean row of T
-        self._T_wll_lm = self.T[1, 1:2]  # view to log mean of wall
-        self._T_sup_lm = self.T[1, 0:1]  # view to log mean of supply side
-        self._T_dmd_lm = self.T[1, 2:3]  # view to log mean of demand side
-
-        """
         self._T_mean = np.zeros(2)  # array for arithmetic mean temperatures
         # preallocate temperature grid for ports:
         self._T_port = np.zeros_like(self.T)
-        """"""
+        # why this? I guess like T is deprecated? I should have commented
+        # this...
         self._T_port = np.zeros(4)
         Tpshp = self._T_port.shape  # save shape since it is needed often
         # preallocate view to temperature array for fluid props. calculation:
-        """
-        self._T_fld = self.T[:, ::2]
-        """
         self._T_fld = self.T[:]
         # preallocate view to reshaped temperature array for alpha calculation:
         # (fluid temperature must be in row 0, wall temp. in row 1)
-        #        self._T_resh_1 = self.T[:2].reshape((1, 2))[:]  # old for 1 row T
-        #        self._T_resh_2 = self.T[2:0:-1].reshape((1, 2))[:]  # old for 1 row T
-        """
-        self._T_resh_1 = self.T[:, 0:2]
-        self._T_resh_2 = self.T[:, 2:0:-1]
-        """
         # preallocate lambda grids and alpha grid for heat conduction with the
         # smallest possible value to avoid zero division:
         #        self._lam_T = np.zeros_like(self._T_fld)  # , self._tiny, dtype=np.float64)
         self._lam_mean = np.zeros(2)
-        #        self._lam_ports = np.zeros(Tpshp)  # , self._tiny)
-        #        self._alpha_i = np.full_like(self._lam_T, 3.122)
         self._alpha_i = np.full(2, 3.122)
         self._alpha_inf = np.full((1,), 3.122)
         # preallocate heat capacity grids:
-        #        self._cp_T = np.zeros_like(self._T_fld)
         self._cp_mean = np.zeros(2)
         self._cp_port = np.zeros(Tpshp)
         # preallocate density grids:
-        #        self._rho_T = np.zeros_like(self._T_fld)
         self._rho_mean = np.zeros(2)
         # preallocate kinematic viscosity grid:
-        #        self._ny_T = np.zeros_like(self._T_fld)
         self._ny_mean = np.zeros(2)
         # preallocate U*A grids:
         self._UA_port = np.zeros(Tpshp)
         self._UA_amb = np.zeros(1)  # casing to amb (assumed having plate temp)
-        #        self._UA_fld_wll = np.zeros_like(self._T_fld)  # from fluid to plate
         self._UA_fld_wll = np.zeros(2)  # from fluid to plate
         self._UA_fld_wll_fld = np.zeros(1)  # from fluid to plate to fluid
         # preallocate mass flow grids:
         self.dm = np.zeros(2)
-        #        self._dm_cell = np.zeros_like(self.dm)
-        #        self._dm_sup = np.zeros_like(self.dm)
-        #        self._dm_dmd = np.zeros_like(self.dm)
         self._dm_port = np.zeros(Tpshp)
-        #        self._dm_io = np.zeros(Tpshp)  # array for I/O flow
-        #        # this I/O flow array MUST NOT BE CHANGED by anything else than
-        #        # _update_FlowNet() method!
-        #        self._dm_sup = self._dm_io[:, 0]  # view to supply side
-        #        self._dm_dmd = self._dm_io[:, 2]  # view to demand side
-
         self._dm_io = np.zeros(2)  # array for I/O flow, one cell per channel
-        #        self._dm_sup = self._dm_io[:, 0]  # view to supply side
-        #        self._dm_dmd = self._dm_io[:, 2]  # view to demand side
         self._dm_sup = self._dm_io[:1]  # view to supply side
         self._dm_dmd = self._dm_io[1:]  # view to demand side
 
-        #        self._dm_port = np.zeros((1, self.dm.shape[0]))
         # preallocate result grid with one row. An estimate of total rows will
         # be preallocated before simulation start in initialize_sim. massflow
         # grid is preallocated in set_initial_cond:
@@ -344,13 +276,9 @@ class HeatExchanger(SimEnv):
         # add truncation error cell weight to only calculate the error for cell
         # 1,1 where heat conduction is considered:
         self._trnc_err_cell_weight = np.zeros(Tshp)
-        """"""
         self._trnc_err_cell_weight = np.zeros(4)
         #        self._trnc_err_cell_weight[1, 1] = 1.
         self._trnc_err_cell_weight = 0.0
-        # preallocate grids for precalculated stuff: REPLACED WITH LOCAL VARS!
-        #        self.__rhocp = np.zeros(Tshp)
-        #        self.__cpT = np.zeros(Tshp)
 
         # set if type has to be solved numeric:
         self.solve_numeric = False
@@ -525,34 +453,6 @@ class HeatExchanger(SimEnv):
         self._cell_dist = np.array([self.length])
         # pipe connection parameters
         self._d_o = float(self.info_topology['all_ports']['pipe_specs']['d_o'])
-        #        self._r_i = self._d_i / 2
-        #        self._r_o = self._d_o / 2
-        # total RADIUS from center of the pipe to the outer radius of the
-        # insulation:
-        #        self._r_total = self._d_o / 2 + self._s_ins
-        #        # factor for wall lambda value referred to r_i
-        #        self._r_ln_wll = self._r_i * np.log(self._r_o / self._r_i)
-        #        # factor for insulation lambda value referred to r_i
-        #        self._r_ln_ins = self._r_i * np.log(self._r_total / self._r_o)
-        #        # factor for outer alpha value referred to r_i
-        #        self._r_rins = self._r_i / self._r_total
-        #        # thickness of the wall:
-        #        self._s_wll = self._r_o - self._r_i
-        #        # cross section area and volume of cell:
-        #        self.A_cell = self._A_fld_own_p
-        #        self.V_cell = self.A_cell * self.grid_spacing
-        # surface area of pipe wall per cell (fluid-wall-contact-area):
-        #        self._A_shell_i = np.pi * self._d_i * self.grid_spacing
-        #        # outer surface area of pipe wall:
-        #        self._A_shell_o = np.pi * self._d_o * self.grid_spacing
-        #        # cross section area of shell:
-        #        self._A_shell_cs = np.pi / 4 * (self._d_o**2 - self._d_i**2)
-        #        # shell volume (except top and bottom cover):
-        #        self._V_shell_cs = self._A_shell_cs * self.length
-
-        # calculate m*cp for the wall PER CELL with the material information:
-        #        self._mcp_wll = (self._cp_wll * self._rho_wll * self._V_shell_cs
-        #                         / self.num_gp)
 
         # get ambient temperature:
         self._chk_amb_temp(**kwargs)
@@ -1082,9 +982,6 @@ class HeatExchanger(SimEnv):
         _pf.get_ny_water(T_mean, ny_mean)
         # get massflow:
         dm = abs(P / ((T_in - T_out) * cp_mean))
-        #        # get temperature without wall correction (same temperature for wall
-        #        # and fluid) and reshape to correct shape:
-        #        T = np.reshape(np.array([T_mean, T_mean]), (1, 2))
         # save alpha to:
         alpha = np.zeros_like(dm)
         start_value = np.ones(1)  # NEVER set this to zero!!!
