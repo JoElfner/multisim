@@ -70,15 +70,6 @@ class Pipe(SimEnv):
 
         # assert that all required arguments have been passed:
         # length
-        # =============================================================================
-        #         err_str = (
-        #             base_err + arg_err.format('length') +
-        #             'The pipe length has to be given in [m] with `length=X`, where X '
-        #             'is an integer or float value >0.')
-        #         assert ('length' in kwargs and
-        #                 isinstance(kwargs['length'], (int, float)) and
-        #                 kwargs['length'] > 0), err_str
-        # =============================================================================
         assert (
             isinstance(kwargs['length'], (int, float)) and kwargs['length'] > 0
         ), (
@@ -88,14 +79,6 @@ class Pipe(SimEnv):
         )
         self.length = float(kwargs['length'])
         # grid points
-        # =============================================================================
-        #         err_str = (
-        #             base_err + arg_err.format('grid_points') +
-        #             'The number of grid points has to be given with `grid_points=X`, '
-        #             'where X is an integer value >0.')
-        #         assert ('grid_points' in kwargs and type(kwargs['grid_points']) == int
-        #                 and kwargs['grid_points'] > 0), err_str
-        # =============================================================================
         assert (
             isinstance(kwargs['grid_points'], int)
             and kwargs['grid_points'] > 0
@@ -348,19 +331,7 @@ class Pipe(SimEnv):
         # check for arguments:
         self._print_arg_errs(self.constr_type, self.name, self._aaei, kwds)
 
-        # check for insulation:
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('insulation_thickness OR s_ins') +
-        #             'The insulation thickness has to be given in [m] with '
-        #             '`insulation_thickness=X` OR `s_ins=X`, where X is an integer or '
-        #             'float value >=0.')
-        #         assert 'insulation_thickness' in kwds or 's_ins' in kwds, err_str
-        # =============================================================================
-        self._s_ins = (
-            kwds['s_ins'] if 's_ins' in kwds else kwds['insulation_thickness']
-        )
+        self._s_ins = kwds.get('s_ins', kwds.get('insulation_thickness'), None)
         assert isinstance(self._s_ins, (int, float)) and self._s_ins >= 0, (
             self._base_err
             + self._arg_err.format('s_ins')
@@ -368,34 +339,14 @@ class Pipe(SimEnv):
         )
         self._s_ins = float(self._s_ins)  # make sure it is float!
 
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('insulation_lambda OR lambda_ins') +
-        #             'The heat conductivity (lambda) value of the insulation has '
-        #             'to be given in [W/(m*K)] with `insulation_lambda=X` OR '
-        #             '`lambda_ins=X`, where X is an integer or float value >= 0.')
-        #         assert 'insulation_lambda' in kwds or 'lambda_ins' in kwds, err_str
-        # =============================================================================
-        self._lam_ins = (
-            kwds['lambda_ins']
-            if 'lambda_ins' in kwds
-            else kwds['insulation_lambda']
+        self._lam_ins = kwds.get(
+            'lambda_ins', kwds.get('insulation_lambda', None)
         )
         assert (
             isinstance(self._lam_ins, (int, float)) and self._lam_ins >= 0
         ), self._aaei['insulation_lambda OR lambda_ins']
         self._lam_ins = float(self._lam_ins)  # make sure it is float
 
-        # assert material and pipe specs (after defining port names to avoid
-        # name getting conflicts):
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('pipe_specs, material') +
-        #             '`pipe_specs` and `material` have to be given.')
-        #         assert 'material' in kwds and 'pipe_specs' in kwds, err_str
-        # =============================================================================
         # get material pipe specs for diameter etc.:
         self._get_specs_n_props(**kwds)
         # assert that pipe specs were given for all ports together:
@@ -407,16 +358,6 @@ class Pipe(SimEnv):
         )
         assert 'all' in kwds['pipe_specs'], err_str
 
-        # assert and get initial temperature:
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('T_init') +
-        #             'The initial temperature `T_init=X` in [°C] has to be given, '
-        #             'where X is a single float or integer value or as an array with '
-        #             'shape (' + str(self.num_gp) + ',).')
-        #         assert 'T_init' in kwds, err_str
-        # =============================================================================
         self._T_init = kwds['T_init']
         assert isinstance(self._T_init, (float, int, np.ndarray)), (
             self._base_err
@@ -551,223 +492,6 @@ class Pipe(SimEnv):
             'dT_adv',
             'dT_total',  # differentials
         ]
-
-        #       # FAST CALLS WITH REDUCED NUMBER OF ARGUMENTS:
-        #       # (speed gain negligible, but reducing traceability of errors)
-        #        self._input_arg_names_fast = [
-        #            '_T_ext', '_T_amb', 'ports_all',  # temperatures
-        #            '_dm_io', '_dm_top', '_dm_bot', '_dm_port', 'res_dm',  # flows
-        #            '_lam_wll', '_lam_ins', '_mcp_wll',  # material properties.
-        #            '_alpha_inf',  # alpha values
-        #            '_UA_tb_wll', '_UA_amb_shell',
-        #            '_UA_port_wll',  # UA values
-        #            '_port_own_idx', '_port_link_idx',  # indices
-        #            'grid_spacing', '_port_gsp', '_port_subs_gsp',
-        #            '_d_i', '_cell_dist',  # lengths
-        #            '_flow_length', '_r_total', '_r_ln_wll', '_r_ln_ins',
-        #            '_r_rins',  # lengths
-        #            'A_cell', 'V_cell', '_A_shell_i',
-        #            '_A_shell_ins', '_A_p_fld_mean',  # areas and vols
-        #            '_process_flows', '_vertical', '_step_stable',  # bools
-        #            'part_id', '_stability_breaches', '_vN_max_step',
-        #            '_max_factor',  # misc.
-        #            'stepnum',  # step information
-        #            'dT_cond', 'dT_adv', 'dT_total',  # differentials
-        #            ]
-
-        # input args when using closures (HUGE compile time, but faster exec)
-        # for calls
-        #        self._input_arg_names_calls = [
-        #            '_T_ext', '_T_port', '_T_s', '_T_amb', 'ports_all',  # temperatures
-        #            '_dm_io', '_dm_top', '_dm_bot', '_dm_port', 'res_dm',  # flows
-        #            '_cp_T', '_lam_T', '_rho_T', '_ny_T', '_lam_mean', '_cp_port', '_lam_port_fld',  # mat. props.
-        #            '_mcp', '_rhocp', '_ui',  # material properties.
-        #            '_alpha_i', '_alpha_inf',  # alpha values
-        #            '_UA_tb', '_UA_amb_shell', '_UA_port', '_UA_port_wll',  # UA values
-        #            '_process_flows', '_step_stable',  # bools
-        #            '_stability_breaches', '_vN_max_step', '_max_factor',  # misc.
-        #            'stepnum',  # step information
-        #            'dT_cond', 'dT_adv', 'dT_total',  # differentials
-        #            ]
-        #       # for constructing the closure
-        #        self._input_arg_names_closure = [
-        #            '_lam_wll',
-        #            '_lam_ins', '_mcp_wll',
-        #            '_UA_tb_wll',
-        #            '_port_own_idx', '_port_link_idx',  # indices
-        #            'grid_spacing', '_port_gsp',
-        #            '_port_subs_gsp', '_d_i',
-        #            '_cell_dist', '_flow_length',
-        #            '_r_total',
-        #            '_r_ln_wll', '_r_ln_ins',
-        #            '_r_rins', '_s_wll', '_s_ins',  # lengths
-        #            'A_cell', 'V_cell', '_A_shell_i',
-        #            '_A_shell_ins', '_A_p_fld_mean',  # areas and vols
-        #            '_vertical', 'part_id']
-        #
-        #       # input args for using homogeneous tuples/list (complicated, since
-        #       # there is no numba support for unpacking these INSIDE the jitted funs)
-        #        self._iaf1d = [
-        #            '_T_ext', '_T_port', '_T_s', '_T_amb', 'ports_all',  # temperatures
-        #            '_dm_io', '_dm_top', '_dm_bot', '_dm_port',
-        #            '_cp_T', '_lam_T', '_rho_T', '_ny_T', '_lam_mean', '_cp_port',
-        #            '_lam_port_fld',  # mat. props.
-        #            '_mcp', '_rhocp',
-        #            '_ui',  # material properties.
-        #            '_alpha_i', '_alpha_inf',  # alpha values
-        #            '_UA_tb', '_UA_amb_shell', '_UA_port',
-        #            '_UA_port_wll',
-        #            '_vN_max_step', '_max_factor',
-        #            'dT_cond', 'dT_adv', 'dT_total',
-        #            '_port_gsp', '_port_subs_gsp', '_cell_dist', '_A_p_fld_mean'
-        #            ]  # float 1d
-        #        self._iaf2d = ['res_dm']  # float 2d
-        #        self._iai1d = [
-        #            '_port_own_idx', '_port_link_idx',
-        #            '_stability_breaches', 'stepnum']   # int32 1d
-        #        self._iab1d = ['_process_flows',
-        #                       '_step_stable']  # bool array
-        #        self._iaf = [
-        #            '_lam_wll', '_lam_ins', '_mcp_wll', '_UA_tb_wll',
-        #            'grid_spacing', '_d_i',
-        #            '_flow_length', '_r_total', '_r_ln_wll', '_r_ln_ins', '_r_rins',
-        #            'A_cell', 'V_cell', '_A_shell_i', '_A_shell_ins',
-        #            ]  # floats
-
-        #        # STRUCTURED ARRAYS ONLY FOR FLOATS, THE REST AS LIST/TUPLE:
-        #        self._input_arg_names_recarr = [
-        #            '_lam_wll', '_lam_ins',
-        #            '_mcp_wll', '_UA_tb_wll',
-        #            'grid_spacing', '_d_i', '_flow_length',
-        #            '_r_total', '_r_ln_wll', '_r_ln_ins',
-        #            '_r_rins',  # lengths
-        #            'A_cell', 'V_cell', '_A_shell_i',
-        #            '_A_shell_ins'
-        #            ]
-        #        self._input_arg_names_rest = [
-        #            '_T_ext', '_T_port', '_T_s', '_T_amb', 'ports_all',  # temperatures
-        #            '_dm_io', '_dm_top', '_dm_bot', '_dm_port', 'res_dm',  # flows
-        #            '_cp_T', '_lam_T', '_rho_T', '_ny_T', '_lam_mean', '_cp_port',
-        #            '_lam_port_fld',  # mat. props.
-        #            '_mcp', '_rhocp',
-        #            '_ui',  # material properties.
-        #            '_alpha_i', '_alpha_inf',  # alpha values
-        #            '_UA_tb', '_UA_amb_shell', '_UA_port',
-        #            '_UA_port_wll',  # UA values
-        #            '_port_own_idx', '_port_link_idx',  # indices
-        #            '_port_gsp', '_port_subs_gsp',
-        #            '_cell_dist',  # lengths
-        #            '_A_p_fld_mean',  # areas and vols
-        #            '_process_flows', '_step_stable',  # bools
-        #            '_stability_breaches', '_vN_max_step',
-        #            '_max_factor',  # misc.
-        #            'stepnum',  # step information
-        #            'dT_cond', 'dT_adv', 'dT_total',  # differentials
-        #            ]
-
-        #        # STRUCTURED ARRAYS FOR ALMOST ALL ARRAYS, EXCEPT FOR EXTERNAL VIEWS:
-        #        # arguments for full recarray version (all except views):
-        #        self._input_arg_names_fullrecarr = [
-        #            '_T_port', '_T_s', '_T_amb',  # temperatures
-        #            '_dm_top', '_dm_bot', '_dm_port',  # flows
-        #            '_lam_T', '_rho_T', '_ny_T', '_cp_port',
-        #            '_lam_port_fld',  # mat. props.
-        #            '_mcp', '_rhocp', '_lam_wll', '_lam_ins',
-        #            '_mcp_wll', '_ui',  # material properties.
-        #            '_alpha_i', '_alpha_inf',  # alpha values
-        #            '_UA_tb_wll', '_UA_amb_shell', '_UA_port',
-        #            '_UA_port_wll',  # UA values
-        #            '_port_own_idx', #'_port_link_idx',  # indices
-        #            'grid_spacing', '_port_gsp', #'_port_subs_gsp',
-        #            '_d_i', '_cell_dist',  # lengths
-        #            '_flow_length', '_r_total', '_r_ln_wll', '_r_ln_ins',
-        #            '_r_rins',  # lengths
-        #            'A_cell', 'V_cell', '_A_shell_i',
-        #            '_A_shell_ins', '_A_p_fld_mean',  # areas and vols
-        #              # bools
-        #            'part_id', '_stability_breaches',  # misc.
-        #            'dT_cond', 'dT_adv', 'dT_total',  # differentials
-        #            ]
-        #
-        #        self._input_arg_names_full_Tsize = [  # arrays of T size
-        #            'T_s', 'dm_top', 'dm_bot',
-        #            'lam_T', 'rho_T', 'ny_T', 'mcp', 'rhocp', 'ui', 'alpha_i',
-        #            'alpha_inf',
-        #            'UA_amb_shell', 'cell_dist', 'dT_cond', 'dT_adv', 'dT_total',
-        #            ]
-        #
-        #        self._input_arg_names_full_psize = [  # arrays of port size
-        #            'T_port', 'dm_port',
-        #            'cp_port', 'lam_port_fld',
-        #            'UA_port', 'UA_port_wll',
-        #            'port_own_idx', 'port_gsp', 'A_p_fld_mean'
-        #            ]
-        #
-        #        # arguments which are views to other arrays and thus need to be
-        #        # excluded from full recarrays:
-        #        self._input_arg_names_views = [
-        #            '_T_ext',
-        #            'ports_all',  # temperatures
-        #            '_dm_io', 'res_dm'
-        #            '_cp_T', '_lam_mean', '_UA_tb',
-        #            '_port_link_idx',
-        #            '_port_subs_gsp',
-        #            '_step_stable',  # bools
-        #            '_vN_max_step',
-        #            '_max_factor',  # misc.
-        #            '_process_flows', '_vertical',
-        #            'stepnum',  # step information
-        #            ]
-        #
-        #        ra1 = []  # for floats and (1,) shape arrays
-        #        ra2 = []  # for arrays of port size
-        #        ra5 = []  # for arrays of T size
-        #        for arg in self._input_arg_names_fullrecarr:
-        #            if type(self.__dict__[arg]) == np.ndarray:
-        #                shp = self.__dict__[arg].shape
-        #                if shp[0] == 1:
-        #                    ra1.append((arg.lstrip('_'), self.__dict__[arg].dtype))
-        #                elif arg.lstrip('_') in self._input_arg_names_full_psize:
-        #                    ra2.append((arg.lstrip('_'), self.__dict__[arg].dtype))
-        #                elif arg.lstrip('_') in self._input_arg_names_full_Tsize:
-        #                    ra5.append((arg.lstrip('_'), self.__dict__[arg].dtype))
-        #            else:
-        #                ra1.append((arg.lstrip('_'), type(self.__dict__[arg])))
-        #
-        #        self._ra1 = np.zeros((1, ), dtype=ra1)
-        #        shp2 = self._T_port.shape
-        #        self._ra2 = np.zeros(shp2, dtype=ra2)
-        #        shp5 = self.T.shape
-        #        self._ra5 = np.zeros(shp5, dtype=ra5)
-        #
-        #        for arg in self._input_arg_names_fullrecarr:
-        #            if (arg not in ['_port_link_idx', '_port_subs_gsp']):
-        #                if type(self.__dict__[arg]) == np.ndarray:
-        #                    shp = self.__dict__[arg].shape
-        #                    if shp[0] == 1:
-        #                        self._ra1[arg.lstrip('_')] = self.__dict__[arg]
-        #                    elif arg.lstrip('_') in self._input_arg_names_full_psize:
-        #                        self._ra2[arg.lstrip('_')] = self.__dict__[arg]
-        #                    elif arg.lstrip('_') in self._input_arg_names_full_Tsize:
-        #                        self._ra5[arg.lstrip('_')] = self.__dict__[arg]
-        #                else:
-        #                    self._ra1[arg.lstrip('_')] = self.__dict__[arg]
-        #                # also return view to recarr for this arg, if arg is array:
-        #                if type(self.__dict__[arg]) == np.ndarray:
-        #                    shp = self.__dict__[arg].shape
-        #                    if shp[0] == 1:
-        #                        self.__dict__[arg] = self._ra1[arg.lstrip('_')][:]
-        #                    elif arg.lstrip('_') in self._input_arg_names_full_psize:
-        #                        self.__dict__[arg] = self._ra2[arg.lstrip('_')][:]
-        #                    elif arg.lstrip('_') in self._input_arg_names_full_Tsize:
-        #                        self.__dict__[arg] = self._ra5[arg.lstrip('_')][:]
-        #
-        #        # reconstr views:
-        #        self.T = self._T_ext[1:-1]  # memview of T_ext
-        #        self._T_top = self._T_ext[:-2]  # memview of T_ext
-        #        self._T_bot = self._T_ext[2:]
-        #        self._cp_top = self._cp_T[:-2]  # view for top and bot grid
-        #        self._cp_bot = self._cp_T[2:]
 
         # set initialization to true:
         self.initialized = True
@@ -914,137 +638,12 @@ class Pipe(SimEnv):
 
         return op_routine
 
-    """
-    Optimierung:
-        - _port_values_to_idx ca. 3.5% weniger Zeit
-        - views für top/bot spart 0.5% Zeit
-        - views für cp top/bot spart 1%!! Obwohl Arrays so klein und dadurch
-          +2 Zellen gleich deutlicher Mehraufwand für get_cp!
-          ---> Function call overhead >> Eigentliche Ausführung
-        - process ports a: 1.2%, insgesamt *1.0617 oder ca weniger
-        - process ports b: 1.4%, insgesamt *1.0642 oder ca. 1.0575
-        - process ports loop: 1.8%, insgesamt *1.068
-        - process ports loop 2: ca. 15% weniger Zeit!!! insgesamt 1.206-1.213
-        - get water props: ca. 3-4% weniger Zeit! insgesamt 1.238-1.241
-        (- lam mean: ca. 0.6% weniger Zeit. insgesamt 1.244)
-        - lam mean and UA tb: 6.5% weniger Zeit! insgesamt 1.306
-        - cell_temp_props: 4.5% weniger Zeit! insgesamt 1.351
-        - proc flows: 2%  langsamer! sollte aber später besser werden.
-                      insgesamt 1.334. update flow net ca. 20ms langsamer
-        - diese bisherigen packen in pipe_diff: weitere 35%! insgesamt 1.686!
-    """
-
     def get_diff(self, timestep):
         """
         This function just calls a jitted calculation function.
 
         """
 
-        #        (self.dT_total, self._process_flows, self._models._step_stable,
-        #         self._models._vN_max_step, self._models._max_factor) = pipe1D_diff(
-        #            T_ext=self._T_ext, T_port=self._T_port, T_s=self._T_s,
-        #            T_amb=self._T_amb, ports_all=self._models.ports_all,  # temperatures
-        #            dm_io=self._dm_io, dm_top=self._dm_top, dm_bot=self._dm_bot,
-        #            dm_port=self._dm_port, res_dm=self.res_dm,  # flows
-        #            cp_T=self._cp_T, lam_T=self._lam_T, rho_T=self._rho_T,
-        #            ny_T=self._ny_T, lam_mean=self._lam_mean, cp_port=self._cp_port,
-        #            lam_port_fld=self._lam_port_fld, mcp=self._mcp, rhocp=self._rhocp,
-        #            lam_wll=self._lam_wll, lam_ins=self._lam_ins,
-        #            mcp_wll=self._mcp_wll, ui=self._ui,  # material properties
-        #            alpha_i=self._alpha_i, alpha_inf=self._alpha_inf,  # alpha values
-        #            UA_tb=self._UA_tb, UA_tb_wll=self._UA_tb_wll,
-        #            UA_amb_shell=self._UA_amb_shell, UA_port=self._UA_port,
-        #            UA_port_wll=self._UA_port_wll,  # UA values
-        #            port_own_idx=self._port_own_idx, port_link_idx=self._port_link_idx,  # indices
-        #            grid_spacing=self.grid_spacing, port_gsp=self._port_gsp,
-        #            port_subs_gsp=self._port_subs_gsp, d_i=self._d_i,
-        #            cell_dist=self._cell_dist, flow_length=self._flow_length,  # lengths
-        #            r_total=self._r_total, r_ln_wll=self._r_ln_wll,
-        #            r_ln_ins=self._r_ln_ins, r_rins=self._r_rins,  # lengths
-        #            A_cell=self.A_cell, V_cell=self.V_cell, A_shell_i=self._A_shell_i,
-        #            A_shell_ins=self._A_shell_ins, A_p_fld_mean=self._A_p_fld_mean,  # areas and vols
-        #            process_flows=self._process_flows, vertical=self._vertical,
-        #            step_stable=self._models._step_stable,  # bools
-        #            part_id=self.part_id, stability_breaches=self._stability_breaches,
-        #            vN_max_step=self._models._vN_max_step,
-        #            max_factor=self._models._max_factor,  # misc
-        #            stepnum=self.stepnum, timestep=timestep,  # step information
-        #            dT_cond=self.dT_cond, dT_adv=self.dT_adv  # differentials
-        #            )
-
-        #        pipe1D_diff(
-        #            T_ext=self._T_ext, T_port=self._T_port, T_s=self._T_s,
-        #            T_amb=self._T_amb, ports_all=self._models.ports_all,  # temperatures
-        #            dm_io=self._dm_io, dm_top=self._dm_top, dm_bot=self._dm_bot,
-        #            dm_port=self._dm_port, res_dm=self.res_dm,  # flows
-        #            cp_T=self._cp_T, lam_T=self._lam_T, rho_T=self._rho_T,
-        #            ny_T=self._ny_T, lam_mean=self._lam_mean, cp_port=self._cp_port,
-        #            lam_port_fld=self._lam_port_fld, mcp=self._mcp, rhocp=self._rhocp,
-        #            lam_wll=self._lam_wll, lam_ins=self._lam_ins,
-        #            mcp_wll=self._mcp_wll, ui=self._ui,  # material properties
-        #            alpha_i=self._alpha_i, alpha_inf=self._alpha_inf,  # alpha values
-        #            UA_tb=self._UA_tb, UA_tb_wll=self._UA_tb_wll,
-        #            UA_amb_shell=self._UA_amb_shell, UA_port=self._UA_port,
-        #            UA_port_wll=self._UA_port_wll,  # UA values
-        #            port_own_idx=self._port_own_idx, port_link_idx=self._port_link_idx,  # indices
-        #            grid_spacing=self.grid_spacing, port_gsp=self._port_gsp,
-        #            port_subs_gsp=self._port_subs_gsp, d_i=self._d_i,
-        #            cell_dist=self._cell_dist, flow_length=self._flow_length,  # lengths
-        #            r_total=self._r_total, r_ln_wll=self._r_ln_wll,
-        #            r_ln_ins=self._r_ln_ins, r_rins=self._r_rins,  # lengths
-        #            A_cell=self.A_cell, V_cell=self.V_cell, A_shell_i=self._A_shell_i,
-        #            A_shell_ins=self._A_shell_ins, A_p_fld_mean=self._A_p_fld_mean,  # areas and vols
-        #            process_flows=self._process_flows, vertical=self._vertical,
-        #            step_stable=self._models._step_stable,  # bools
-        #            part_id=self.part_id, stability_breaches=self._stability_breaches,
-        #            vN_max_step=self._models._vN_max_step,
-        #            max_factor=self._models._max_factor,  # misc
-        #            stepnum=self.stepnum,  # step information
-        #            dT_cond=self.dT_cond, dT_adv=self.dT_adv, dT_total=self.dT_total,  # differentials
-        #            timestep=timestep)
         _pf.pipe1D_diff(*self._input_args, timestep)
-
-        #        pipe1D_diff_structarr(*self.rest, self.strct_flt, self._vertical,
-        #                              self.part_id, timestep)
-
-        #        pipe1D_diff_fullstructarr(
-        #            self._T_ext,
-        #            self.ports_all,  # temperatures
-        #            self._dm_io, self.res_dm,
-        #            self._cp_T, self._lam_mean, self._UA_tb,
-        #            self._port_link_idx,
-        #            self._port_subs_gsp,
-        #            self._step_stable,  # bools
-        #            self._vN_max_step,
-        #            self._max_factor, self._process_flows, self._vertical,  # misc.
-        #            self.stepnum, self._ra1, self._ra2, self._ra5, timestep)
-
-        #        pipe1D_diff_fast(*self._input_args_fast, timestep)
-
-        #        pipe1D_diff(*self._input_args_list, timestep)
-        #        pipe1D_diff(**self._input_args_dict, timestep=timestep)
-
-        #        self._diff_clsd(**self._input_args_call, timestep=timestep)
-
-        #        if self.name is 'RohrVL_Ventil' and self._dm_io[0] != 0:
-        #            raise ValueError
-
-        # ---> data class
-        #        (self._process_flows, self._models._step_stable,
-        #         self._models._vN_max_step) = pipe1D_diff_cls(
-        #            data_cls=self._data_cls, ports_all=self._models.ports_all,
-        #            process_flows=self._process_flows,
-        #            step_stable=self._models._step_stable, vN_max_step=self._models._vN_max_step,
-        #            stepnum=self.stepnum, timestep=timestep,  # step information
-        #            )
-        # ---> named tuple
-        #        (self._process_flows, self._models._step_stable,
-        #         self._models._vN_max_step, self._models._max_factor) = pipe1D_diff_nt(
-        #            data_nt=self._data_nt, ports_all=self._models.ports_all,
-        #            process_flows=self._process_flows,
-        #            step_stable=self._models._step_stable, vN_max_step=self._models._vN_max_step,
-        #            max_factor=self._models._max_factor,
-        #            stepnum=self.stepnum, timestep=timestep,  # step information
-        #            )
 
         return self.dT_total

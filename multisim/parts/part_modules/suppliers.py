@@ -117,18 +117,7 @@ def chp_with_fghex(
         'p_rf': (ps_dn40, chp_power_factor),
         'hex_fg': (ps_dn40, chp_power_factor),
     }
-    # =============================================================================
-    #     pspecs = { # get ref pipe specs and mult factor for each part
-    #         'pwp_ff': (ps_dn50, chp_power_factor),
-    #         'p3v_rf': (ps_dn50, chp_power_factor),
-    #         'p_rf_lt': (ps_dn32, chp_power_factor),
-    #         'p3v_htrfA': (ps_dn40, chp_power_factor),
-    #         'p_htrfB': (ps_dn40, chp_power_factor),
-    #         'p_htrf': (ps_dn50, chp_power_factor),
-    #         'p_rf': (ps_dn50, chp_power_factor),
-    #         'hex_fg': (ps_dn50, chp_power_factor),
-    #     }
-    # =============================================================================
+
     if 'pipe_specs' in chp_kwds:
         pspecs['chp'] = (chp_kwds['pipe_specs'], chp_power_factor)
         del chp_kwds['pipe_specs']
@@ -972,12 +961,6 @@ def gasboiler(
     Tamb=25.0,
     calculations_df=None,
 ):
-    # =============================================================================
-    #     if n_rf_ports == 1:
-    #         assert 'part' in htrf_connector, ('htrf connector must not be given'
-    #                                           'if n_rf_ports==1')
-    # =============================================================================
-
     # ps_dn20 = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN20'}}
     # ps_dn25 = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN25'}}
     # ps_dn32 = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN32'}}

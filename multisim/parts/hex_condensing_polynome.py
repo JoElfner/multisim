@@ -224,10 +224,6 @@ class HEXCondPoly(SimEnv):
 
         # port definition:
         self.port_num = 4
-        # =============================================================================
-        #         self._port_own_idx = np.array(
-        #                 [0, 6, 2, 8], dtype=np.int32)  # flat 2d index to value array
-        # =============================================================================
         # Index to own value array to get values of own ports, meaning if I
         # index a FLATTENED self.T.flat with self._port_own_idx, I need to
         # get values accoring to the order given in self.port_names.
@@ -235,10 +231,6 @@ class HEXCondPoly(SimEnv):
         # belonging to the port 'in':
         # self.T.flat[self._port_own_idx[self.port_names.index('in')]]
         self._port_own_idx = np.array([0, 2, 1, 3], dtype=np.int32)
-        # =============================================================================
-        #         self._port_own_idx_2D = np.array(
-        #                 [0, 6, 2, 8], dtype=np.int32)  # flat 2d index to port array
-        # =============================================================================
         self._port_own_idx_2D = np.array([0, 2, 1, 3], dtype=np.int32)
         self.port_ids = np.array((), dtype=np.int32)
         # define flow channel names for both sides. used in topology constr.
@@ -284,15 +276,9 @@ class HEXCondPoly(SimEnv):
         self._trnc_err = 0.0
         # add truncation error cell weight to only calculate the error for cell
         # 1,1 where heat conduction is considered:
-        # =============================================================================
-        #         self._trnc_err_cell_weight = np.zeros(Tshp)
-        # =============================================================================
         self._trnc_err_cell_weight = np.zeros(4)
         #        self._trnc_err_cell_weight[1, 1] = 1.
         self._trnc_err_cell_weight = 0.0
-        # preallocate grids for precalculated stuff: REPLACED WITH LOCAL VARS!
-        #        self.__rhocp = np.zeros(Tshp)
-        #        self.__cpT = np.zeros(Tshp)
 
         # set if type has to be solved numeric:
         self.solve_numeric = False

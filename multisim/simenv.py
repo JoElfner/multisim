@@ -1432,7 +1432,6 @@ class SimEnv:
             assert part in self.parts and hasattr(
                 self.parts[part], variable_name
             ), err_str
-            #                    variable_name in self.parts[part].__dict__), err_str
             # check if variable is already an array and if NOT, make it one:
             if not isinstance(
                 getattr(self.parts[part], variable_name), np.ndarray
@@ -1475,7 +1474,6 @@ class SimEnv:
             assert control in self.ctrls and hasattr(
                 self.ctrls[control], 'sp'
             ), err_str
-            #                    variable_name in self.parts[part].__dict__), err_str
             # check if variable is already an array and if NOT, make it one:
             if not isinstance(getattr(self.ctrls[control], 'sp'), np.ndarray):
                 # bkp old value:
@@ -4503,14 +4501,6 @@ class SimEnv:
                 part._collapsed = True  # set bool checker to True if collapsed
                 print(part.name, 'collapsed!')
 
-    #                if part.constr_type == 'Pipe':
-    #                    for arg in part._input_arg_names_collapsed:
-    #                        part._ra[arg.lstrip('_')] = part.__dict__[arg]
-    #                        # also return view to recarr for this arg, if arg is
-    #                        # array:
-    #                        if type(part.__dict__[arg]) == np.ndarray:
-    #                            part.__dict__[arg] = part._ra[arg.lstrip('_')][:]
-
     def _create_dataclasses(self):
         """
         This method creates data classes in which all data needed for the
@@ -4522,7 +4512,7 @@ class SimEnv:
         """
 
         for part in self.parts.values():
-            if '_calc_att_list' in part.__dict__:
+            if hasattr(part, '_calc_att_list'):
                 # pass the instance attribute dict to the data class creation
                 # function. This function only selects specific data types as
                 # inputs:
@@ -4530,14 +4520,10 @@ class SimEnv:
                 part.__dtdict = {}
                 i = 0
                 for lmnt in part.new_list:
-                    part.__dtdict[lmnt] = part.__dict__[part._calc_att_list[i]]
+                    part.__dtdict[lmnt] = getattr(part, part._calc_att_list[i])
                     i += 1
                 part.__dtnt = _namedtuple('data_nt', part.new_list)
                 part._data_nt = part.__dtnt(**part.__dtdict)
-                # data jit class
-
-    #                part._data_cls = create_DataClass(
-    #                        part.__dict__, part._calc_att_list)
 
     def _build_simenv(self):
         """
@@ -4931,7 +4917,7 @@ class SimEnv:
             ):
                 print(part, 'memory address of T-array changed!')
             # if available check for changes in memory address of T-arrays:
-            if '_memadd_dm' in self.parts[part].__dict__:
+            if hasattr(self.parts[part], '_memadd_dm'):
                 if (
                     self.parts[part].dm.__array_interface__['data'][0]
                     != self.parts[part]._memadd_dm

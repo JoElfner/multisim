@@ -123,32 +123,14 @@ class Tes(SimEnv):
             '\n' + ', '.join(set(kwargs.keys()) - known_kwargs) + '\n'
             'Please check the spelling!'
         )
-        #        assert set(kwargs.keys()) - known_kwargs == set(), err_str
         # assert that all required arguments have been passed:
-        # =============================================================================
-        #         err_str = ('The thermal enery storage volume has to be passed to its '
-        #                    '`add_part()` method in [m^3] with `volume=X`!')
-        #         assert 'volume' in kwargs, err_str
-        # =============================================================================
         self.V_tes = float(kwargs['volume'])
-        # =============================================================================
-        #         err_str = ('The number of grid points for the thermal enery storage '
-        #                    'has to be passed to its `add_part()` method as integer '
-        #                    'with `grid_points=X`!')
-        #         assert 'grid_points' in kwargs, err_str
-        # =============================================================================
         assert isinstance(kwargs['grid_points'], int), (
             self._base_err
             + self._arg_err.format('grid_points')
             + self._aae['grid_points']
         )
         self.num_gp = kwargs['grid_points']
-        # =============================================================================
-        #         err_str = ('The outer diameter of the thermal enery storage (without '
-        #                    ' insulation!) has to be passed to its `add_part()` method '
-        #                    'in [m] with `outer_diameter=X`!')
-        #         assert 'outer_diameter' in kwargs, err_str
-        # =============================================================================
         assert kwargs['outer_diameter'] > 0.0, (
             self._base_err
             + self._arg_err.format('outer_diameter')
@@ -156,16 +138,6 @@ class Tes(SimEnv):
         )
         self._d_o = float(kwargs['outer_diameter'])
         self._r_o = self._d_o / 2
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err + self._arg_err.format('shell_thickness') +
-        #             'The shell thickness of a thermal enery storage (only the metal '
-        #             'shell without insulation) has to be given in [m] with '
-        #             '`shell_thickness=X` as an integer or float value >0.')
-        #         assert ('shell_thickness' in kwargs and
-        #                 isinstance(kwargs['shell_thickness'], (int, float)) and
-        #                 kwargs['shell_thickness'] > 0), err_str
-        # =============================================================================
         assert (
             isinstance(kwargs['shell_thickness'], (int, float))
             and kwargs['shell_thickness'] > 0
@@ -433,15 +405,6 @@ class Tes(SimEnv):
         # check for arguments:
         self._print_arg_errs(self.constr_type, self.name, self._aaei, kwds)
 
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('insulation_thickness OR s_ins') +
-        #             'The insulation thickness has to be given in [m] with '
-        #             '`insulation_thickness=X` OR `s_ins=X`, where X is an integer or '
-        #             'float value >=0.')
-        #         assert 'insulation_thickness' in kwds or 's_ins' in kwds, err_str
-        # =============================================================================
         self._s_ins = (
             kwds['s_ins'] if 's_ins' in kwds else kwds['insulation_thickness']
         )
@@ -452,15 +415,6 @@ class Tes(SimEnv):
         )
         self._s_ins = float(self._s_ins)  # make sure it is float!
 
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('insulation_lambda OR lambda_ins') +
-        #             'The heat conductivity (lambda) value of the insulation has '
-        #             'to be given in [W/(m*K)] with `insulation_lambda=X` OR '
-        #             '`lambda_ins=X`, where X is an integer or float value >= 0.')
-        #         assert 'insulation_lambda' in kwds or 'lambda_ins' in kwds, err_str
-        # =============================================================================
         self._lam_ins = (
             kwds['lambda_ins']
             if 'lambda_ins' in kwds
@@ -472,15 +426,6 @@ class Tes(SimEnv):
         self._lam_ins = float(self._lam_ins)  # make sure it is float
 
         # assert and get initial temperature:
-        # =============================================================================
-        #         err_str = (
-        #             self._base_err +
-        #             self._arg_err.format('T_init') +
-        #             'The initial temperature `T_init=X` in [°C] has to be given, '
-        #             'where X is a single float or integer value or as an array with '
-        #             'shape (' + str(self.num_gp) + ',).')
-        #         assert 'T_init' in kwds, err_str
-        # =============================================================================
         assert isinstance(kwds['T_init'], (float, int, np.ndarray)) and np.all(
             (kwds['T_init'] > 0.0) & (kwds['T_init'] < 110.0)
         ), (

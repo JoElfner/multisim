@@ -428,9 +428,6 @@ class CHPPlant(Pipe):
             'The limits have to be given as integer or float values with '
             '`lower_limit < upper_limit`.'
         ).format(self._unit)
-        # =============================================================================
-        #         assert 'lower_limit' in kwds and 'upper_limit' in kwds, err_str
-        # =============================================================================
         self._lims = np.array(  # set limits to array
             [kwds['lower_limit'], kwds['upper_limit']], dtype=np.float64
         )
@@ -504,13 +501,6 @@ class CHPPlant(Pipe):
         self._initialize_actuator(variable_name='_power_modulation', **kwds)
 
         # if CHP is feeding a fluegas HEX:
-        # =============================================================================
-        #         err_hex = (
-        #             self._base_err + self._arg_err.format('connect_fluegas_hex') +
-        #             'Shall the part be directly connected (exhaust gas flow is '
-        #             'directly passed to the HEX without need for pumps and pipes) '
-        #             'to a fluegas condensing heat exchanger? True/False allowed.')
-        # =============================================================================
         assert isinstance(kwds['connect_fluegas_hex'], bool), (
             self._base_err
             + self._arg_err.format('connect_fluegas_hex')
@@ -544,12 +534,6 @@ class CHPPlant(Pipe):
             self._fg_hex_gdv = np.zeros(1, dtype=np.float64)
 
         # get flue gas flow:
-        # =============================================================================
-        #         err_fgmax = (
-        #             self._base_err + self._arg_err.format('fluegas_flow') +
-        #             'Define the fluegas flow at maximum power output '
-        #             '(100% modulation) in [Nm3/h]. Must be 0 < X.')
-        # =============================================================================
         assert isinstance(kwds['fluegas_flow'], (int, float)), (
             self._base_err
             + self._arg_err.format('fluegas_flow')
@@ -869,29 +853,6 @@ class CHPPlant(Pipe):
                         # shutdown finished. reset values
                         self._shutdown_in_progress = False
                         self._shutdown_factor_th = 0.0
-
-        # =============================================================================
-        #         (self._bin_pow_fac, self._startup_at_time, self._shutdown_at_time,
-        #          self._startup_in_progress, self._shutdown_in_progress,
-        #          self._startup_factor_th, self._startup_factor_el, self._shutdown_factor_th,
-        #          self._dt_time_temp_exc) = _pf._process_chp_core_modulation(
-        #             self._process_flows,
-        #             self._power_modulation, self.T, self._T_chp_in,
-        #             self._T_chp_in_max, self._T_chp_in_max_emrgncy,
-        #             self._mod_lower, self._min_on_time, self._min_off_time,
-        #             self._max_ramp_el,
-        #             self._startup_in_progress, self._shutdown_in_progress,
-        #             self._chp_state, self._startup_at_time, self._shutdown_at_time,
-        #             self._startup_duration, self._shutdown_duration,
-        #             self._chp_on_perc, self._remaining_heat, self._bin_pow_fac,
-        #             self._startup_factor_th, self._startup_factor_el,
-        #             self._shutdown_factor_th,
-        #             self._startuptsteps,
-        #             self._chp_off_perc, self._dt_time_temp_exc,
-        #             self._max_temp_exc_time,
-        #             self.stepnum, self._models.time_vec, timestep,
-        #         )
-        # =============================================================================
 
         if not self._shutdown_in_progress:
             self._dQ_heating[:] = (

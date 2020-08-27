@@ -314,13 +314,6 @@ class PipeWith3wValve(Pipe):
                     self.pf_arr[trgt_idx],
                     self.pf_arr[src_idx],
                 )
-        # =============================================================================
-        #                 raise NotImplementedError(
-        #                     'Port {0} is to be solved, with port AB not yet being'
-        #                     'solved. This requires multiple calculations, for example '
-        #                     '*pf_arr[0] / pf_arr[1] if port==B, which is currently '
-        #                     'not supported.'.format(port))
-        # =============================================================================
 
         # update solved ports list and counter stop break:
         self._solved_ports.append(port)

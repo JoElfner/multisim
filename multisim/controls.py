@@ -6,7 +6,7 @@ Date: Sep 2017
 
 import numpy as np
 
-from .precomp_funs import ctrl_deadtime
+from .precomp_funs import ctrl_deadtime as _ctrl_deadtime
 
 
 class Controls:
@@ -163,21 +163,6 @@ class Controls:
         assert not self._models.parts[self.actuator].ctrl_defined, err_str
 
         # ---> DEFINE CONTROL ALGORITHMS
-        #        # defined control algorithms: DO NOT CHANGE THE ORDER/INDEX! THIS IS
-        #        # CRUCIAL FOR USING THE CORRECT ALGORITHM!!!!!!!!!!!!
-        #        # DIRECT CONTROL ALGORITHMS MUST BE AT POSITION:
-        #        # 0, 1*100, 2*100, ..., n*100, SO THAT position%100 == 0! This is
-        #        # needed to get 'controlled_part_T_in' in method init_controller!
-        #        self.ctrl_algs = np.empty([1000], dtype='<U30')
-        #        self.ctrl_algs[0] = 'direct_ctrl'
-        #        self.ctrl_algs[101] = 'pump_HeatGen_T_out'
-        #        self.ctrl_algs[102] = 'pump_HeatGen_T_in'
-        #        self.ctrl_algs[200] = '3w_valve_direct'
-        #        self.ctrl_algs[201] = '3w_valve_mix'
-        #        self.ctrl_algs[211] = '3w_valve_split_HeatGen'
-        #        self.ctrl_algs[999] = 'link_parts'
-        #        # translate control algorithm in an integer value for fast if/else
-        #        # choice in calculation:
         err_str = (
             base_err
             + arg_err.format('process_CV_mode')
@@ -226,43 +211,6 @@ class Controls:
             self._process_cv_fun = kwargs['process_cv_func']
         else:  # linked controller
             pass  # do nothing
-
-        #        assert (type(ctrl_algorithm) == str and
-        #                ctrl_algorithm in self.ctrl_algs), err_str
-        #        # get number of control algorithm
-        #        self.ctrl_alg = int(np.where(self.ctrl_algs == ctrl_algorithm)[0])
-
-        #        # ---> GET PART DEFINITIONS: ACTUATOR, CONTROLLED PART, REFERENCE PART
-        #        # actuator which controls the plant using the control variable:
-        #        assert 'actuator' in kwargs and kwargs['actuator'] in self._models.parts, (
-        #                base_err +
-        #                'No actuator was given with `actuator=X` or specified '
-        #                'actuator was not found! The following actuators have been '
-        #                'defined:\n' +
-        #                str(self._models._actuators))
-        # #        assert actuator in self._models.parts, (
-        # #                'The specified actuator `' + actuator + '` for controller `'
-        # #                + name + '` was not found! The following actuators have been '
-        # #                'defined:\n' + str(self._models._actuators))
-        #        self.actuator = kwargs['actuator']
-        #        # check if part can be an actuator:
-        #        assert self._models.parts[self.actuator].is_actuator, (
-        #                base_err + 'The selected actuator ' + self.actuator + ' is '
-        #                'not an actuator!')
-        #        # check if actuator already has a controller or is defined to not need
-        #        # a controller:
-        #        err_str = ('Actuator `' + self.actuator + '` is either already '
-        #                   'controlled by another controller or set to not needing a '
-        #                   'controller!')
-        #        assert not self._models.parts[self.actuator].ctrl_defined, base_err + err_str
-
-        # check and get lower and upper limits of actuator if not linked:
-        #        err_str = ('No lower and upper limits have been specified for '
-        #                   'actuator ' + self.actuator + '!')
-        #        if self.ctrl_alg != 999:
-        #            assert 'lims' in self._models.parts[self.actuator].__dict__, (
-        #                    base_err + err_str)
-        #            self._llim, self._ulim = self._models.parts[self.actuator].lims
 
         err_str = (
             self._base_err
@@ -431,121 +379,6 @@ class Controls:
             ), err_str
             self._ref_diff = float(kwargs['difference_to_ref'])
 
-        #        # ---> CHECK CTRL ALGORITHMS
-        #        # check if actuator definetely needs a special control (all actuators
-        #        # with 2 outputs) AND if it is not just linked to another (controlled)
-        #        # actuator:
-        #        if (self._models.parts[self.actuator].actuator_special and
-        #                self.ctrl_alg != 999):
-        #            if self._models.parts[self.actuator].constr_type == '3w_valve':
-        #                #  check if 3w_valve is in the range for the 3w_valve algs:
-        #                err_str = ('A 3-way-valve needs a special control algorithm. '
-        #                           'Chose one of the following: ' +
-        #                           str(self.
-        #                               ctrl_algs[200:300][self.
-        #                                                  ctrl_algs[200:300] != '']))
-        #                assert 200 <= self.ctrl_alg < 300, err_str
-        #                # for a 3w_valve the port for the actuator has to be given:
-        #                err_str = ('If a 3-way-valve has been chosen as actuator, the '
-        #                           'A or B port which primarily has to be controlled '
-        #                           '(positive feedback on controller action, that '
-        #                           'means that the control variable, for example the '
-        #                           'valve opening of the port, is proportional to the '
-        #                           'error) needs to be chosen by passing it to '
-        #                           '`add_control()` as `actuator_port=port_name`.')
-        #                assert 'actuator_port' in kwargs, err_str
-        #                self.act_port = kwargs['actuator_port']
-        #                # get actuator port id:
-        #                """
-        #                TO DO:
-        #                    Check if kwargs['actuator_port'] is A or B and not AB!
-        #                    But need to change valve port naming scheme to A/B/AB
-        #                    before!
-        #                """
-        #                self.act_port = self.__check_args(
-        #                        'actuator', 'actuator_port', caller='add_control',
-        #                        actuator=self.actuator,
-        #                        actuator_port=(self.act_port))[1]
-        #                # set the in-or-outlet, which is not chosen as actuator port,
-        #                # as the second port to be controlled by the algorithm:
-        #                self.act_port_scnd = 1 - self.act_port
-        #
-        #        # LINKING ALGORITHM:
-        #        # if ctrl_alg == 'link_parts' == 999, the current actuator will be
-        #        # linked to another actuator, so that the current actuator will always
-        #        # have the same values as the other actuator. only works, if the
-        #        # actuators are of the same type:
-        #        if self.ctrl_alg == 999:
-        #            # check if reference part is given:
-        #            self.ref_part = self.__check_args('reference_part', 'no_port',
-        #                                              'add_control',
-        #                                              reference_part=reference_part)
-        #            assert (self._models.parts[self.actuator].constr_type ==
-        #                    self._models.parts[self.ref_part].
-        #                    constr_type), ('If one actuator\'s controls shall be '
-        #                                   'linked to another actuator\'s control, so '
-        #                                   'that the control variables will be '
-        #                                   'copied, both actuators have to be of the '
-        #                                   'same type.')
-        #            # find other actuator in controls:
-        #            for i, controls in enumerate(self._models.ctrl_l):
-        #                # if found, check other actuators controls:
-        #                if controls.actuator == self.ref_part:
-        #                    # if other actuator is direct control algorithm, get its
-        #                    # defined actuator Cv:
-        #                    if controls.ctrl_alg == 0:
-        #                        self._act_cv_name = controls._act_cv_name
-        #                        # create memoryview from own actuator cv to linked
-        #                        # actuator cv:
-        #                        self._models.parts[self.actuator].__dict__[
-        #                                self._act_cv_name][:] = (
-        #                                self._models.parts[self.ref_part].__dict__[
-        #                                        self._act_cv_name][:])
-        #                    # if actuators are 3w_valves:
-        #                    elif self._models.parts[self.actuator].constr_type == '3w_valve':
-        #                        # link port factor array of 3w_valve with memoryview to
-        #                        # other linked 3w_valves port factor array:
-        #                        self._models.parts[self.actuator].pf_arr = (
-        #                                self._models.parts[controls.actuator].pf_arr[:])
-        #                    else:
-        #                        raise TypeError('The currently chosen actuator does '
-        #                                        'not (yet) support linking! To '
-        #                                        'implement linking for this actuator '
-        #                                        'search for \'LINKING ALGORITHM:\' in '
-        #                                        'the Controls class.')
-        #
-        #        # DIRECT CONTROL ALGORITHM INITIALIZATION:
-        #        # check if variable to control is given for direct control algorithm:
-        #        if self.ctrl_alg == 0:
-        #            # assert if actuator CV is given:
-        #            assert ('self.actuator_CV' in
-        #                    kwargs), ('If direct control algorithm is chosen, the '
-        #                              'control variable name has to be given! It must '
-        #                              'be passed to `add_control()` as '
-        #                              '`self.actuator_CV=X`, with X being a '
-        #                              'string which exactly matches the name of the '
-        #                              'variable to control, for example \'dm\' to '
-        #                              'control the massflow of a pump.')
-        #            # assert if given actuator CV exists:
-        # #            assert (kwargs['self.actuator_CV'] in
-        # #                    self._models.parts[self.actuator].
-        # #                    __dict__), ('The given \'self.actuator_CV\' ' +
-        # #                                kwargs['self.actuator_CV'] +
-        # #                                ' for controller ' + self.name +
-        # #                                ' and actuator ' + self.actuator +
-        # #                                ' does not exist!')
-        #            err_str = ('The given \'self.actuator_CV\' ' +
-        #                                kwargs['self.actuator_CV'] +
-        #                                ' for controller ' + self.name +
-        #                                ' and actuator ' + self.actuator +
-        #                                ' does not exist!')
-        #            assert hasattr(self._models.parts[self.actuator],
-        #                           kwargs['self.actuator_CV']), err_str
-        #            # set actuator CV as memoryview to selected actuator CV:
-        #            self._act_cv_name = kwargs['self.actuator_CV']
-        #            self._act_cv = (
-        #                    self._models.parts[self.actuator].__dict__[self._act_cv_name][:])
-
         # ---> CHECK CTRL ALGORITHMS
         # check if actuator definetely needs a special control (all actuators
         # with 2 outputs) AND if it is not just linked to another (controlled)
@@ -594,9 +427,6 @@ class Controls:
                 'reference actuator.'
             )
             assert self.ref_part != 'none', err_str
-            #            # check if reference part is given:
-            #            self.ref_part = self.__check_args(
-            #                    'reference_part', 'no_port', reference_part=reference_part)
             assert (
                 self._models.parts[self.actuator].constr_type
                 == self._models.parts[self.ref_part].constr_type
@@ -623,9 +453,12 @@ class Controls:
                             'this does not create a memoryview!'
                             'But is it ok to reallocate any array '
                             'here to create memoryviews? For '
-                            'example does flow not still work '
+                            'example does flow net still work '
                             'after reallocating?'
                         )
+                        # TODO: if this is required at all (currently not used)
+                        # AND if this is working: replace __dict__ with getattr
+                        # and/or setattr
                         self._models.parts[self.actuator].__dict__[
                             self._act_cv_name
                         ][:] = self._models.parts[self.ref_part].__dict__[
@@ -633,12 +466,6 @@ class Controls:
                         ][
                             :
                         ]
-                    # if actuators are 3w_valves:
-                    #                    elif self._models.parts[self.actuator].constr_type == '3w_valve':
-                    #                        # link port factor array of 3w_valve with memoryview to
-                    #                        # other linked 3w_valves port factor array:
-                    #                        self._models.parts[self.actuator].pf_arr = (
-                    #                                self._models.parts[controls.actuator].pf_arr[:])
                     # if actuators have special control method:
                     elif (
                         controls._process_cv_mode == 'part_specific'
@@ -677,39 +504,6 @@ class Controls:
                     + self.ref_part
                     + '` was found!'
                 )
-
-        # replaced with getting act cv from actuators itself
-        #        # DIRECT CONTROL ALGORITHM INITIALIZATION:
-        #        # check if variable to control is given for direct control algorithm:
-        #        if self._process_cv_mode == 'direct':
-        #            # assert if actuator CV is given:
-        #            assert ('actuator_CV' in kwargs and
-        #                    type(kwargs['actuator_CV']) == str), (
-        #                base_err + arg_err.format('actuator_CV') +
-        #                'If direct control algorithm is chosen, the '
-        #                'control variable name has to be given with '
-        #                '`actuator_CV=X`, where X is a string which '
-        #                'matches the name of the variable to control '
-        #                'exactly, for example \'dm\' to  control the '
-        #                'massflow of a pump.')
-        #            # assert if given actuator CV exists:
-        # #            assert (kwargs['self.actuator_CV'] in
-        # #                    self._models.parts[self.actuator].
-        # #                    __dict__), ('The given \'self.actuator_CV\' ' +
-        # #                                kwargs['self.actuator_CV'] +
-        # #                                ' for controller ' + self.name +
-        # #                                ' and actuator ' + self.actuator +
-        # #                                ' does not exist!')
-        #            err_str = (
-        #                base_err + arg_err.format('actuator_CV') +
-        #                'The given `actuator_CV=' + kwargs['actuator_CV'] +
-        #                '` for actuator ' + self.actuator + ' does not exist.')
-        #            assert hasattr(self._models.parts[self.actuator],
-        #                           kwargs['actuator_CV']), err_str
-        #            # set actuator CV as memoryview to selected actuator CV:
-        #            self._act_cv_name = kwargs['actuator_CV']
-        #            self._act_cv = (
-        #                    self._models.parts[self.actuator].__dict__[self._act_cv_name][:])
 
         # get actuator CV name and memory view to the actuator CV:
         self._act_cv_name = self._models.parts[self.actuator]._actuator_CV_name
@@ -770,8 +564,6 @@ class Controls:
                 self._master_act_cv = self._models.ctrls[
                     self.master_ctrl
                 ]._act_cv[:]
-                #                # get lower limit of master controller to check if active:
-                #                self._master_act_llim = self._models.ctrls[self.master_ctrl]._llim
                 # get off-state of master controller to check if active:
                 self._master_act_offst = self._models.ctrls[
                     self.master_ctrl
@@ -1162,7 +954,7 @@ class Controls:
                     self.delayed_pv,
                     self.dt_idx,
                     self.last_dt_idx,
-                ) = ctrl_deadtime(
+                ) = _ctrl_deadtime(
                     self.deadtime,
                     timestep,
                     self.dt_arr,
@@ -1174,8 +966,7 @@ class Controls:
                     self.sp,
                     self.pv,
                 )
-                print('deadtime used! check i-term/err_sum use!')
-            # if no deadtime was chosen:
+            # if no deadtime:
             else:
                 # get current timestep error
                 # (error = setpoint - process_variable):
@@ -1286,23 +1077,9 @@ class Controls:
             'environment, the following error occurred:\n'
         ).format(self.name)
 
-        # get calling function name and save it in a printable version:
-        #        if caller == 'init_controller':
-        #            caller = '`init_controller()`'
-        #        elif caller == 'add_control':
-        #            caller = '`add_control()`'
-        #        elif caller == 'not_given':
-        #            caller = '!caller not given!'
-        #        else:
-        #            raise NameError('The given caller function does not exist!')
         caller = '`add_control()`'  # init done while adding!
 
         # CHECKING PART:
-        # assert that part is given:
-        #        err_str = (
-        #           'The part ' + part + ' has to be passed to ' + caller +
-        #           ' for actuator ' + self.actuator + ' and control algorithm '
-        #           + self.ctrl_algs[self.ctrl_alg] + '!')
         err_str = (
             'The part `{0}` has to be given to {1} for actuator {2}.'
         ).format(part, caller, self.actuator)
@@ -1343,42 +1120,42 @@ class Controls:
             except ValueError:
                 err_str = (
                     base_err
-                    + 'The port `'
-                    + given_port
-                    + '` at part `'
-                    + given_part
-                    + '` passed to '
-                    + caller
-                    + ' as '
-                    + port
-                    + ' for actuator `'
-                    + self.actuator
-                    + '` of '
-                    'controller `' + self.name + '` does not exist!'
-                    'Either pass a cell index in the range of '
-                    '0 <= index < '
-                    + str(self._models.parts[given_part].T.shape[0])
-                    + ' or one of the following ports:\n'
-                    + str(self._models.parts[given_part].port_names)
+                    + 'The port `{gpo}` at part `{gpa}` passed to {cllr} as '
+                    '{prt} for actuator `{actr}` of controller `{name}` does '
+                    'not exist. Either pass a cell index in the range of '
+                    '0 <= index < {uidx} or one of the following ports:\n'
+                    '{ports}'
+                ).format_map(
+                    {
+                        'gpo': given_port,
+                        'gpa': given_part,
+                        'cllr': caller,
+                        'prt': port,
+                        'actr': self.actuator,
+                        'name': self.name,
+                        'uidx': self._models.parts[given_part].T.shape[0],
+                        'ports': self._models.parts[given_part].port_names,
+                    }
                 )
                 raise ValueError(err_str)
         # if port given as id, catch error for not existing ports and if no
         # error return at the end of the function:
         elif type(given_port) == int:
             err_str = (
-                base_err + 'The port index ' + str(given_port) + ' at '
-                'part `'
-                + given_part
-                + '` passed to '
-                + caller
-                + ' as '
-                + port
-                + ' for actuator `'
-                + self.actuator
-                + '` is out of '
-                'bounds for axis 0 with size '
-                + str(self._models.parts[given_part].T.shape[0])
-                + '.'
+                base_err
+                + 'The port index `{gpo}` at part `{gpa}` passed to {cllr} as '
+                '{prt} for actuator `{actr}` of controller `{name}` is '
+                'out of bounds for axis 0 with size {sz}.'
+            ).format_map(
+                {
+                    'gpo': given_port,
+                    'gpa': given_part,
+                    'cllr': caller,
+                    'prt': port,
+                    'actr': self.actuator,
+                    'name': self.name,
+                    'sz': self._models.parts[given_part].T.shape[0],
+                }
             )
             assert (  # assert that index is in range (pos. and negative!)
                 0 <= given_port < self._models.parts[given_part].T.shape[0]
@@ -1392,18 +1169,18 @@ class Controls:
         elif type(given_port) != int:
             err_str = (
                 base_err
-                + 'The port '
-                + given_port
-                + ' at part '
-                + given_part
-                + ' passed to '
-                + caller
-                + ' as '
-                + port
-                + ' for actuator '
-                + self.actuator
-                + ' has to be passed as string or integer '
-                'value!'
+                + 'The port `{gpo}` at part `{gpa}` passed to {cllr} as '
+                '{prt} for actuator `{actr}` of controller `{name}` has to '
+                'be given as string or integer value.'
+            ).format_map(
+                {
+                    'gpo': given_port,
+                    'gpa': given_part,
+                    'cllr': caller,
+                    'prt': port,
+                    'actr': self.actuator,
+                    'name': self.name,
+                }
             )
             raise TypeError(base_err + err_str)
 

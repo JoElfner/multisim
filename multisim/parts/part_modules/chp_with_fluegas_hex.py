@@ -577,10 +577,7 @@ def add_chp_with_fghex(
     # dm_ff_diff = chp_kwds['power_electrical'] * 2 / 4180 / (
     #     85 - 60
     # ) - chp_kwds['power_electrical'] * 2 / 4180 / (90 - 60)
-    # =============================================================================
-    #     # base dm diff for multiplication of Kp crit for alternating chp powers
-    #     dm_ff_diff_base = 20e3 * 2 / 4180 / (85 - 60) - 20e3 * 2 / 4180 / (90 - 60)
-    # =============================================================================
+
     if not ctrl_chp_pump_by_ts:
         simenv.add_control(
             _ap.PID,
@@ -769,44 +766,3 @@ def add_chp_with_fghex(
             norm_timestep=1.0,
             invert=True,
         )
-
-
-# =============================================================================
-#     # add controls:
-#     simenv.add_control(
-#         _ap.PID, name='ctrl_Misch', terms='PI', actuator='MV_TWE',
-# #        controlled_part='Rohr_Misch', controlled_port=1, actuator_port='A',
-#         controlled_part='Rohr_Misch', controlled_port=0, actuator_port='A',
-#         process_CV_mode='part_specific', reference_part='none',
-#         time_domain='discrete', sub_controller=False, off_state=0.,
-#         setpoint=65.3, deadtime=0, loop_tuning='manual', Kp=0.04,
-#         Ki=1/100, adapt_coefficients=True, norm_timestep=1.,
-#         anti_windup=1., CV_saturation=(0., 1.), slope=(0., 0.),
-#         )
-#
-#     simenv.add_control(
-#         _ap.PID, name='ctrl_Pumpe_TWE', terms='PI', actuator='Pumpe_TWE',
-#         controlled_part='Rohr_WW_TWE', controlled_port=1,
-#         process_CV_mode='direct', reference_part='none',
-#         time_domain='continuous',
-#         sub_controller=True, master_type='part', master_part='Pumpe_WW',
-#         master_variable='dm', master_variable_index=0,
-#         dependency_kind='concurrent', off_state=0,
-#         setpoint=60.2, deadtime=0, loop_tuning='ziegler-nichols',
-#         Kp_crit=0.06, T_crit=33, rule='classic',
-#         filter_derivative=False, cutoff_freq=0.1,
-#         adapt_coefficients=True, norm_timestep=0.45,  # norm_timestep=0.47,
-#         anti_windup=10, CV_saturation=(0, 0.5), slope=(-1, 1),
-#         )
-#     simenv.add_control(
-#         _ap.PID, name='ctrl_Pumpe_ZirkNachheiz', terms='PI',
-#         actuator='Pumpe_ZirkNachheiz',
-#         controlled_part='Rohr_WW_Zirk', controlled_port=2,
-#         process_CV_mode='direct', reference_part='none',
-#         time_domain='discrete',
-#         sub_controller=False, off_state=0,
-#         setpoint=60.2, deadtime=0, loop_tuning='manual', Kp=0.01,
-#         Ki=1/6000, adapt_coefficients=True, norm_timestep=1, anti_windup=0.2,
-#         CV_saturation=(0, 10), slope=(0, 0),
-#         )
-# =============================================================================

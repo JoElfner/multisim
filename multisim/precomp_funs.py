@@ -2872,15 +2872,7 @@ def condensing_hex_solve(
             round(X_pred[0, 2] / water_dm_range[0]) * water_dm_range[0]
         )
     elif X_pred[0, 2] > water_dm_range[1]:
-        # =============================================================================
-        #         print('\nWater mass flow in condensing HEX exceeded. The following '
-        #               'value was encountered:')
-        #         print(X_pred[0, 2])
-        #         raise ValueError
-        # =============================================================================
-        # # dont raise, just clip:
-        # X_pred[0, 2] = water_dm_range[1]
-        # replaced by bypassing excess mass flow, to avoid huge power output
+        # bypassing excess mass flow, to avoid huge power output
         # when outside HEX heat meters are calculated with unclipped flows:
         # backup full flow for calculations:
         # water_dm_full = X_pred[0, 2]  # not needed anymore

@@ -15,6 +15,7 @@ Changelog
 * MAINT: API: Main class `Models` renamed to `SimEnv`. `Models` can still be imported/used for backwards compatibility, but will be deprecated in a future release.
 * DEP: Many deprecated/commented LOC removed.
 * DEP: :py:func:`utility_functions.NetPlotter`: now raises a deprecation warning. The only remaining supported method is `plot_errors`. Will be removed in future releases.
+* ENH: Started integrating a new way of checking for kwds in :py:func:`parts.pipe.Pipe` when supporting two different arg naming conventions.
 
 0.9.9 - 2020-08-26
 ==================
