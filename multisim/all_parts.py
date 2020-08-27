@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Feb  5 14:12:54 2020
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Feb 2020
 """
 
 from .parts.controllers import PID, BangBang, TwoSensors, ModelPredCHP

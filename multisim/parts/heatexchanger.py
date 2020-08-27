@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 24 16:11:25 2017
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Aug 2017
 
 TODO:
       Für die Betrachtung der lokalen Film-Koeffizienten (alpha/k-Werte) müssen
@@ -20,11 +19,11 @@ TODO:
 """
 
 import numpy as np
-from .. import simenv as _smnv
+from ..simenv import SimEnv
 from .. import precomp_funs as _pf
 
 
-class HeatExchanger(_smnv.Models):
+class HeatExchanger(SimEnv):
     """
     type: Plate heat exchanger using a NTU-method coupled with capacities for
     transient heat flow calculations.

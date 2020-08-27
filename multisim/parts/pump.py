@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 24 16:06:13 2017
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Aug 2017 2018
 """
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as _plt
 
-from .. import simenv as _smnv
+from ..simenv import SimEnv
 from .. import precomp_funs as _pf
 
 
-class Pump(_smnv.Models):
+class Pump(SimEnv):
     """
     type: Pump class.
     One pump is required in each contiguous seaction of the model environment

@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 12 11:25:41 2017
-
-@author: Johannes
-
-This file just merges standard parts into one module for easier import.
-
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Dec 2017
 """
 
 from .parts.controllers import PID, BangBang, TwoSensors

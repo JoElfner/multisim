@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Nov  7 17:27:10 2019
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Nov 2019
 """
 
-
 import numpy as np
-import sklearn as skl
+import sklearn as _skl
 
-from .. import simenv as smnv
+from ..simenv import SimEnv
 from ..precomp_funs import (
     make_poly_transf_combs_for_nb,
     extract_pca_results,
@@ -17,7 +15,7 @@ from ..precomp_funs import (
 )
 
 
-class HEXCondPoly(smnv.Models):
+class HEXCondPoly(SimEnv):
     r"""
     type: Plate HEX for water/flue gas heat transfer with condensation.
 
@@ -69,7 +67,7 @@ class HEXCondPoly(smnv.Models):
             + 'The scikit-learn regression pipeline must be given.'
         )
         assert 'regression_pipeline' in kwargs and isinstance(
-            kwargs['regression_pipeline'], skl.pipeline.Pipeline
+            kwargs['regression_pipeline'], _skl.pipeline.Pipeline
         ), err_rp
         self._linreg_mdl = kwargs['regression_pipeline']
         # flow scaling reference value (dV gas in Nm3/h and dm water in kg/s)
@@ -159,19 +157,6 @@ class HEXCondPoly(smnv.Models):
         ), err_wr
         self._water_dm_range = np.empty(2, dtype=np.float64)  # prealloc array
         self._water_dm_range[:] = kwargs['water_flow_range']
-
-        # =============================================================================
-        #             # get plates
-        #             err_str = (
-        #                 self._base_err + self._arg_err.format('plates') +
-        #                 'For a plate heat exchanger the number of plates has to be '
-        #                 'given with `plates=X` as an integer value >4. The number of '
-        #                 'plates has to be an even number for a plate heat exchanger '
-        #                 'with one pass on each side. For other numbers of passes, '
-        #                 '`(plates - 1)/passes` must be an even number.')
-        #             assert ('plates' in kwargs and
-        #                     type(kwargs['plates']) == int), err_str
-        # =============================================================================
 
         # set number of gridpoints to 4:
         self.num_gp = 4

@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul 18 16:08:49 2018
-
-@author: elfner
-
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Jul 2018
 """
 
 import numpy as np
 
-from .. import simenv as _smnv
+from ..simenv import SimEnv
 from .. import precomp_funs as _pf
 
 
-class HexNum(_smnv.Models):
+class HexNum(SimEnv):
     """
     type: Plate heat exchanger using a NTU-method coupled with capacities for
     transient heat flow calculations.

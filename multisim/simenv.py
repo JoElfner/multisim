@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Sep 14 17:24:56 2017
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Sep 2017
 """
+
 from collections import OrderedDict as _odict
 from collections import namedtuple as _namedtuple
 from functools import partial as _partial
@@ -21,10 +21,10 @@ from .flownet import FlowNet as _FlowNet
 from . import precomp_funs as _pf
 from .version import version as __version__
 
-__all__ = ['Models']
+__all__ = ['SimEnv']
 
 
-class Models:
+class SimEnv:
     """
     Simulation model environment.
 
@@ -700,7 +700,7 @@ class Models:
 
         # postpone addition of parts to enable unordered sim. env.
         # construction (passing on self is needed, since some vars are saved in
-        # the created Models class instance!):
+        # the created SimEnv class instance!):
         self.__postpone['add_part'][name] = _partial(
             self._add_part, part, name, **kwargs
         )
@@ -716,7 +716,7 @@ class Models:
         while assembling the simulation environment.
 
         Add a part to the calculation model by creating an instance of the
-        specific part class inside the Models class.
+        specific part class inside the SimEnv class.
 
         """
         # assert that timeframe and solver are set before adding any parts:
@@ -1383,7 +1383,7 @@ class Models:
             )
         else:
             # get timedelta of timeseries in seconds (from nanoseconds):
-            self._Models__BC_timedelta = (
+            self._SimEnv__BC_timedelta = (
                 time_series.index.values[1].item()
                 - time_series.index.values[0].item()
             ) / 1e9
@@ -1395,7 +1395,7 @@ class Models:
                 'indexing problems!'
             ).format(err_name)
             assert (
-                self._Models__BC_timedelta * time_series.index.size
+                self._SimEnv__BC_timedelta * time_series.index.size
                 > self.timeframe
             ), err_str
             # add new timeseries in seconds frequency:
@@ -1403,7 +1403,7 @@ class Models:
                 'datetime64[s]'
             )
             # preallocate last step index counter for interpolation:
-            self._Models__last_step_t_idx = 0
+            self._SimEnv__last_step_t_idx = 0
 
         # add dynamic BC for an open port
         if open_port is not None and part is None and control is None:
@@ -1568,7 +1568,7 @@ class Models:
 
         # postpone addition of controls to enable unordered sim. env.
         # construction (passing on self is needed, since some vars are saved in
-        # the created Models class instance!):
+        # the created SimEnv class instance!):
         #        self.__postpone['add_ctrl'][name] = (
         #                lambda: self._add_control(
         #                        Controls_module, name,
@@ -2855,7 +2855,7 @@ class Models:
         -----------
         cls : Class
             If the part to get the indices from has not yet been added to
-            Models Class (for example when getting sport specifications while
+            SimEnv Class (for example when getting sport specifications while
             calling the class' __init__ method), the class instance has to be
             passed to this method within the `cls`-parameter.
         """
@@ -2873,7 +2873,7 @@ class Models:
         assert type(as_slice) == bool, err_str
 
         # get parts dict depending on calling class:
-        if self.__class__ != Models:
+        if self.__class__ != SimEnv:
             # Catch some strange error occurring randomly after import multisim several times...
             try:
                 parts_dict = self._models.parts
@@ -2888,7 +2888,7 @@ class Models:
         else:
             assert (
                 cls is not None
-            ), 'Class must be given when part is not yet added to Models!'
+            ), 'Class must be given when part is not yet added to SimEnv!'
 
         # if part and port are given as ids, convert them to strings:
         if isinstance(part, int) and isinstance(port, int):
@@ -3194,7 +3194,7 @@ class Models:
     #        -----------
     #        cls : Class
     #            If the part to get the indices from has not yet been added to
-    #            Models Class (for example when getting sport specifications while
+    #            SimEnv Class (for example when getting sport specifications while
     #            calling the class' __init__ method), the class instance has to be
     #            passed to this method within the `cls`-parameter.
     #        """
@@ -3214,7 +3214,7 @@ class Models:
     #            cls = self.parts[part]
     #        else:
     #            assert cls is not None, ('Class must be given when part is not '
-    #                                     'yet added to Models!')
+    #                                     'yet added to SimEnv!')
     #
     #        # if part and port are given as ids, convert them to strings:
     #        if type(part) == int and type(port) == int:
@@ -4728,7 +4728,7 @@ class Models:
         # reset some other values to allow restarting the sim:
         self.stepnum[0] = 0
         self._vN_max_step[0] = np.inf
-        self._Models__last_step_t_idx = 0
+        self._SimEnv__last_step_t_idx = 0
 
         # create inputs for numba njit port updater:
         self._create_port_updater()

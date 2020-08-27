@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 24 15:53:56 2017
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Aug 2017
 """
 
 from collections import OrderedDict as odict
 
 
 class FlowNet:
-    def __init__(self, Models_instance, part, sub_net=False):
+    def __init__(self, SimEnv_instance, part, sub_net=False):
         # depending on primary or sub/secondary net:
         if not sub_net:
             # if primary net:
@@ -23,7 +22,7 @@ class FlowNet:
             self.parent_part = part
         # general stuff for both types:
         # get memoryview to massflow array of parent part by slicing:
-        self.dm_parent = Models_instance.parts[part].dm[:]
+        self.dm_parent = SimEnv_instance.parts[part].dm[:]
         # from parent part to child part ordered topology dict which determines
         # the order to solve for the massflows. the key is the part/port to
         # solve,the value contains a tuple of the following setup:

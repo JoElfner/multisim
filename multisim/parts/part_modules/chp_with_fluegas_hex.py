@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri 15 Nov 2019 16:40:24
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Nov 2019
 """
 
 import numpy as np

@@ -19,13 +19,13 @@ sys.dont_write_bytecode = True
 # %% Test basic simulation invocation
 @pytest.mark.parametrize('suppress_printing', [True, False])
 def test_initsim(suppress_printing):
-    ms.Models(suppress_printing)
+    ms.SimEnv(suppress_printing)
 
 
 # make the tested state a fixture for further testing
 @pytest.fixture(scope='module', params=[True, False])
 def make_sim(request):
-    return ms.Models(request.param)
+    return ms.SimEnv(request.param)
 
 
 # and isolate it to allow reverting for each new test

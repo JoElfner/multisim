@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Aug 20 15:49:14 2018
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Aug 2018
 """
 
 import numpy as np
 
-from .. import simenv as _smnv
+from ..simenv import SimEnv
 from .. import precomp_funs as _pf
 
 
-class Tes(_smnv.Models):
+class Tes(SimEnv):
     """
     type: Thermal Energy Storage
 

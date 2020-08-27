@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Feb 19 18:29:51 2018
-
-@author: Johannes
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Feb 2018
 """
 
 
 import numpy as np
 
-from .. import simenv as _smnv
+from ..simenv import SimEnv
 from .. import precomp_funs as _pf
 
 
-class Pipe2D(_smnv.Models):
+class Pipe2D(SimEnv):
     """
     type: Single Pipe with a second dimension storing the wall temperatures.
 

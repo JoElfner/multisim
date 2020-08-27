@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Nov  9 13:30:20 2017
-
-@author: elfner
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Nov 2017
 """
 
 import numpy as np
 
-from .. import simenv as _smnv
-from ..precomp_funs import solve_connector_3w  # , get_cp_water
+from ..simenv import SimEnv
+from ..precomp_funs import solve_connector_3w as _solve_connector_3w
 
 
-class Connector3w(_smnv.Models):
+class Connector3w(SimEnv):
     """
     type: Connector3w class.
     The Connector3w **mixes or separates** a flow, depending on the pumps of
@@ -427,90 +426,7 @@ class Connector3w(_smnv.Models):
             containing no mass.
         """
 
-        #        # depending on the flow conditions this 3w connector acts as a flow
-        #        # mixing or splitting device. This state has to be determined by
-        #        # checking the direction of the massflows through the ports.
-        #        # A negative sign means that the massflow is exiting through the
-        #        # respective port, a positive sign is an ingoing massflow.
-        #
-        #        # get connected port temperatures:
-        #        # get port array:
-        #        self.T[:] = self._models.ports_all[self._port_link_idx]
-        #        # get cp-values of all temperatures:
-        #        get_cp_water(self.T, self._cp_T)
-        #
-        #        # save bool indices of massflows greater (in) and less (out) than 0:
-        #        # (using dm as massflow array only works since it is a view of _dm_io!)
-        #        self._dm_in[:] = np.greater(self.dm, 0)
-        #        self._dm_out[:] = np.less(self.dm, 0)
-        #        # also get the integer indexes of this to use faster indexing:
-        #        """
-        #        TO DO: check if this is faster using integer index arrays and summing
-        #        up the bools right at the beginning!
-        #        then self._dm_in will be the integer index and the bool sum will be
-        #        named self._dm_in_sum or something like this. construction will be:
-        #            self._dm_in_bool[:] = np.greater(self.dm, 0)
-        #            self._dm_in = np.where(self._dm_in_bool)  <-- this could be SLOW!
-        #            self._dm_in_sum = np.sum(self._dm_in_bool)
-        #        """
-        #        self._dm_in_int = np.where(self._dm_in)
-        #        self._dm_out_int = np.where(self._dm_out)
-        #
-        #        # if 2 ports > 0 are True, 3w connector is mixer:
-        #        if np.sum(self._dm_in) == 2:
-        #            # get cp of outflowing massflow:
-        #            get_cp_water(np.sum(self.T[self._dm_in])/2, self._cp_out)
-        #            # calc T_out by mixing the inflowing massflows (*-1 since outgoing
-        #            # massflows have a negative sign):
-        #            T_out = (np.sum(self.dm[self._dm_in]
-        #                            * self._cp_T[self._dm_in]
-        #                            * self.T[self._dm_in])
-        #                     / (self._cp_out * -1 * self.dm[self._dm_out]))
-        #            # pass on port values by switching temperatures:
-        #            # set old T_out to both in-ports
-        #            self.T[self._dm_in] = self.T[self._dm_out]
-        #            # set calculated T_out to out-port
-        #            self.T[self._dm_out] = T_out
-        #        # if 2 ports < 0 are True, 3w connector is splitter:
-        #        elif np.sum(self._dm_out) == 2:
-        #            # no real calculation has to be done here, just switching
-        #            # temperatures and passing them on to opposite ports
-        #            # calc the temp which will be shown at the inflowing port as a mean
-        #            # of the temps of outflowing ports (at in port connected part will
-        #            # see a mean value of both temps for heat conduction):
-        #            T_in = self.T[self._dm_out].sum() / 2
-        #            # pass inflowing temp to outflowing ports:
-        #            self.T[self._dm_out] = self.T[self._dm_in]
-        #            # pass mean out temp to in port:
-        #            self.T[self._dm_in] = T_in
-        #        # if one port has 0 massflow, sum of dm_in == 1:
-        #        elif np.sum(self._dm_in) == 1:
-        #            # get port with 0 massflow:
-        #            self._dm0[:] = np.equal(self.dm, 0, subok=False)
-        #            # this port 'sees' a mean of the other two temperatures:
-        #            self.T[self._dm0] = self.T[~self._dm0].sum() / 2
-        #            # the out ports heat flow is dominated by convection, thus it
-        #            # only 'sees' the in flow temperature but not the 0 flow temp:
-        #            self.T[self._dm_out] = self.T[self._dm_in]
-        #            # the in ports heat flow is also dominated by convection, but here
-        #            # it is easy to implement the 0-flow port influence, since heat
-        #            # flow by convection of part connected to in port is not affected
-        #            # by connected temperature, thus also get a mean value:
-        #            self.T[self._dm_in] = self.T[~self._dm_in].sum() / 2
-        #        # if all ports have 0 massflow:
-        #        else:
-        #            # here all ports see a mean of the other ports:
-        #            # bkp 2 ports
-        #            T0 = (self.T[1] + self.T[2]) / 2
-        #            T1 = (self.T[0] + self.T[2]) / 2
-        #            # save means to port values:
-        #            self.T[2] = (self.T[0] + self.T[1]) / 2
-        #            self.T[0] = T0
-        #            self.T[1] = T1
-        #
-        #        # save results:
-        #        self.res[self.stepnum] = self.T
-        solve_connector_3w(
+        _solve_connector_3w(
             T=self.T,
             ports_all=self._models.ports_all,
             cp_T=self._cp_T,

@@ -6,7 +6,7 @@ MultiSim is a thermal simulation tool for heating appliances.
 - **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
 
 Even though MultiSim is **operational**, many things have to be *refactored*,
-*replaced*, *improved* etc... Especially at the core class `Models` and the most
+*replaced*, *improved* etc... Especially at the core class `SimEnv` and the most
 basic parts like pipes and TES, a steep learning curve of the Dev can be
 witnessed. ;) Thus enhancements should start here.
 

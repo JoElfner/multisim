@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct  9 12:40:32 2017
-
-@author: elfner
-
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: Oct 2017
 """
+
 from functools import wraps as _wraps
 import os
 import glob as _glob
@@ -25,7 +24,7 @@ from scipy import stats
 
 # from mpl_toolkits.mplot3d import Axes3D
 
-from .simenv import Models
+from .simenv import SimEnv
 from .precomp_funs import cp_water as _cp_water, rho_water as _rho_water
 
 # ignore FutureWarnings:
@@ -1268,12 +1267,19 @@ def remove_outliers_mad(
         return data
 
 
-class NetPlotter(Models):
+class NetPlotter(SimEnv):
     def __init__(self):
         print(
             'To use the net plotter, call its staticmethod '
             '`NetPlotter.set_plot_shape()` for all parts to draw!'
         )
+
+    warnings.warn(
+        'NetPlotter is mostly deprecated and will be removed in future '
+        'versions. Only its `plot_errors` method is currently still '
+        'supported.',
+        DeprecationWarning,
+    )
 
     @staticmethod
     def set_plot_shape(
@@ -1320,31 +1326,24 @@ class NetPlotter(Models):
             # loop over all ports to find first port which is connected to
             # another part which is already defined:
             found = False  # bool checker if one was found
-            for i in range(len(Models.parts[part].port_names)):
+            for i in range(len(SimEnv.parts[part].port_names)):
                 # get connected part:
-                conn_part = Models.port_links[
-                    part + ';' + Models.parts[part].port_names[i]
+                conn_part = SimEnv.port_links[
+                    part + ';' + SimEnv.parts[part].port_names[i]
                 ]
                 # conn part is part;port, split up:
                 conn_part, conn_port = conn_part.split(';')
-                # get port index of connected port inside connected part:
-                #                conn_p_idx = (Models.parts[conn_part].
-                #                              _port_own_idx[Models.parts[conn_part].
-                #                                         port_names.index(conn_port)])
                 # check if already defined for plotting and if True break:
                 if (
-                    hasattr(Models.parts[conn_part], 'info_plot')
-                    and Models.parts[conn_part].plot_ready
+                    hasattr(SimEnv.parts[conn_part], 'info_plot')
+                    and SimEnv.parts[conn_part].plot_ready
                 ):
                     found = True
-                    #                    # construct dict key with own port name:
-                    #                    d_key = ('auto_connection_'
-                    #                             + Models.parts[part].port_names[i])
                     # save connection info where the position is coming from
                     info_plot['auto_connection'] = {
                         'connected_part': conn_part,
                         'connected_port': conn_port,
-                        'own_port': Models.parts[part].port_names[i],
+                        'own_port': SimEnv.parts[part].port_names[i],
                     }
                     break
             # assert that at least one connected part was already defined by
@@ -1357,20 +1356,15 @@ class NetPlotter(Models):
             assert found, err_str
             # get position of connected parts port and set that as start
             # position:
-            start_pos = Models.parts[conn_part].info_plot[conn_port][
+            start_pos = SimEnv.parts[conn_part].info_plot[conn_port][
                 'coordinates'
             ]
         elif (
             type(start_pos) == str
-            and start_pos in Models.parts[part].port_names
+            and start_pos in SimEnv.parts[part].port_names
         ):
             # if given as string, it is taken from the part connected to the
             # given port
-            # get connected part:
-            #            conn_part = Models.port_links[part + ';' + start_pos]
-            #            # conn part is part;port, split up:
-            #            conn_part, conn_port = conn_part.split(';')
-            #            print(conn_part, conn_port)
             # get start position and info dict (ignore vector and length and
             # also pass dummy values to get direction for start pos)
             # get info dict key by constructing it before overwriting start pos
@@ -1380,25 +1374,6 @@ class NetPlotter(Models):
             )
             # reverse extract info from new info by reconstructing the port:
             info_plot['auto_connection'] = new_info[d_key]
-
-        #            # check if already defined for plotting and if True break:
-        #            if (hasattr(Models.parts[conn_part], 'info_plot')
-        #                    and Models.parts[conn_part].plot_ready):
-        #                # save connection info where the position is coming from
-        #                info_plot['auto_connection'] = {'connected_part': conn_part,
-        #                                                'connected_port': conn_port,
-        #                                                'own_port': start_pos}
-        #                # get position of connected parts port and set that as start
-        #                # position:
-        #                start_pos = (Models.parts[conn_part].
-        #                             info_plot[conn_port]['coordinates'])
-        #                print(start_pos)
-        #            else:
-        #                # raise error if connected part not defined:
-        #                raise TypeError(err_str)
-        #        else:
-        #            # raise error for all other cases
-        #            raise ValueError(err_str)
 
         # assert linewidth:
         err_str = (
@@ -1547,7 +1522,7 @@ class NetPlotter(Models):
             # x-y-coords than cells to plot all cell values on lines, since
             # for example one cell needs one x-y-coords for the start and one
             # for the end point):
-            num_cells = round(path_frac * Models.parts[part].num_gp + 1)
+            num_cells = round(path_frac * SimEnv.parts[part].num_gp + 1)
             # add to total number of cells:
             total_num_cells += num_cells
             # check if length is reached at last iteration:
@@ -1555,9 +1530,9 @@ class NetPlotter(Models):
                 # if last path is reached, set use endpoint to true:
                 use_ep = True
                 # and check for length:
-                if total_num_cells != (Models.parts[part].num_gp + 1):
+                if total_num_cells != (SimEnv.parts[part].num_gp + 1):
                     # get difference:
-                    dif = (Models.parts[part].num_gp + 1) - total_num_cells
+                    dif = (SimEnv.parts[part].num_gp + 1) - total_num_cells
                     # add up to all relevant variables to make it work:
                     total_num_cells += dif
                     num_cells += dif
@@ -1604,7 +1579,7 @@ class NetPlotter(Models):
             # create a copy of port index to loop over it:
             if (
                 'auto_connection' not in info_plot
-                or Models.parts[part].port_names.index(
+                or SimEnv.parts[part].port_names.index(
                     info_plot['auto_connection']['own_port']
                 )
                 == 0
@@ -1612,11 +1587,11 @@ class NetPlotter(Models):
                 # if the port which is at the start of the path is the first
                 # port in the path OR NO auto connection method was chosen,
                 # loop over port index in the standard order
-                pi = Models.parts[part]._port_own_idx.copy()
+                pi = SimEnv.parts[part]._port_own_idx.copy()
             else:
                 # else the port which is at the start of the path is NOT the
                 # first port in the path, loop over port index in reverse order
-                pi = Models.parts[part]._port_own_idx[::-1].copy()
+                pi = SimEnv.parts[part]._port_own_idx[::-1].copy()
             # create iterator object:
             itr = np.nditer(pi, flags=['c_index'])
             for p_idx in itr:
@@ -1632,23 +1607,23 @@ class NetPlotter(Models):
                     #   where they are located
                     if p_idx == 0:
                         port_coords = xy_vec_total[p_idx, :]
-                    elif p_idx == (Models.parts[part].num_gp - 1):
+                    elif p_idx == (SimEnv.parts[part].num_gp - 1):
                         port_coords = xy_vec_total[p_idx + 1, :]
                     else:
                         port_coords = (
                             xy_vec_total[p_idx, :] + xy_vec_total[p_idx + 1, :]
                         ) / 2
                     # get name of port:
-                    port_name = Models.parts[part].port_names[itr.index]
+                    port_name = SimEnv.parts[part].port_names[itr.index]
                     # save to info_plot dict:
                     info_plot[port_name] = {'coordinates': port_coords}
 
         # assert that total number of cells matches number of gridpoints:
         err_str = (
-            'The total number of cells is not equal the number of '
+            'The total number of cells is not equal to the number of '
             'gridpoints!'
         )
-        assert total_num_cells == Models.parts[part].num_gp + 1, err_str
+        assert total_num_cells == SimEnv.parts[part].num_gp + 1, err_str
         # save total xy vec to info dict:
         info_plot['xy_vector'] = xy_vec_total
         # also save x and y vectors for plotting:
@@ -1656,28 +1631,14 @@ class NetPlotter(Models):
         info_plot['y_vector'] = xy_vec_total[:, 1]
 
         # save plotting dict to part:
-        Models.parts[part].info_plot = info_plot
+        SimEnv.parts[part].info_plot = info_plot
 
         # set part to plot ready:
-        Models.parts[part].plot_ready = True
+        SimEnv.parts[part].plot_ready = True
 
         # draw complex parts:
-        if Models.parts[part].plot_special:
-            Models.parts[part].draw_part('dummy', 0, draw=False)
-
-        # reshape the results into the correct shape:
-
-    #        self.reshape_results(part)
-
-    # plot:
-    #        self.plot_net(info_plot, part)
-
-    #    def reshape_results(self, part):
-    #        # get shape of result array (axis 0: time, axis 1: grid-axis)
-    #        res_shape = Models.parts[part].res.shape
-    #        # make new shape for plotting
-    #        # (axis 0: plot y-axis, axis 1: plot x-axis, axis 2: plot time axis)
-    #        self._T_res_plt = self.res.shape
+        if SimEnv.parts[part].plot_special:
+            SimEnv.parts[part].draw_part('dummy', 0, draw=False)
 
     @staticmethod
     def _get_drctn(coords, start_coords, part):
@@ -1779,15 +1740,15 @@ class NetPlotter(Models):
                 + part
                 + ' does not exist!'
             )
-            assert coords[1] in Models.parts[part].port_names, err_str
+            assert coords[1] in SimEnv.parts[part].port_names, err_str
             # get connected part:
-            conn_part = Models.port_links[part + ';' + coords[1]]
+            conn_part = SimEnv.port_links[part + ';' + coords[1]]
             # conn part is part;port, split up:
             conn_part, conn_port = conn_part.split(';')
             # check if already defined for plotting:
             if (
-                hasattr(Models.parts[conn_part], 'info_plot')
-                and Models.parts[conn_part].plot_ready
+                hasattr(SimEnv.parts[conn_part], 'info_plot')
+                and SimEnv.parts[conn_part].plot_ready
             ):
                 # construct dict key with own port name:
                 d_key = 'auto_connection_' + coords[1]
@@ -1799,7 +1760,7 @@ class NetPlotter(Models):
                     'own_port': coords[1],
                 }
                 # target coords as tuple:
-                trgt_coords = Models.parts[conn_part].info_plot[conn_port][
+                trgt_coords = SimEnv.parts[conn_part].info_plot[conn_port][
                     'coordinates'
                 ]
                 # get vector as array:
@@ -1826,22 +1787,22 @@ class NetPlotter(Models):
             'To add a sensor to the plot at part ' + part + ', the '
             'part must be defined by `set_plot_shape()` before!'
         )
-        assert Models.parts[part].plot_ready, err_str
+        assert SimEnv.parts[part].plot_ready, err_str
 
         pt = dict()
 
         # assert that part exists:
         err_str = 'The given part ' + part + ' was not found!'
-        assert part in Models.parts, err_str
+        assert part in SimEnv.parts, err_str
         pt['part'] = part
 
         # assert that cell exists:
         err_str = 'The given cell with index ' + str(
             cell
         ) + ' does not ' 'exist at ' + part + ' with physical quantity array shape ' + str(
-            Models.parts[part].T.shape
+            SimEnv.parts[part].T.shape
         )
-        assert 0 <= cell < Models.parts[part].T.shape[0], err_str
+        assert 0 <= cell < SimEnv.parts[part].T.shape[0], err_str
         pt['cell'] = cell
 
         # if animated, get this from kwargs dict:
@@ -1853,15 +1814,15 @@ class NetPlotter(Models):
 
         # get view to array cells
         if phys_quant == 'T':
-            pt['pquant'] = Models.parts[part].res[:, cell : cell + 1]
+            pt['pquant'] = SimEnv.parts[part].res[:, cell : cell + 1]
         elif phys_quant == 'dm':
             # get massflow
-            if Models.parts[part].dm_invariant:
+            if SimEnv.parts[part].dm_invariant:
                 # get massflow if it is invariant in part
-                pt['pquant'] = Models.parts[part].res_dm[:, 0:1]
+                pt['pquant'] = SimEnv.parts[part].res_dm[:, 0:1]
             else:
                 # get massflow if it is variant in part
-                pt['pquant'] = Models.parts[part].res_dm[:, cell : cell + 1]
+                pt['pquant'] = SimEnv.parts[part].res_dm[:, cell : cell + 1]
         else:
             raise TypeError('Physical quantity' + phys_quant + ' unknown!')
         # save to dict:
@@ -1871,13 +1832,13 @@ class NetPlotter(Models):
         pt['identifier'] = identifier
 
         # now get xy-plot-grid position of that sensor:
-        pt['pos_end'] = Models.parts[part].info_plot['xy_vector'][cell + 1]
-        pt['pos_start'] = Models.parts[part].info_plot['xy_vector'][cell]
+        pt['pos_end'] = SimEnv.parts[part].info_plot['xy_vector'][cell + 1]
+        pt['pos_start'] = SimEnv.parts[part].info_plot['xy_vector'][cell]
         pt['pos_center'] = (pt['pos_start'] + pt['pos_end']) / 2
         # get direction vector:
         pt['vec_dir'] = pt['pos_end'] - pt['pos_start']
         # get rotation angle:
-        pt['rot_angle'] = Models._angle_to_x_axis(pt['vec_dir'])
+        pt['rot_angle'] = SimEnv._angle_to_x_axis(pt['vec_dir'])
 
         # construct drawing for sensor (line through cell center with circle
         # on top):
@@ -1886,9 +1847,9 @@ class NetPlotter(Models):
         pt['vec_top'] = np.array([0, 1])
         pt['vec_cc'] = np.array([0, 1.2])
         # rotate vectors:
-        pt['vec_bot'] = Models._rotate_vector(pt['vec_bot'], pt['rot_angle'])
-        pt['vec_top'] = Models._rotate_vector(pt['vec_top'], pt['rot_angle'])
-        pt['vec_cc'] = Models._rotate_vector(pt['vec_cc'], pt['rot_angle'])
+        pt['vec_bot'] = SimEnv._rotate_vector(pt['vec_bot'], pt['rot_angle'])
+        pt['vec_top'] = SimEnv._rotate_vector(pt['vec_top'], pt['rot_angle'])
+        pt['vec_cc'] = SimEnv._rotate_vector(pt['vec_cc'], pt['rot_angle'])
         # construct circle center position:
         pt['pos_cc'] = pt['pos_center'] + pt['vec_cc']
         # construct circle around midpoint of start and pos:
@@ -1943,11 +1904,11 @@ class NetPlotter(Models):
         )
         # get text offset from bottom point of pump by vector rotation:
         pt['txt_offset'] = tuple(
-            Models._rotate_vector(np.array([0, offset]), pt['rot_angle'])
+            SimEnv._rotate_vector(np.array([0, offset]), pt['rot_angle'])
         )
 
         # save to sensors dict:
-        Models.sensors.append(pt)
+        SimEnv.sensors.append(pt)
 
     @staticmethod
     def _draw_sensor(*, axis, step, animate):
@@ -1958,7 +1919,7 @@ class NetPlotter(Models):
         # if animated, returns are needed. save them to:
         ani_ret = list()
         # loop over sensors:
-        for i, sensor in enumerate(Models.sensors):
+        for i, sensor in enumerate(SimEnv.sensors):
             # try to draw sensor. if circle is already drawn somewhere else, a
             # RuntimeError will be caused. In this case reconstruct sensor and
             # draw again at the end:
@@ -1968,7 +1929,7 @@ class NetPlotter(Models):
             except RuntimeError:
                 sens_bkp = sensor.copy()
                 # clear sensor
-                Models.sensors[i] = []
+                SimEnv.sensors[i] = []
                 # add again with bkp values:
                 NetPlotter.add_sensor(
                     part=sens_bkp['part'],
@@ -2004,7 +1965,7 @@ class NetPlotter(Models):
             )
 
         # delete empty list elements:
-        Models.sensors = [lmnt for lmnt in Models.sensors if lmnt != []]
+        SimEnv.sensors = [lmnt for lmnt in SimEnv.sensors if lmnt != []]
 
         # if animated, return stuff:
         if animate:
@@ -2016,9 +1977,9 @@ class NetPlotter(Models):
         err_str = (
             'The chosen `timestep` for NetPlotter.plot_net() is '
             'greater than the number of timesteps of the simulation! '
-            'The simulation has ' + str(Models.stepnum - 1) + ' steps.'
+            'The simulation has ' + str(SimEnv.stepnum - 1) + ' steps.'
         )
-        assert timestep < Models.stepnum, err_str
+        assert timestep < SimEnv.stepnum, err_str
 
         # set new clims for colorbar:
         if clim is not None:
@@ -2050,37 +2011,30 @@ class NetPlotter(Models):
 
         # loop over all parts with plot special without drawing to get all the
         # special construction methods:
-        for part in Models.parts:
-            if Models.parts[part].plot_special:
-                Models.parts[part].draw_part(
+        for part in SimEnv.parts:
+            if SimEnv.parts[part].plot_special:
+                SimEnv.parts[part].draw_part(
                     ax, timestep, draw=False, animate=False
                 )
 
         # draw sensors:
         NetPlotter._draw_sensor(axis=ax, step=timestep, animate=False)
 
-        for part in Models.parts:
+        for part in SimEnv.parts:
             if (
-                hasattr(Models.parts[part], 'plot_ready')
-                and Models.parts[part].plot_ready
-                and not Models.parts[part].plot_special
+                hasattr(SimEnv.parts[part], 'plot_ready')
+                and SimEnv.parts[part].plot_ready
+                and not SimEnv.parts[part].plot_special
             ):
-                ip = Models.parts[part].info_plot
+                ip = SimEnv.parts[part].info_plot
                 # get xy vector and reshape:
                 xy_resh = ip['xy_vector'].reshape(-1, 1, 2)
                 # make line segments:
                 xy_seg = np.concatenate([xy_resh[:-1], xy_resh[1:]], axis=1)
-                #                T_diag = np.diag(Models.parts[part].res[0, :]).copy()
-                #                T_diag[T_diag == 0] = np.nan
-                #                T_diag = np.ma.masked_array(T_diag, T_diag == 0)
-                #                T_diag = np.ma.masked_values(T_diag, 0)
-                #                plt.pcolormesh(ip['x_vector'], ip['y_vector'],
-                #                               T_diag, linewidth=10)
-                #                ax.contourf(ip['x_vector'], ip['y_vector'],
-                #                              T_diag, linewidth=10)
+                # make line collection
                 lines = _LineCollection(
                     xy_seg,
-                    array=Models.parts[part].res[timestep, :],
+                    array=SimEnv.parts[part].res[timestep, :],
                     cmap=plt.cm.plasma,
                     norm=plt.Normalize(cmin, cmax),
                     linewidths=ip['path_linewidth'],
@@ -2097,13 +2051,13 @@ class NetPlotter(Models):
                 )
                 ax.add_collection(lines)
             elif (
-                hasattr(Models.parts[part], 'plot_ready')
-                and Models.parts[part].plot_ready
-                and Models.parts[part].plot_special
+                hasattr(SimEnv.parts[part], 'plot_ready')
+                and SimEnv.parts[part].plot_ready
+                and SimEnv.parts[part].plot_special
             ):
                 # if part has a special drawing method, pass axis to its
                 # method and get drawing:
-                Models.parts[part].draw_part(
+                SimEnv.parts[part].draw_part(
                     ax, timestep, draw=True, animate=False
                 )
 
@@ -2151,9 +2105,9 @@ class NetPlotter(Models):
         err_str = (
             'The chosen `t_stop` in [s] for NetPlotter.plot_net() is '
             'greater than the timeframe of the simulation! The '
-            'simulation timeframe is ' + str(Models.timeframe) + ' steps.'
+            'simulation timeframe is ' + str(SimEnv.timeframe) + ' steps.'
         )
-        assert t_stop <= Models.timeframe, err_str
+        assert t_stop <= SimEnv.timeframe, err_str
 
         if clim is not None:
             cmin = clim[0]
@@ -2200,7 +2154,7 @@ class NetPlotter(Models):
         # get array view to time:
         # therefore make a copy of it, expand its dims to allow correct
         # indexing in animation generation and get view to it:
-        t_vec = np.expand_dims(Models.time_vec.copy(), axis=1)
+        t_vec = np.expand_dims(SimEnv.time_vec.copy(), axis=1)
         t_view = t_vec[:]
         # add all to the text lists:
         txts = [ann_t]  # list for text annotation handles
@@ -2209,9 +2163,9 @@ class NetPlotter(Models):
 
         # loop over all parts with plot special without drawing to get all the
         # special construction methods:
-        for part in Models.parts:
-            if Models.parts[part].plot_special:
-                Models.parts[part].draw_part(
+        for part in SimEnv.parts:
+            if SimEnv.parts[part].plot_special:
+                SimEnv.parts[part].draw_part(
                     ax_a, t_stop, draw=False, animate=True
                 )
 
@@ -2222,14 +2176,14 @@ class NetPlotter(Models):
         data = list()  # list for temp data
         # loop over all parts to get their line segments, path effects, texts
         # etc. and save them to the lists above:
-        for part in Models.parts:
+        for part in SimEnv.parts:
             if (
-                hasattr(Models.parts[part], 'plot_ready')
-                and Models.parts[part].plot_ready
-                and not Models.parts[part].plot_special
+                hasattr(SimEnv.parts[part], 'plot_ready')
+                and SimEnv.parts[part].plot_ready
+                and not SimEnv.parts[part].plot_special
             ):
                 line_ctr += 1
-                ip = Models.parts[part].info_plot
+                ip = SimEnv.parts[part].info_plot
                 # get xy vector and reshape:
                 xy_resh = ip['xy_vector'].reshape(-1, 1, 2)
                 # make line segments:
@@ -2247,15 +2201,15 @@ class NetPlotter(Models):
                         _pe.Normal(),
                     ]
                 )
-                data.append(Models.parts[part].res)
+                data.append(SimEnv.parts[part].res)
             elif (
-                hasattr(Models.parts[part], 'plot_ready')
-                and Models.parts[part].plot_ready
-                and Models.parts[part].plot_special
+                hasattr(SimEnv.parts[part], 'plot_ready')
+                and SimEnv.parts[part].plot_ready
+                and SimEnv.parts[part].plot_special
             ):
                 # if part has a special drawing method, pass axis to its
                 # method, draw and get annotations from return:
-                ann = Models.parts[part].draw_part(
+                ann = SimEnv.parts[part].draw_part(
                     ax_a, 0, draw=True, animate=True
                 )
                 # extract from annotations: get txts (handle to annotations),
@@ -2353,8 +2307,8 @@ class NetPlotter(Models):
 
         # define time_idx to animate over:
         time_idx = np.linspace(
-            t_start / Models.timeframe * steps,
-            t_stop / Models.timeframe * Models.stepnum - 1,
+            t_start / SimEnv.timeframe * steps,
+            t_stop / SimEnv.timeframe * SimEnv.stepnum - 1,
             steps,
             dtype=np.int32,
         )
@@ -2488,14 +2442,6 @@ class NetPlotter(Models):
 # %% METERS
 class Meters:
     def __init__(self, simenv, start_time):
-        # err_str = (
-        #     'The simulation environment to add the meters to '
-        #     'must be given with `simenv=X`, where X is the name of your '
-        #     'environment defined at the beginning of the simulation with '
-        #     'X = Models().'
-        # )
-        # assert isinstance(simenv, simmdl.Models), err_str
-
         self._simenv = simenv  # save for attribute lookup
 
         self.start_time = pd.to_datetime(start_time)
@@ -2540,11 +2486,11 @@ class Meters:
         self.meters_df = pd.DataFrame(
             columns=mid, index=self._meter_time_index
         )
-        # also save meters and dataframe to Models:
+        # also save meters and dataframe to SimEnv:
         self._simenv.meters = self.meters
         self._simenv.meters_df = self.meters_df
         # and check if disksaving is activated and if yes, save meters to disk
-        self._disk_saving = self._simenv._Models__save_to_disk
+        self._disk_saving = self._simenv._SimEnv__save_to_disk
         if self._disk_saving:
             self._dstore = self._simenv._disk_store['store']
 

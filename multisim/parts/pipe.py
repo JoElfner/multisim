@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 31 14:03:07 2018
-
-@author: Johannes
+@author: Johannes Elfner <johannes.elfner@googlemail.com>
+Date: May 2018
 """
 
 import numpy as np
 
-from .. import simenv as _smnv
+from ..simenv import SimEnv
 from .. import precomp_funs as _pf
 
 
-class Pipe(_smnv.Models):
+class Pipe(SimEnv):
     """
     type: Single Pipe
 
