@@ -1,0 +1,27 @@
+environment:
+  matrix:
+    - PYTHON_VERSION: 3.7
+      MINICONDA: C:\Miniconda3
+    - PYTHON_VERSION: 3.8
+      MINICONDA: C:\Miniconda3
+
+build: off
+
+init:
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+
+install:
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda info -a
+  - conda update -q conda
+  - "conda create -q -n test_env python=%PYTHON_VERSION% numpy scipy"
+  - activate test_env
+  - pip install -r requirements.txt
+  - pip install -r test_requirements.txt
+  - pip install .
+
+test_script:
+  - black --skip-string-normalization --line-length 79 --check ./multisim/
+  - flake8
+  - pytest --import-mode=importlib
