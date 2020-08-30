@@ -9,10 +9,13 @@
   :target: https://github.com/JoElfner/multisim/blob/master/LICENSE
 
 .. image:: https://travis-ci.com/JoElfner/multisim.svg?branch=master
-    :target: https://travis-ci.com/JoElfner/multisim
+  :target: https://travis-ci.com/JoElfner/multisim
 
 .. image:: https://ci.appveyor.com/api/projects/status/uc42tex22gkcgaxo/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/JoElfner/multisim
+  :target: https://ci.appveyor.com/project/JoElfner/multisim
+
+.. image:: https://codecov.io/gh/JoElfner/multisim/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/JoElfner/multisim
 
 ----------------
 
