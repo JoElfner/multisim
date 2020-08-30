@@ -16,6 +16,7 @@ Changelog
 * DEP: Many deprecated/commented LOC removed.
 * DEP: :py:func:`utility_functions.NetPlotter`: now raises a deprecation warning. The only remaining supported method is `plot_errors`. Will be removed in future releases.
 * ENH: Started integrating a new way of checking for kwds in :py:func:`parts.pipe.Pipe` when supporting two different arg naming conventions.
+* ENH: :py:func:`SimEnv.start_sim`: Started refactoring. Next refactor `_finalize_sim`, especially disk saving with context manager.
 
 0.9.9 - 2020-08-26
 ==================

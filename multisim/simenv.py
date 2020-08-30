@@ -478,8 +478,8 @@ class SimEnv:
             self._disk_store['start_date'] = None
         # path to disk store
         self._disk_store['path'] = os.path.abspath(
-            path
-            + '{iso_date}_{name}.{typ}'.format(
+            '{path}{iso_date}_{name}.{typ}'.format(
+                path=path,
                 iso_date=now.isoformat(timespec='seconds').replace(':', '-'),
                 name=sim_name,
                 typ='h5',
@@ -519,11 +519,6 @@ class SimEnv:
 
         # temporary store for fast uncompressed writing:
         self._disk_store['path_tmp'] = self._disk_store['path'] + '_tmp'
-        # self._disk_store['store_tmp'] = pd.HDFStore(
-        #     self._disk_store['path_tmp'], mode='w',
-        #     complevel=0)
-        # # close to avoid complications while creating the sim env
-        # self._disk_store['store_tmp'].close()
         # create store in context manager to automatically close it afterwards
         with pd.HDFStore(
             self._disk_store['path_tmp'], mode='w', complevel=0
@@ -4808,107 +4803,17 @@ class SimEnv:
         # Set simulation environment to initialized:
         self._initialized = True
 
-    def start_sim(self):
-        """Run the simulation."""
+    def _check_memory_address(self):
+        """
+        Assert that memory addresses of important arrays did not change.
 
-        if not self._initialized:
-            raise UserWarning(
-                (
-                    'Simulation environment is not correctly initialized! '
-                    'Initialize the simulation environment by calling the method '
-                    '`{0}.initialize_sim()` before starting the simulation.'
-                ).format(self._simenv_name)
-            )
+        Due to extensive use of memory-views, checking for consistency of
+        memory addresses of arrays makes sure that the memory views were not
+        broken in the process of the simulation.
 
-        # assert that start date is set correctly if disksaving:
-        if self._disksaving_set and self._disk_store['start_date'] is None:
-            raise TypeError(
-                'Diskaving is enabled with `start_date=\'infer\'`, but no '
-                'dynamic boundary condition with a DatetimeIndex to infer '
-                'the start date from was given. Either set the start date '
-                'explicitly or pass a dynamic boundary condition with a '
-                'start date.'
-            )
+        """
 
-        # get system time:
-        self._sim_start_time = _time_.time()
-
-        # define current simulation time:
-        self.time_sim = 0.0
-
-        # set initial stepnum
-        self.stepnum[0] = 1
-
-        while self.time_sim < self.timeframe:
-            # update all massflows:
-            self._update_FlowNet()
-
-            self.solver(
-                self.solve_num_expl,
-                self.solve_num_impl,
-                self.solve_nonnum,
-                self.timestep,
-            )
-            # run control algorithms:
-            self._update_control(self.timestep)
-
-            # update all dynamic BC:
-            self._update_dyn_BC(self.time_sim, self.timestep)
-
-            self.time_sim += self.timestep
-            # add elapsed time in seconds to time vector:
-            self.time_vec[self.stepnum[0]] = self.time_sim
-
-            # check if stepnum is greater than num_steps. And if yes call
-            # function to save current results to DataFrame, save this to disk
-            # and clear current result arrays:
-            if self.stepnum[0] == self.num_steps:
-                # check if not already total sim timeframe reached:
-                if self.time_sim < self.timeframe:
-                    self._free_memory()
-
-            self.stepnum[0] += 1
-
-            # show progress in 5% steps (thus counter /5):
-            Counter = self.time_sim / self.timeframe * 100 / 5
-            if (Counter - int(Counter)) < 0.01:
-                sys.stdout.write('\r')
-                sys.stdout.write(
-                    'Simulation progress: [%-20s] %d%%'
-                    % ('=' * (int(Counter / 5 * 5)), (int(Counter * 5)))
-                )
-                sys.stdout.flush()
-
-            # check for nan values every 5k steps:
-            if self._total_stepnum % 5000 == 0:
-                for name, prt in self.parts.items():
-                    # loop over all parts and assert that none of the arrays
-                    # contains any nan
-                    isanynan = np.any(np.isnan(prt.T)) and np.any(
-                        np.isnan(prt.dm)
-                    )
-                    if isanynan:
-                        print(
-                            '\n\n'
-                            'WARNING: Invalid value found between step {0} '
-                            'at time {1}s and step {2} at time {3}s!\n'
-                            'Stopping simulation.\n\n'.format(
-                                self._total_stepnum - 5000,
-                                self.time_vec[self._total_stepnum - 5000],
-                                self._total_stepnum,
-                                self.time_sim,
-                            )
-                        )
-                        # stop simulation by setting timeframe to almost zero
-                        self.timeframe = 1e-9
-                        # set solver state to failed:
-                        self._solver_state[self._total_stepnum] = 98
-                        break  # break loop for nan checking
-
-        # measure time taken purely for simulation
-        self._sim_end_time = _time_.time()
-
-        # check for changed memory address:
+        # loop over parts
         for part in self.parts:
             # check for changes in memory address of T-arrays:
             if (
@@ -4916,13 +4821,20 @@ class SimEnv:
                 != self.parts[part]._memadd_T
             ):
                 print(part, 'memory address of T-array changed!')
-            # if available check for changes in memory address of T-arrays:
+            # if available, check for changes in memory address of massflow
+            # arrays:
             if hasattr(self.parts[part], '_memadd_dm'):
                 if (
                     self.parts[part].dm.__array_interface__['data'][0]
                     != self.parts[part]._memadd_dm
                 ):
-                    print(part, 'memory address of dm-array changed!')
+                    print(
+                        part, 'memory address of massflow-array (dm) changed!'
+                    )
+
+    def _finalize_sim(self):
+        # Check for consistency of important arrays:
+        self._check_memory_address()
 
         # save remaining results to disk
         if self.__save_to_disk:  # if disk saving was used so far...
@@ -4936,7 +4848,7 @@ class SimEnv:
             self._disk_store['path_tmp'], mode='r+'
         )
 
-        # save to disk if activated (default)
+        # save to disk, if activated (default)
         if self.__save_to_disk:
             # res and res_dm backcalculation
             for part in self.parts:
@@ -5074,6 +4986,109 @@ class SimEnv:
         self._sim_postproc_time = _time_.time()
 
         self._write_report()
+
+    def start_sim(self):
+        """Run the simulation."""
+
+        if not self._initialized:
+            raise UserWarning(
+                (
+                    'Simulation environment is not correctly initialized! '
+                    'Initialize the simulation environment by calling the method '
+                    '`{0}.initialize_sim()` before starting the simulation.'
+                ).format(self._simenv_name)
+            )
+
+        # assert that start date is set correctly if disksaving:
+        if self._disksaving_set and self._disk_store['start_date'] is None:
+            raise TypeError(
+                'Diskaving is enabled with `start_date=\'infer\'`, but no '
+                'dynamic boundary condition with a DatetimeIndex to infer '
+                'the start date from was given. Either set the start date '
+                'explicitly or pass a dynamic boundary condition with a '
+                'start date.'
+            )
+
+        # get system time:
+        self._sim_start_time = _time_.time()
+
+        # define current simulation time:
+        self.time_sim = 0.0
+
+        # set initial stepnum
+        self.stepnum[0] = 1
+
+        while self.time_sim < self.timeframe:
+            # update all massflows:
+            self._update_FlowNet()
+
+            self.solver(
+                self.solve_num_expl,
+                self.solve_num_impl,
+                self.solve_nonnum,
+                self.timestep,
+            )
+            # run control algorithms:
+            self._update_control(self.timestep)
+
+            # update all dynamic BC:
+            self._update_dyn_BC(self.time_sim, self.timestep)
+
+            self.time_sim += self.timestep
+            # add elapsed time in seconds to time vector:
+            self.time_vec[self.stepnum[0]] = self.time_sim
+
+            # check if stepnum is greater than num_steps. And if yes call
+            # function to save current results to DataFrame, save this to disk
+            # and clear current result arrays:
+            if self.stepnum[0] == self.num_steps:
+                # check if not already total sim timeframe reached:
+                if self.time_sim < self.timeframe:
+                    self._free_memory()
+
+            self.stepnum[0] += 1
+
+            # show progress in 5% steps (thus counter /5):
+            Counter = self.time_sim / self.timeframe * 100 / 5
+            if (Counter - int(Counter)) < 0.01:
+                sys.stdout.write('\r')
+                sys.stdout.write(
+                    'Simulation progress: [%-20s] %d%%'
+                    % ('=' * (int(Counter / 5 * 5)), (int(Counter * 5)))
+                )
+                sys.stdout.flush()
+
+            # check for nan values every 5k steps:
+            if self._total_stepnum % 5000 == 0:
+                for name, prt in self.parts.items():
+                    # loop over all parts and assert that none of the arrays
+                    # contains any nan
+                    isanynan = np.any(np.isnan(prt.T)) and np.any(
+                        np.isnan(prt.dm)
+                    )
+                    if isanynan:
+                        print(
+                            '\n\n'
+                            'WARNING: Invalid value found between step {0} '
+                            'at time {1}s and step {2} at time {3}s!\n'
+                            'Stopping simulation.\n\n'.format(
+                                self._total_stepnum - 5000,
+                                self.time_vec[self._total_stepnum - 5000],
+                                self._total_stepnum,
+                                self.time_sim,
+                            )
+                        )
+                        # stop simulation by setting timeframe to almost zero
+                        self.timeframe = 1e-9
+                        # set solver state to failed:
+                        self._solver_state[self._total_stepnum] = 98
+                        break  # break loop for nan checking
+
+        # measure time taken purely for simulation
+        self._sim_end_time = _time_.time()
+
+        # finalize sim (checks, postprocessing, storing data)
+        self._finalize_sim()
 
     def __deprecated_free_memory(self, array_length=-1):
         """

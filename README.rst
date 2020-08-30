@@ -1,3 +1,18 @@
+.. -*- mode: rst -*-
+
+|
+
+.. image:: https://badge.fury.io/py/MultiSim.svg
+  :target: https://badge.fury.io/py/MultiSim
+
+.. image:: https://img.shields.io/github/license/JoElfner/multisim.svg
+  :target: https://github.com/JoElfner/multisim/blob/master/LICENSE
+
+.. image:: https://travis-ci.com/JoElfner/multisim.svg?branch=master
+    :target: https://travis-ci.com/JoElfner/multisim
+
+----------------
+
 MultiSim
 ========
 
@@ -27,6 +42,8 @@ Other enhancements could be:
 7. Move to Python 3.8, using type hints and assignment expressions.
 
 8. There is a lot of chaos in `utility_functions`. This needs some heavy refactoring and tidying.
+
+9. Write a documentation.
 
 MultiSim depends mainly on `numpy`, `numba`, `pandas`, `scipy`, and
 `matplotlib`. For some parts `sklearn` is a dependency.
