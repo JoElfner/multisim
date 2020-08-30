@@ -4302,52 +4302,6 @@ class SimEnv:
                 _step_accepted = False
         return _h, timestep, _step_accepted, err_rms
 
-    def __midpoint_method(self, f, a, b, N, IV):
-        h = (b - a) / float(N)  # determine step-size
-        t = np.arange(a, b + h, h)  # create mesh
-        w = np.zeros((N + 1,))  # initialize w
-        t[0], w[0] = IV  # set initial values
-        for i in range(1, N + 1):  # apply Midpoint Method
-            w[i] = w[i - 1] + h * f(
-                t[i - 1] + h / 2.0, w[i - 1] + h * f(t[i - 1], w[i - 1]) / 2.0
-            )
-        return w
-
-    def __modified_euler_method(self, f, a, b, N, IV):
-        h = (b - a) / float(N)  # determine step-size
-        t = np.arange(a, b + h, h)  # create mesh
-        w = np.zeros((N + 1,))  # initialize w
-        t[0], w[0] = IV  # set initial values
-        for i in range(1, N + 1):  # apply Modified Euler Method
-            f1 = f(t[i - 1], w[i - 1])
-            f2 = f(t[i], w[i - 1] + h * f1)
-            w[i] = w[i - 1] + h * (f1 + f2) / 2.0
-        return w
-
-    def __heun_method(self, f, a, b, N, IV):
-        h = (b - a) / float(N)  # determine step-size
-        t = np.arange(a, b + h, h)  # create mesh
-        w = np.zeros((N + 1,))  # initialize w
-        t[0], w[0] = IV  # set initial values
-        for i in range(1, N + 1):  # apply Heun's Method
-            f1 = f(t[i - 1], w[i - 1])
-            f2 = f(t[i - 1] + (2.0 / 3.0) * h, w[i - 1] + (2.0 / 3.0) * h * f1)
-            w[i] = w[i - 1] + h * (f1 + 3.0 * f2) / 4.0
-        return w
-
-    def __runge_kutta_4_method(self, f, a, b, N, IV):
-        h = (b - a) / float(N)  # determine step-size
-        t = np.arange(a, b + h, h)  # create mesh
-        w = np.zeros((N + 1,))  # initialize w
-        t[0], w[0] = IV  # set initial values
-        for i in range(1, N + 1):  # apply RK4 method
-            k1 = h * f(t[i - 1], w[i - 1])
-            k2 = h * f(t[i - 1] + h / 2.0, w[i - 1] + k1 / 2.0)
-            k3 = h * f(t[i - 1] + h / 2.0, w[i - 1] + k2 / 2.0)
-            k4 = h * f(t[i], w[i - 1] + k3)
-            w[i] = w[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
-        return w
-
     def _call_postponed(self):
         """
         Call postponed evaluations of add_part etc. methods.
