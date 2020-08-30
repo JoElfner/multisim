@@ -18,6 +18,5 @@ script:
     - pytest --import-mode=importlib
     # - mypy
 
-# after_success:
-#   # Upload coverage data to codecov
-#   - codecov
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

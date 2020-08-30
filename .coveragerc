@@ -1,0 +1,11 @@
+[run]
+branch = True
+source = multisim
+include = */multisim/*
+omit =
+    */setup.py
+    */data_tables/*
+
+[report]
+show_missing = True
+# sort = Cover
