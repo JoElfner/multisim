@@ -11,6 +11,9 @@
 .. image:: https://travis-ci.com/JoElfner/multisim.svg?branch=master
     :target: https://travis-ci.com/JoElfner/multisim
 
+.. image:: https://ci.appveyor.com/api/projects/status/uc42tex22gkcgaxo/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/JoElfner/multisim
+
 ----------------
 
 MultiSim
