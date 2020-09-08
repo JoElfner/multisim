@@ -33,12 +33,6 @@ class PID(Controls):
             self._base_err
             + self._arg_err
             + 'A PID controller requires the following additional arguments:\n'
-            #            '    - `CV_saturation`: List or tuple with the lower and upper '
-            #            'saturation limit of the control variable (CV, the controller '
-            #            'output). CV will be clipped to `lower_lim <= CV <= upper_lim`. '
-            #            'Negative and infinite values are allowed with '
-            #            '`lower_lim < upper lim`. For example '
-            #            '`CV_saturation=(lower_lim, upper_lim)=(-1, np.inf)`\n'
             '    - `anti_windup`: Float, int or str value to prevent a windup '
             'of the ingegrative- (I-) term of the controller. For a '
             'continuous time controller the I-term is limited to '
@@ -50,14 +44,6 @@ class PID(Controls):
             '`-X <= i_term * ki <= X` will be satisfied. If X is omitted, '
             'the default of `X=1` is set.'
         )
-        # CV saturation:
-        #        assert ('CV_saturation' in kwargs and
-        #                isinstance(kwargs['CV_saturation'], (list, tuple))
-        #                ), err_str.format('CV_saturation')
-        #        self._cv_sat_min = float(kwargs['CV_saturation'][0])
-        #        self._cv_sat_max = float(kwargs['CV_saturation'][1])
-        #        assert self._cv_sat_min < self._cv_sat_max, err_str.format(
-        #                'CV_saturation')
 
         # GET COEFFICIENTS FOR PID (and loop tuning methods):
         # check if controller is P/I/D
@@ -333,6 +319,11 @@ class PID(Controls):
             assert self.adapt_coeff, err_str.format('adapt_coefficients')
         # check for given parameters if True:
         if self.adapt_coeff:
+            print(
+                'adapt_coefficients is deprecated due to problems with '
+                'stability. Even if set to True, coefficients will not be '
+                'adapated to the timestep.'
+            )
             # assert that norm timestep is given and of correct type:
             assert 'norm_timestep' in kwargs, err_str.format('norm_timestep')
             err_str = (
@@ -434,7 +425,6 @@ class PID(Controls):
         # timesteps:
         if self.adapt_coeff:
             # get factor to multiply coefficients with:
-            #            self.coeff_factor = self.norm_timestep / timestep
             self.coeff_factor = timestep / self.norm_timestep
             self.coeff_factor = 1
             # multiply coefficients with the factor to get timestep adjusted
@@ -442,35 +432,12 @@ class PID(Controls):
             self.kp = self.norm_kp * self.coeff_factor
             self.ki = self.norm_ki * self.coeff_factor ** 2
             self.kd = self.norm_kd * self.coeff_factor ** 2
-        #            if timestep < self.norm_timestep:
-        #                self.kd = self.norm_kd * self.coeff_factor**0.5
-        #                self.kd = self.norm_kd / self.coeff_factor**2
-        # Skalierung Kp:
-        #    Kkrit ist proportional zu 1/timestep:
-        #        Kp_crit = Kp_crit_norm * timestep_norm / timestep
-        #    Daraus folgt für die genormten Koeffizienten:
-        #        Kp_norm = Kp_crit_norm * 0.6
-        #        Tn_norm = 0.5 * T_crit
-        #        Tv_norm = 0.12 * T_crit
-        #        Ki_norm = Kp_norm / Tn_norm
-        #        Kd_norm = Kp_norm / Tv_norm
-        #    Daraus folgt für die Koeffizienten in Abhängigkeit des Zeitschritts:
-        #        coeff_denorm = timestep_norm / timestep
-        #        Kp = Kp_norm * coeff_denorm
-        #        Ki = Ki_norm * coeff_denorm ** 2
-        #        Kd = Kd_norm * coeff_denorm ** 2
 
         # check if discrete or continuous time controller:
         if self.discrete_time:
             # if integral term is in the controller, the velocity algorithm is
             # used:
             if self.ki != 0:
-                #                # save last cv:
-                #                self._prev_cv_lim = self.cv
-                #                self._prev_cv_lim = (
-                #                    -self._anti_windup if self._prev_cv_lim < -self._anti_windup
-                #                    else self._anti_windup if self._prev_cv_lim > self._anti_windup
-                #                    else self._prev_cv_lim)
                 # get and limit previous CV by anti windup:
                 self._prev_cv_lim = (
                     -self._anti_windup
@@ -531,15 +498,8 @@ class PID(Controls):
                 )
             # clip cv value to saturation:
             self._clip_cv_to_saturation()
-            # self.cv = (self._cv_sat_min if self.cv < self._cv_sat_min
-            #            else self._cv_sat_max if self.cv > self._cv_sat_max
-            #            else self.cv)
         else:  # calculate controller output for a continuous time system
-            # get sum of previous errors (currently replaced by prev i term):
-            #            self.error_sum += self.error
             # calculate I-term:
-            #        if self.stepnum == 1:
-            #            raise ValueError
             self.i_term = timestep * self.error + self.prev_i_term
             #        self.i_term = timestep * self.error_sum
             # clip value to anti_windup:
@@ -550,10 +510,6 @@ class PID(Controls):
                 if self.i_term > self._anti_windup
                 else self.i_term
             )
-            #        self.error_sum = (-self._anti_windup if self.error_sum < -self._anti_windup
-            #                       else self._anti_windup if self.error_sum > self._anti_windup
-            #                       else self.error_sum)
-            #        self.i_term = timestep * self.error_sum
             # if derivate term is to be filtered, use butterworth first
             # order low pass to filter it:
             if self.filt_derivate:
