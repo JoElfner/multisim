@@ -822,7 +822,7 @@ def speicherladesys(
         list(rf_connector.keys())[0],
         list(rf_connector.values())[0],
     )
-    # Verbindungsrohr von RL mit Branch zu 3v:
+    # Verbindungsrohr von RL Branch zu 3v:
     simenv.add_part(
         _msp.Pipe,
         name='sps_p_rf_hex_to_mix_{0}'.format(segment_name),
@@ -1138,17 +1138,6 @@ def speicherladesys(
         invert=False,
         #  slope=(-1, 1), invert=False,
     )
-    # simenv.add_control(
-    #     _msp.PID, name='c_pump_rc{0}'.format(segment_name), terms='PI',
-    #     actuator='pwp_rc_ff_{0}'.format(segment_name),
-    #     controlled_part='p_rc_dmd_{0}'.format(segment_name), controlled_port=1,
-    #     process_CV_mode='part_specific', reference_part='none',
-    #     time_domain='discrete',
-    #     sub_controller=False, off_state=0,
-    #     setpoint=theta_phw, deadtime=0, loop_tuning='manual', Kp=0.005,
-    #     Ki=1/600, adapt_coefficients=True, norm_timestep=1, anti_windup=1.,
-    #     CV_saturation=(0, 1.), slope=(0, 0), invert=False,
-    # )
 
     # save calculations to df and return if given:
     if calculations_df is not None:
