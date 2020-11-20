@@ -1147,7 +1147,7 @@ class ModelPredCHP(Controls):
             'taxes, el. power taxes etc. but without sales taxes.\n'
             '    - `gaspreis`: Gaspreis in Cent/kWh_gas.\n'
             '    - `esteuerrueck_gas`: Gas tax refund in Cent/kWh_gas, f.i. '
-            'according to EnergieStG 53a Absatz (6) and § 2 Absatz 3 Satz 1 '
+            'according to EnergieStG § 53a Absatz (6) and § 2 Absatz 3 Satz 1 '
             'Nummer 4 (default).\n'
             '    - `netzneg`: Refund of avoided Netznutzungsentgelte for '
             'electric power in Cent/kWh_el. Scrapped starting 01.01.2023 '
@@ -2834,7 +2834,7 @@ class ModelPredCHP(Controls):
     @staticmethod
     def _eeg_umlage(pel_chp, jahr=2020, verbraucher='dritte'):
         """
-        EEG-Umlage in [Cent/kWh] zurück. Stand 2016-08.
+        EEG-Umlage in [Cent/kWh].
 
         Parameters:
         -----------
