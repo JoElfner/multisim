@@ -18,16 +18,16 @@ URL = 'https://github.com/JoElfner/multisim'
 download_url = 'https://github.com/JoElfner/multisim/archive/v{0}.tar.gz'
 EMAIL = 'johannes.elfner@hm.edu'
 AUTHOR = 'Johannes Elfner'
-REQUIRES_PYTHON = '>=3.7.7'
+REQUIRES_PYTHON = '>=3.7.9'
 VERSION = '0.10.0'
 
 download_url = download_url.format(VERSION)
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'matplotlib (>=3.2.2)',
-    'numba (>=0.50.1)',
-    'numpy (>=1.18.5)',
+    'matplotlib (>=3.3.2)',
+    'numba (>=0.51.2)',
+    'numpy (>=1.19.2)',
     'pandas (>=1.0.5)',
     'scipy (>=1.5)',
     'scikit-learn (>=0.23.1)',

@@ -9,7 +9,7 @@ Changelog
 | DOC: Changes to the package documentation
 | BLD: Changes to the package build
 
-0.10.0 - TBA
+0.10.0 - 2020-12-08
 ==================
 
 * MAINT: API: Main class `Models` renamed to `SimEnv`. `Models` can still be imported/used for backwards compatibility, but will be deprecated in a future release.
@@ -17,6 +17,8 @@ Changelog
 * DEP: :py:func:`utility_functions.NetPlotter`: now raises a deprecation warning. The only remaining supported method is `plot_errors`. Will be removed in future releases.
 * ENH: Started integrating a new way of checking for kwds in :py:func:`parts.pipe.Pipe` when supporting two different arg naming conventions.
 * ENH: :py:func:`SimEnv.start_sim`: Started refactoring. Next refactor `_finalize_sim`, especially disk saving with context manager.
+* BUG: dict.get() misplaced argument bug resolved.
+* BLD: Required package versions updated.
 
 0.9.9 - 2020-08-26
 ==================

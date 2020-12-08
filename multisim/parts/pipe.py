@@ -331,7 +331,7 @@ class Pipe(SimEnv):
         # check for arguments:
         self._print_arg_errs(self.constr_type, self.name, self._aaei, kwds)
 
-        self._s_ins = kwds.get('s_ins', kwds.get('insulation_thickness'), None)
+        self._s_ins = kwds.get('s_ins', kwds.get('insulation_thickness', None))
         assert isinstance(self._s_ins, (int, float)) and self._s_ins >= 0, (
             self._base_err
             + self._arg_err.format('s_ins')
