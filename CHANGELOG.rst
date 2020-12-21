@@ -9,6 +9,11 @@ Changelog
 | DOC: Changes to the package documentation
 | BLD: Changes to the package build
 
+0.11.0 - TBA
+==================
+
+* MAINT: Some minor formatting changes in :py:func:`precomp_funs`. Also started deprecating old code.
+
 0.10.0 - 2020-12-08
 ==================
 
