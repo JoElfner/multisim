@@ -11,101 +11,19 @@ from .precomp_funs import ctrl_deadtime as _ctrl_deadtime
 
 class Controls:
     """
-    This class contains class methods for the following control modes:
+    This class is the parent class for all controllers.
 
-    pv_const:
-        Hold the process variable at a constant predefined setpoint.
-    pv_diff:
-        Hold the sprocess variable at a constant difference to a defined
-        reference value.
-    chp_eex:
-        Control the electric power output of a CHP-unit according to underlying
-        EEX prices.
-
-    The control modes can be combined with the following reaction modes which
-    define how a change in the reference/input value will be reacted upon on
-    the time axis. This includes reactions like an immediate jump ''
-    SLOPE, JUMP, EXPONENTIAL etc...
-
-    reference port vs. reference value! make it kwargs!
-    steady state: clear values of last timestep! (perhaps make something with
-    a yield statement for the transient state?)
     cv: control variable
     pv: process variable
     sp: setpoint
+    err: sp - pv
 
     Parameters:
     -----------
     name : string
         Name of the controller. Can be chosen freely, only ';' is not allowed.
-    kind : string
-        Kind of the controller. Needs to be one of the following: `P`, `I`,
-        `PI`, `PD`, `PID`.
-    actuator : string
-        Name of the part, which is the actuator for the current controller.
-    controlled_part : string
-        Name of the part, whichs **process variable** (german: Regelgröße) will
-        be controlled by the controller/actuator.
-    controlled_port : string, int
-        Name of the port where the process variable to be controlled can be
-        found in the controlled part. Can be given as a string if it is one of
-        the ports or as integer index corresponding a cell in the temperature
-        array `T` of the part. If given as integer index, each cell can be
-        chosen, not only the ports.
-    ctrl_algorithm : string
-        Name of the control algorithm which can be chosen for specific parts to
-        make the controller more stable with default `K`-value-settings. To get
-        a list of the supported control algorithms, just leave this value empty
-        and take a look at the error message.
-        The chosen control algorithm MUST BE specific for the chosen
-        'controlled_part' (and port)!
-        The control algorithms are explained in detail at the section
-        ``Control Algorithms`` below.
-    reference_part : string
-        Name of the part, from which a reference value for the **setpoint
-        variable** (german: Führungsgröße, Sollwert) will be taken. If given,
-        'reference_port' also has to be given and 'difference_to_ref' has to be
-        passed to `init_controller()`. If not given, 'constant_value' has to be
-        passed to `init_controller()`.
-    reference_port : string, int
-        Name of the port where the reference value for the setpoint variable
-        can be found in the reference part. Can be given as a string if it is
-        one of the ports or as integer index corresponding a cell in the
-        temperature array `T` of the part. If given as integer index, each
-        cell can be chosen, not only the ports.
-    steady_state : bool
-        Default: False. CAUTION: Setting this to true will make the controller
-        assume, that the controlled part was in a steady before the current
-        timestep.
-
-    Control Algorithms:
-    -------------------
-        direct_ctrl:
-            fddsf
-        pump_HeatGen_T_out:
-            sd
-        pump_HeatGen_T_in:
-            asd
-        3w_valve_direct:
-            asd
-        3w_valve_:
-            gldfg
-        link_parts:
-            Links two actuators. Both acuators must be of **the same kind**.
-            The actuator having a controller has to be created first and **must
-            not use** `link_parts` as control algorithm. The actuator with the
-            control algorithm `link_parts` must be created after the first
-            actuator. The first actuator (the one, which is not using
-            `linked_parts`-algorithm) can be created in any supported way.
-            The second actuator, needs to have the first actuator passed as
-            **`reference_part`**, `reference_port` can be left empty.
-            `controlled_part` and port can be set to any existing part, it does
-            not affect the linked controller.
-            The ports or controlled variable of both actuators **are the
-            same**. That means for a pump which is controlling ``dm`` (the
-            massflow), the linked pump also controls the massflow. For
-            3-way-valves the `out1/in1` and `out2/in2` ports are connected.
-            This can't be changed!
+    master_cls : class
+        Simulation environment to add the Controls class to.
 
     """
 
