@@ -13,7 +13,9 @@ GLOB_NOGIL = True
 GLOB_PARALLEL = True
 
 
-# %% Simulation Env. port updating
+# %% Simulation environment processing
+# f.i. port and part flow processing, material properties etc..
+# %%% Simulation Env. port updating
 @jit(nopython=True, nogil=GLOB_NOGIL, cache=True)
 def upd_p_arr(ports_all, port_ids, values, _port_own_idx):
     """
@@ -81,7 +83,7 @@ def _port_values_to_cont(ports_all, port_link_idx, out):
         out.flat[i] = ports_all[port_link_idx[i]]
 
 
-# %% Simulation Env. in-part flow processing:
+# %%% Simulation Env. in-part flow processing:
 @njit(nogil=GLOB_NOGIL, cache=True)  # parallel=GLOB_PARALLEL useful
 def _process_flow_invar(
     process_flows, dm_io, dm_top, dm_bot, dm_port, stepnum, res_dm
@@ -243,7 +245,7 @@ def _process_flow_multi_flow(
     return False
 
 
-# %% Simulation Env. in-part port temperatures processing:
+# %%% Simulation Env. in-part port temperatures processing:
 @nb.njit(cache=True, nogil=GLOB_NOGIL)
 def _process_ports_collapsed(
     ports_all,
@@ -343,7 +345,7 @@ def _process_ports(
     return dT_cond_port
 
 
-# %% Simulation Env. in-part material properties processing:
+# %%% Simulation Env. in-part material properties processing:
 @njit(nogil=GLOB_NOGIL, cache=True)
 def water_mat_props_ext_view(T_ext, cp_T, lam_T, rho_T, ny_T):
     """
@@ -507,8 +509,6 @@ def UA_plate_tb(A_cell, grid_spacing, lam_mean, UA_tb_wll, out):
     between neighboring cells.
     """
 
-    #    # get mean lambda value between cells:
-    #    _lambda_mean_view(lam_T=lam_T, out=lam_mean)
     # get UA value between cells. UA value of walls added (parallel circuit).
     # UA is extended array to enable using views for calculation:
     out[1:-1] = A_cell / grid_spacing * lam_mean + UA_tb_wll
@@ -521,8 +521,6 @@ def UA_plate_tb_fld(A_cell, grid_spacing, lam_mean, out):
     between neighboring cells.
     """
 
-    #    # get mean lambda value between cells:
-    #    _lambda_mean_view(lam_T=lam_T, out=lam_mean)
     # get UA value between cells. UA value of walls added (parallel circuit).
     # UA is extended array to enable using views for calculation:
     out[1:-1] = A_cell / grid_spacing * lam_mean
@@ -535,8 +533,6 @@ def UA_plate_tb_wll(UA_tb_wll, out):
     between neighboring cells.
     """
 
-    #    # get mean lambda value between cells:
-    #    _lambda_mean_view(lam_T=lam_T, out=lam_mean)
     # get UA value between cells. UA value of walls added (parallel circuit).
     # UA is extended array to enable using views for calculation:
     out[1:-1] = UA_tb_wll
@@ -591,6 +587,52 @@ def buoyancy_byNusselt(T, ny, d_i, lam_mean):
     # calculation of the alpha value is implemented in the calculation of
     # the UA value.
     lam_mean[Nu_idx] *= Nu[Nu_idx] * corr_f
+
+
+@nb.njit(nogil=GLOB_NOGIL, cache=True)
+def buoyancy_AixLib(T, cp, rho, ny, grid_spacing, lam_mean):
+    """
+    Calculate the buoyancy driven heat flow by conductivity plus.
+
+    Calculate the buoyancy driven heat flow inside a vertically stratified
+    thermal energy storage tank by using AixLib based epmirical relations for
+    an additional heat conductivity [1]_.
+
+    Sources:
+        [1] : https://github.com/RWTH-EBC/AixLib/blob/master/AixLib/Fluid/Storage/BaseClasses/Bouyancy.mo
+    """
+    # get temperature difference for all cells (temperature below last cell
+    # is 0, thus don't use the last cell):
+    #    T_diff = T_bot[:-1] - T[:-1]  # replaced with stencil operation below:
+    T_diff = T[1:] - T[:-1]
+    # if there is no temperature inversion, skip this function:
+    if np.all(T_diff <= 0):
+        return
+    # only use the positive difference (inverted cells):
+    T_diff[T_diff < 0] = 0
+    # kappa is assumed to be constant at 0.4, g at 9.81
+    kappa = 0.4
+    g = 9.81
+
+    # get material properties for all bottom cells:
+    beta = beta_water_return(T[1:])
+    # to deal with the minimum in water density at 4°C, just set negative
+    # values to pos.
+    beta[beta < 0] *= -1
+
+    # calculate lambda surplus due to buoyancy
+    lambda_plus = (
+        2
+        / 3
+        * rho
+        * cp
+        * kappa
+        * grid_spacing ** 2
+        * np.sqrt(np.abs(-g * beta * T_diff / grid_spacing))
+    )
+
+    # add up to lambda mean
+    lam_mean += lambda_plus
 
 
 # %% Simulation Env. in-part von Neumann stability calculation:
@@ -3715,7 +3757,10 @@ def _heun_corrector_adapt(
 
     # get each part's local relative error as euclidean matrix norm
     # (sqrt not yet taken to enable summing up the part's errors)
-    # weighted by the relative and absolute tolerance:
+    # weighted by the relative and absolute tolerance. tolerance weighting as
+    # in:
+    # https://github.com/scipy/scipy/blob/ ...
+    # 19acfed431060aafaa963f7e530c95e70cd4b85c/scipy/integrate/_ivp/rk.py#L147
     trnc_err = (
         (
             (res[stepnum] - T)
