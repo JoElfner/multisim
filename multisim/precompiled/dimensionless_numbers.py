@@ -8,13 +8,13 @@ Peclet, Nusselt, etc...
 """
 
 import numba as nb
+
 # from numba import jit, njit, float64, int32
 import numpy as np
 
 nb.NUMBA_DISABLE_JIT = 0
 GLOB_NOGIL = True
 GLOB_PARALLEL = True
-
 
 
 @nb.jit(nopython=True, nogil=GLOB_NOGIL, cache=True)
