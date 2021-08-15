@@ -583,17 +583,13 @@ class BangBang(Controls):
     def run_controller(self, timestep):
         if self.pv < (self.sp - self._hysteresis / 2):
             if self._reversed:  # reversed action
-                #                self.cv = self._llim  # switch off (to lower lim.)
                 self.cv = self._off_state  # switch off (to off state)
             else:
-                #                self.cv = self._ulim  # switch on (to upper lim.)
                 self.cv = self._cv_sat_max  # switch on (to upper sat lim.)
         elif self.pv > (self.sp + self._hysteresis / 2):
             if self._reversed:  # reversed action
-                #                self.cv = self._ulim  # switch on (to upper lim.)
                 self.cv = self._cv_sat_max  # switch on (to upper sat lim.)
             else:
-                #                self.cv = self._llim  # switch off (to lower lim.)
                 self.cv = self._off_state  # switch off (to off state)
 
         # allow direction inversion:

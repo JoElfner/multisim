@@ -31,9 +31,14 @@ Even though MultiSim is **operational**, many things have to be *refactored*,
 basic parts like pipes and TES, a steep learning curve of the Dev can be
 witnessed. ;) Thus enhancements should start here.
 
+Furthermore current tests used for TDD are based on **proprietary measurement
+data**. Thus these tests **cannot be published**. Hence tests included in this
+public GitHub repo are merely truncated stumps. Using free data to integrate
+extensive tests will be an important step.
+
 Other enhancements could be:
 
-1. Extend the tests using `pytest`.
+1. Extend the tests using `pytest` with non-proprietary data.
 
 2. Implementing the implicit differential equation solver in numba to speed things up considerably. Implicit solving is currently slowing down the simulation progress.
 

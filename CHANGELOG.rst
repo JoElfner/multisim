@@ -13,6 +13,7 @@ Changelog
 ==================
 
 * MAINT: Some minor formatting changes in :py:func:`precomp_funs`. Also started deprecating old code.
+* BLD: Started refactoring :py:func:`precomp_funs` by moving it to the submodule `multisim.precompiled` and splitting it up.
 
 0.10.0 - 2020-12-08
 ==================
