@@ -4,8 +4,8 @@ python:
   - "3.8"
 dist: xenial
 
-before_install:
-  - git clone https://github.com/TravisToolbox/pycodestyle-travis.git
+# before_install:
+#   - git clone https://github.com/TravisToolbox/pycodestyle-travis.git
 
 install:
   - pip install -r requirements.txt
