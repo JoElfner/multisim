@@ -22,12 +22,61 @@
 MultiSim
 ========
 
-MultiSim is a thermal simulation tool for heating appliances.
-
 - **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
 
-Even though MultiSim is **operational**, many things have to be *refactored*,
-*replaced*, *improved* or *removed*. Especially the core class `SimEnv` and the
+MultiSim is a simulation tool for energy systems consisting of multiple parts like pipes, storages, valves, heat exchangers, etc.
+F.i. technical appliances such as space or water heating appliances can be constructed and simulated.
+
+MultiSim was mainly designed to solve the convection-diffusion-reaction-equation but can also be utilized to solve other differential equations.
+It features an adaptive step size solver, which is capable of yielding a stable solution even when loads fluctuate vigorously.
+Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
+
+The following standard parts are currently added:
+
+* Pipe
+* thermal storage (TES)
+* heat exchanger
+* three way connector and controlled three way valve
+* pump
+* PID controller
+* bang bang controller
+* two sensor controller
+
+
+Parts derived by class inheritance of the standard parts:
+
+* heated pipe
+* branched pipe, pipe with valve, pipe with pump
+* gas boiler
+* chp plant
+* model predictive controller (CHP-plant specific)
+
+
+New parts can be added either by defining completely new classes or by inheriting existing parts.
+
+
+Short documentation
+===================
+
+coming soon
+
+Validation
+==========
+
+MultiSim has been fully validated following standard ANSI/BPI-2400-S-2015. A stricter set of statistic measures than provided in the standard has been used.
+
+Since MultiSim was part of a PhD thesis, validation results will be added as soon as the thesis has been published (approximately December 2021).
+
+Examples
+========
+
+coming soon
+
+Known limitations and To-do
+===========================
+
+Even though MultiSim is **fully operational**, many things have to be *refactored*,
+*replaced*, *improved* or *deprecated*. Especially the core class `SimEnv` and the
 most basic parts like pipes and TES require a general overhaul. Thus
 enhancements should start here.
 
@@ -36,9 +85,11 @@ data**. Thus these tests **cannot be published**. Hence tests included in this
 public GitHub repo are merely truncated stumps. Using free data to integrate
 extensive tests will be an important step.
 
+The documentation is currently missing but will be added step by step.
+
 Other enhancements could be:
 
-1. Extend the tests using `pytest` with non-proprietary data. 
+1. Extend the tests using `pytest` with non-proprietary data.
 
 2. Implementing the implicit differential equation solver in numba to speed things up considerably. Implicit solving is currently slowing down the simulation progress.
 
