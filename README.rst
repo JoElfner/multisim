@@ -38,7 +38,7 @@ extensive tests will be an important step.
 
 Other enhancements could be:
 
-1. Extend the tests using `pytest` with non-proprietary data.
+1. Extend the tests using `pytest` with non-proprietary data. 
 
 2. Implementing the implicit differential equation solver in numba to speed things up considerably. Implicit solving is currently slowing down the simulation progress.
 

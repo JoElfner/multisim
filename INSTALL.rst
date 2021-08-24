@@ -110,4 +110,3 @@ refactoring, code cleaning and improving to do...
 Troubleshooting
 ---------------
 
-Everything will be fine... ;)
