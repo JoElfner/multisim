@@ -22,6 +22,8 @@
 MultiSim
 ========
 
+- **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
+
 MultiSim is a simulation tool for energy systems consisting of multiple parts like pipes, storages, valves, heat exchangers, etc.
 F.i. technical appliances such as space or water heating appliances can be constructed and simulated.
 
@@ -52,8 +54,6 @@ Parts derived by class inheritance of the standard parts:
 
 New parts can be added either by defining completely new classes or by inheriting existing parts.
 
-
-- **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
 
 Short documentation
 ===================
