@@ -30,21 +30,21 @@ It features an adaptive step size solver, which is capable of yielding a stable 
 Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
 
 The following standard parts are currently added:
-- Pipe
-- thermal storage (TES)
-- heat exchanger
-- three way connector and controlled three way valve
-- pump
-- PID controller
-- bang bang controller
-- two sensor controller
+* Pipe
+* thermal storage (TES)
+* heat exchanger
+* three way connector and controlled three way valve
+* pump
+* PID controller
+* bang bang controller
+* two sensor controller
 
 Parts derived by class inheritance of the standard parts:
-- heated pipe
-- branched pipe, pipe with valve, pipe with pump
-- gas boiler
-- chp plant
-- model predictive controller (CHP-plant specific)
+* heated pipe
+* branched pipe, pipe with valve, pipe with pump
+* gas boiler
+* chp plant
+* model predictive controller (CHP-plant specific)
 
 New parts can be added either by defining completely new classes or by inheriting existing parts.
 
