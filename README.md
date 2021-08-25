@@ -1,5 +1,3 @@
-.. -*- mode: md -*-
-
 [![PyPi Package](https://badge.fury.io/py/MultiSim.svg)](https://badge.fury.io/py/MultiSim)
 [![License](https://img.shields.io/github/license/JoElfner/multisim.svg)](https://github.com/JoElfner/multisim/blob/master/LICENSE)
 [![TravisCI Build](https://travis-ci.com/JoElfner/multisim.svg?branch=master)](https://travis-ci.com/JoElfner/multisim)
@@ -42,7 +40,7 @@ The following controllers are defined in [parts/controllers](multisim/parts/cont
 Preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
 
 
-Compound parts consisting of multiple other parts and controllers can be found in [parts/part_modules](parts/part_modules).
+Compound parts consisting of multiple other parts and controllers can be found in [parts/part_modules](multisim/parts/part_modules).
 Part dimensions, such as pipe diameters, and controller coefficients have been to fit a wide range of flow speeds and temperatures, but may be adjusted if controls show instabilities or if the solver requires too many retries to find a stable solution.
 * gas boiler
 * chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
