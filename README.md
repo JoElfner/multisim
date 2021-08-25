@@ -1,27 +1,11 @@
 .. -*- mode: md -*-
 
-|
-
 [![PyPi Package](https://badge.fury.io/py/MultiSim.svg)](https://badge.fury.io/py/MultiSim)
 [![License](https://img.shields.io/github/license/JoElfner/multisim.svg)](https://github.com/JoElfner/multisim/blob/master/LICENSE)
 [![TravisCI Build](https://travis-ci.com/JoElfner/multisim.svg?branch=master)](https://travis-ci.com/JoElfner/multisim)
 [![Appveyor Build](https://ci.appveyor.com/api/projects/status/uc42tex22gkcgaxo/branch/master?svg=true)](https://ci.appveyor.com/project/JoElfner/multisim)
 [![CodeCoverage](https://codecov.io/gh/JoElfner/multisim/branch/master/graph/badge.svg)](https://codecov.io/gh/JoElfner/multisim)
 
-.. image:: https://badge.fury.io/py/MultiSim.svg
-  :target: https://badge.fury.io/py/MultiSim
-
-.. image:: https://img.shields.io/github/license/JoElfner/multisim.svg
-  :target: https://github.com/JoElfner/multisim/blob/master/LICENSE
-
-.. image:: https://travis-ci.com/JoElfner/multisim.svg?branch=master
-  :target: https://travis-ci.com/JoElfner/multisim
-
-.. image:: https://ci.appveyor.com/api/projects/status/uc42tex22gkcgaxo/branch/master?svg=true
-  :target: https://ci.appveyor.com/project/JoElfner/multisim
-
-.. image:: https://codecov.io/gh/JoElfner/multisim/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/JoElfner/multisim
 
 ----------------
 
