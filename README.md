@@ -37,6 +37,7 @@ The following controllers are defined in [parts/controllers](multisim/parts/cont
 * bang bang controller
 * two sensor controller
 * model predictive controller (CHP-plant specific)
+
 Preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
 
 
