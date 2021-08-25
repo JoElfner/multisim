@@ -27,7 +27,7 @@ MultiSim
 MultiSim is a simulation tool for energy systems consisting of multiple parts like pipes, storages, valves, heat exchangers, etc.
 F.i. technical appliances such as space or water heating appliances can be constructed and simulated.
 
-MultiSim was mainly designed to solve the [convection-diffusion-reaction-equation](https://en.wikipedia.org/wiki/Convection%E2%80%93diffusion_equation#General) but can also be utilized to solve other differential equations.
+MultiSim was mainly designed to solve the [convection-diffusion-reaction-equation](https://en.wikipedia.org/wiki/Convection_diffusion_equation#General) but can also be utilized to solve other differential equations.
 It features an adaptive step size solver, which is capable of yielding a stable solution even when loads fluctuate vigorously.
 Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
 
