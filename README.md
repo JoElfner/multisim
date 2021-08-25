@@ -38,9 +38,6 @@ The following standard parts are currently available:
 * heat exchanger
 * three way connector and controlled three way valve
 * pump
-* PID controller
-* bang bang controller
-* two sensor controller
 
 
 Parts derived by class inheritance of the standard parts:
@@ -50,10 +47,15 @@ Parts derived by class inheritance of the standard parts:
 * gas boiler
 * chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
 * three different consumer appliances (space heating, state-of-the-art water heating, low exergy water heating)
+
+The following controllers are defined in parts/controllers:
+* PID controller
+* bang bang controller
+* two sensor controller
 * model predictive controller (CHP-plant specific)
 
 
-New parts can be added either by defining completely new classes or by inheriting from existing parts.
+New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
 
 Short documentation
