@@ -32,7 +32,6 @@ It features an adaptive step size solver, which is capable of yielding a stable 
 Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
 
 The following standard parts are currently available:
-
 * Pipe
 * thermal storage (TES)
 * heat exchanger
@@ -41,18 +40,23 @@ The following standard parts are currently available:
 
 
 Parts derived by class inheritance of the standard parts:
-
 * heated pipe
 * branched pipe, pipe with valve, pipe with pump
-* gas boiler
-* chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
-* three different consumer appliances (space heating, state-of-the-art water heating, low exergy water heating)
 
-The following controllers are defined in parts/controllers:
+
+The following controllers are defined in [parts/controllers](parts/controllers.py):
 * PID controller
 * bang bang controller
 * two sensor controller
 * model predictive controller (CHP-plant specific)
+Preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
+
+
+Compound parts consisting of multiple other parts and controllers can be found in [parts/part_modules](parts/part_modules).
+Part dimensions, such as pipe diameters, and controller coefficients have been to fit a wide range of flow speeds and temperatures, but may be adjusted if controls show instabilities or if the solver requires too many retries to find a stable solution.
+* gas boiler
+* chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
+* three different consumer appliances (space heating, state-of-the-art water heating, low exergy water heating)
 
 
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
