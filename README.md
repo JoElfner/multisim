@@ -106,6 +106,4 @@ Other enhancements could be:
 MultiSim depends mainly on `numpy`, `numba`, `pandas`, `scipy`, and
 `matplotlib`. For some parts `scikit-learn` is a dependency.
 
-For building, distribution and installation instructions, see INSTALL.rst_.
-
-.. _INSTALL.rst:   https://github.com/JoElfner/multisim/blob/master/INSTALL.rst
+For building, distribution and installation instructions, see [INSTALL.rst](https://github.com/JoElfner/multisim/blob/master/INSTALL.rst) (deprecated, will be updated soon).
