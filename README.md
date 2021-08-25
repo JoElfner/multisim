@@ -1,21 +1,9 @@
-.. -*- mode: rst -*-
+[![PyPi Package](https://badge.fury.io/py/MultiSim.svg)](https://badge.fury.io/py/MultiSim)
+[![License](https://img.shields.io/github/license/JoElfner/multisim.svg)](https://github.com/JoElfner/multisim/blob/master/LICENSE)
+[![TravisCI Build](https://travis-ci.com/JoElfner/multisim.svg?branch=master)](https://travis-ci.com/JoElfner/multisim)
+[![Appveyor Build](https://ci.appveyor.com/api/projects/status/uc42tex22gkcgaxo/branch/master?svg=true)](https://ci.appveyor.com/project/JoElfner/multisim)
+[![CodeCoverage](https://codecov.io/gh/JoElfner/multisim/branch/master/graph/badge.svg)](https://codecov.io/gh/JoElfner/multisim)
 
-|
-
-.. image:: https://badge.fury.io/py/MultiSim.svg
-  :target: https://badge.fury.io/py/MultiSim
-
-.. image:: https://img.shields.io/github/license/JoElfner/multisim.svg
-  :target: https://github.com/JoElfner/multisim/blob/master/LICENSE
-
-.. image:: https://travis-ci.com/JoElfner/multisim.svg?branch=master
-  :target: https://travis-ci.com/JoElfner/multisim
-
-.. image:: https://ci.appveyor.com/api/projects/status/uc42tex22gkcgaxo/branch/master?svg=true
-  :target: https://ci.appveyor.com/project/JoElfner/multisim
-
-.. image:: https://codecov.io/gh/JoElfner/multisim/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/JoElfner/multisim
 
 ----------------
 
@@ -27,32 +15,44 @@ MultiSim
 MultiSim is a simulation tool for energy systems consisting of multiple parts like pipes, storages, valves, heat exchangers, etc.
 F.i. technical appliances such as space or water heating appliances can be constructed and simulated.
 
-MultiSim was mainly designed to solve the convection-diffusion-reaction-equation but can also be utilized to solve other differential equations.
+MultiSim was mainly designed to solve the [convection-diffusion-reaction-equation](https://en.wikipedia.org/wiki/Convection_diffusion_equation#General) but can also be utilized to solve other differential equations.
 It features an adaptive step size solver, which is capable of yielding a stable solution even when loads fluctuate vigorously.
 Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
 
-The following standard parts are currently added:
-
+The following standard parts are currently available:
 * Pipe
 * thermal storage (TES)
 * heat exchanger
 * three way connector and controlled three way valve
 * pump
-* PID controller
-* bang bang controller
-* two sensor controller
 
 
 Parts derived by class inheritance of the standard parts:
-
 * heated pipe
 * branched pipe, pipe with valve, pipe with pump
-* gas boiler
-* chp plant
+
+
+The following controllers are defined in [parts/controllers](multisim/parts/controllers.py):
+* PID controller
+* bang bang controller
+* two sensor controller
 * model predictive controller (CHP-plant specific)
 
+Preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
 
-New parts can be added either by defining completely new classes or by inheriting existing parts.
+
+Compound parts consisting of multiple other parts and controllers can be found in [parts/part_modules](multisim/parts/part_modules).
+Part dimensions, such as pipe diameters, and controller coefficients have been to fit a wide range of flow speeds and temperatures, but may be adjusted if controls show instabilities or if the solver requires too many retries to find a stable solution.
+* gas boiler
+* chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
+* three different consumer appliances (space heating, state-of-the-art water heating, low exergy water heating)
+
+New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
+
+There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443) (file utility_functions.py requires *heavy* refactoring...), which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
+* temperature sensor
+* mass flow sensor
+* heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
 
 
 Short documentation
@@ -110,6 +110,4 @@ Other enhancements could be:
 MultiSim depends mainly on `numpy`, `numba`, `pandas`, `scipy`, and
 `matplotlib`. For some parts `scikit-learn` is a dependency.
 
-For building, distribution and installation instructions, see INSTALL.rst_.
-
-.. _INSTALL.rst:   https://github.com/JoElfner/multisim/blob/master/INSTALL.rst
+For building, distribution and installation instructions, see [INSTALL.rst](https://github.com/JoElfner/multisim/blob/master/INSTALL.rst) (deprecated, will be updated soon).
