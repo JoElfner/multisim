@@ -49,10 +49,10 @@ Part dimensions, such as pipe diameters, and controller coefficients have been t
 
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
-There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443), which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
+There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443) (file utility_functions.py requires *heavy* refactoring...), which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
 * temperature sensor
 * mass flow sensor
-* heat meter (power, mass flow, temperature of hot and cold part, cumulated values)
+* heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
 
 
 Short documentation
