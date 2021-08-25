@@ -2,6 +2,8 @@
 
 |
 
+[![PyPi Package](https://badge.fury.io/py/MultiSim.svg)](https://badge.fury.io/py/MultiSim)
+
 .. image:: https://badge.fury.io/py/MultiSim.svg
   :target: https://badge.fury.io/py/MultiSim
 
