@@ -34,7 +34,7 @@ Parts derived by class inheritance of the standard parts:
 * branched pipe, pipe with valve, pipe with pump
 
 
-The following controllers are defined in [parts/controllers](parts/controllers.py):
+The following controllers are defined in [parts/controllers](multisim/parts/controllers.py):
 * PID controller
 * bang bang controller
 * two sensor controller
