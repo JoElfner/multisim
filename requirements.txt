@@ -1,6 +1,6 @@
 matplotlib>=3.2.2
 numba>=0.50.1
-numpy>=1.18.5
+numpy==1.20.0
 pandas>=1.0.5
 psutil
 scipy>=1.5
