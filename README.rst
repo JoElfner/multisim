@@ -27,11 +27,11 @@ MultiSim
 MultiSim is a simulation tool for energy systems consisting of multiple parts like pipes, storages, valves, heat exchangers, etc.
 F.i. technical appliances such as space or water heating appliances can be constructed and simulated.
 
-MultiSim was mainly designed to solve the convection-diffusion-reaction-equation but can also be utilized to solve other differential equations.
+MultiSim was mainly designed to solve the [convection-diffusion-reaction-equation](https://en.wikipedia.org/wiki/Convection%E2%80%93diffusion_equation#General) but can also be utilized to solve other differential equations.
 It features an adaptive step size solver, which is capable of yielding a stable solution even when loads fluctuate vigorously.
 Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
 
-The following standard parts are currently added:
+The following standard parts are currently available:
 
 * Pipe
 * thermal storage (TES)
@@ -48,11 +48,12 @@ Parts derived by class inheritance of the standard parts:
 * heated pipe
 * branched pipe, pipe with valve, pipe with pump
 * gas boiler
-* chp plant
+* chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
+* three different consumer appliances (space heating, state-of-the-art water heating, low exergy water heating)
 * model predictive controller (CHP-plant specific)
 
 
-New parts can be added either by defining completely new classes or by inheriting existing parts.
+New parts can be added either by defining completely new classes or by inheriting from existing parts.
 
 
 Short documentation
