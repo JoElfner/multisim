@@ -49,7 +49,7 @@ Part dimensions, such as pipe diameters, and controller coefficients have been t
 
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
-There is also a list of **sensors**, which can be ``installed`` at any cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
+There is also a list of **sensors**, which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
 * temperature sensor
 * mass flow sensor
 * heat meter (power, mass flow, temperature of hot and cold part, cumulated values)
