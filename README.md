@@ -105,7 +105,7 @@ The following compound parts can be used:
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
 ### Meters
-There is also a list of [**sensors/meters**](multisim/utility/meters.py) which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
+There is also a list of [**sensors/meters**](multisim/_utility/meters.py) which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
 * Temperature sensor
 * Mass flow sensor
 * Heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)

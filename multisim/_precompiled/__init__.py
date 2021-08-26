@@ -1,5 +1,5 @@
 #
-from .version import version as __version__
+from ..version import version as __version__
 
 from . import material_properties as matprops
 from . import dimensionless_numbers as dimless_no
