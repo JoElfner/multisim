@@ -35,40 +35,69 @@ For slightly more detailed building, distribution and installation instructions,
 
 ## Components
 
-The following standard parts are currently available:
+MultiSim supports different types of components, most notably:
+* Parts which require differential equations to be solved (called "basic parts" hereafter)
+* Connectors and Actuators which can effect flow variables, either controlled by controllers, stationary or time series based
+* Controllers which control actuators
+* Boundary Conditions like in- and outflows to ambience, both stationary and time series based
+* Compound parts consisting of multiple parts, actuators, controllers and boundary conditions
+* Meters to track process variables of specific important parts/cells and perform basic calculations on-the-fly
+
+##### Basic parts
+The following basic parts are currently available:
 * Pipe
-* thermal storage (TES)
-* heat exchanger
-* three way connector and controlled three way valve
-* pump
+* Thermal storage (TES)
+* Heat exchanger
 
+Parts derived by class inheritance of the basic parts:
+* Heated pipe
+* Branched pipe, pipe with valve, pipe with pump (these are also compound parts)
 
-Parts derived by class inheritance of the standard parts:
-* heated pipe
-* branched pipe, pipe with valve, pipe with pump
+##### Actuators and connectors
+The following actuators and connectors can be installed:
+* Three way connector
+* Mixing valve/splitting valve/three way valve
+* Branch
+* Pump
+* Connector to ambient conditions/boundary conditions
 
+All actuators/connectors can be controlled by controllers, set to a static value or follow a predefined behaviour by defining a time series.
 
-The following controllers are defined in [parts/controllers](multisim/parts/controllers.py):
+##### Controllers
+[parts/controllers](multisim/parts/controllers.py) defines the following controllers:
 * PID controller
-* bang bang controller
-* two sensor controller
-* model predictive controller (CHP-plant specific)
+* Bang–bang controller (also 2 step or on–off controller) with a hysteresis
+* Two sensor controller (switch on when sensor 1 is > or < than setpoint 1, switch off when sensor 2 is > or < than setpoint 2)
+* Model predictive controller (CHP plant specific to optimally follow a predicted electric profile)
 
-Preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
+All controllers support setting:
+* Fixed setpoints and setting the setpoint to a process variable of another part
+* Control variable saturation limits
+* Part specific control variable post processing like conversion to a specific value range
+* Setting slopes to control variable changes
+* Linking controllers to make controller action depend on another controller to construct control chains
 
+PID controllers additionally support semi-automatic tuning by Ziegler-Nichols method.
+Thus preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
 
+##### Compound parts
 Compound parts consisting of multiple other parts and controllers can be found in [parts/part_modules](multisim/parts/part_modules).
-Part dimensions, such as pipe diameters, and controller coefficients have been to fit a wide range of flow speeds and temperatures, but may be adjusted if controls show instabilities or if the solver requires too many retries to find a stable solution.
-* gas boiler
-* chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
-* three different consumer appliances (space heating, state-of-the-art water heating, low exergy water heating)
+Part dimensions, such as pipe diameters, and controller coefficients have been fit to a wide range of flow speeds and temperatures, but may be adjusted if controls show instabilities or if the solver requires too many retries to find a stable solution.
+The following compound parts can be used:
+* Gas boiler
+* Chp plant, also with flue gas heat exchanger (based on fitting a model to manufacturer specific measurement data)
+* Consumer appliances
+    * Space heating
+    * State-of-the-art water heating
+    * Low exergy water heating
 
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
+##### Meters
 There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443) (file utility_functions.py requires *heavy* refactoring...), which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
-* temperature sensor
-* mass flow sensor
-* heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
+* Temperature sensor
+* Mass flow sensor
+* Heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
 
 
 Short documentation
