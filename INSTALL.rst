@@ -24,7 +24,7 @@ to GitHub_ and PyPI_ are included.
 The direct links to the GitHub repository and to the PyPI project are:
 
   - MultiSim on GitHub https://github.com/JoElfner/multisim
-  - MultiSim on PyPI https://pypi.org/project/MultiSim/ (currently deprecated)
+  - MultiSim on PyPI https://pypi.org/project/MultiSim/ (currently outdated)
 
 PREREQUISITES
 =============
@@ -77,7 +77,7 @@ __ http://www.sphinx-doc.org/
 INSTALLING MULTISIM
 ===================
 
-Either install it directly from PyPI using `pip` (currently deprecated) *or* make a local clone of the GitHub repository and `build and install it <#PACKAGING-MULTISIM>`_.
+Either install it directly from PyPI using `pip` (currently outdated) *or* make a local clone of the GitHub repository and `build and install it <#PACKAGING-MULTISIM>`_.
 
 
 PACKAGING MULTISIM
@@ -98,6 +98,13 @@ To build and directly install the newly built package, do:
 
   cd /d "path_to_the_package/multisim"
   python setup.py build && python setup.py install
+
+Or install it in **editable mode** (recommended if you want to make changes to MultiSim):
+
+.. code:: bash
+
+  cd /d "path_to_the_package/multisim"
+  pip install -e .
 
 
 Push to GitHub

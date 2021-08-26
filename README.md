@@ -7,10 +7,7 @@
 
 ----------------
 
-# MultiSim
-==========
-
-- **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
+# MultiSim - A simulation tool for energy systems
 
 MultiSim is a simulation tool for energy systems consisting of multiple different parts like pipes, storages, valves, heat exchangers, etc.
 F.i. technical appliances such as space or water heating appliances can be designed, simulated and optimized.
@@ -18,6 +15,25 @@ F.i. technical appliances such as space or water heating appliances can be desig
 MultiSim was mainly designed to solve the [convection-diffusion-reaction-equation](https://en.wikipedia.org/wiki/Convection_diffusion_equation#General) but can also be utilized to solve other differential equations.
 It features an adaptive step size solver, which is capable of yielding a stable solution even when loads fluctuate vigorously.
 Furthermore the solver can handle steps in flow variables due to interference of controllers (f.i. PID).
+
+- **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
+
+## Install
+
+To install the newest snapshot of MultiSim:
+1. Make a local clone of this repository or download the release to the installation path
+2. `cd` the console to the download/clone folder
+3. `pip install -e .` to install MultiSim in editable mode or `pip install .` if you want a fixed installation.
+
+The newest snapshot of the branch `master` is always **fully operational**, but may include code which will be deprecated in the next release.
+If you want to stick to fixed releases, you can stick to the version published on PyPi and install MultiSim with:
+1. `pip install MultiSim`
+
+Fixed releases may be **outdated** by several months, so I recommend cloning this repository.
+
+For slightly more detailed building, distribution and installation instructions, see [INSTALL.rst](https://github.com/JoElfner/multisim/blob/master/INSTALL.rst).
+
+## Components
 
 The following standard parts are currently available:
 * Pipe
