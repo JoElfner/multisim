@@ -21,7 +21,7 @@ Furthermore the solver can handle steps in flow variables due to interference of
 ## Short documentation
 
 The short documentation consists of:
-* [Installation instructions](doc#install)
+* [Installation instructions](#install)
 
 ### Install
 
