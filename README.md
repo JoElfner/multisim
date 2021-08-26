@@ -22,6 +22,10 @@ Furthermore the solver can handle steps in flow variables due to interference of
 
 The short documentation consists of:
 * [Installation instructions](#install)
+* Description of available [Components](#omponents)
+* Basic [examples](#Examples)
+* Summary of the [validation](#Validation) of the simulation software
+* [Known limitations and To-do](#known-limitations-and-to-do)
 
 ### Install
 
@@ -41,12 +45,12 @@ For slightly more detailed building, distribution and installation instructions,
 ### Components
 
 MultiSim supports different types of components, most notably:
-* Parts which require differential equations to be solved (called "basic parts" hereafter)
-* Connectors and Actuators which can effect flow variables, either controlled by controllers, stationary or time series based
-* Controllers which control actuators
+* [Parts](#Basic-parts) which require differential equations to be solved (called "basic parts" hereafter)
+* [Connectors and Actuators](#Actuators-and-connectors) which can effect flow variables, either controlled by controllers, stationary or time series based
+* [Controllers](#Controllers) which control actuators
 * Boundary Conditions like in- and outflows to ambience, both stationary and time series based
-* Compound parts consisting of multiple parts, actuators, controllers and boundary conditions
-* Meters to track process variables of specific important parts/cells and perform basic calculations on-the-fly
+* [Compound parts](#Compound-parts) consisting of multiple parts, actuators, controllers and boundary conditions
+* [Meters](#Meters) to track process variables of specific important parts/cells and perform basic calculations on-the-fly
 
 #### Basic parts
 The following basic parts are currently available:
