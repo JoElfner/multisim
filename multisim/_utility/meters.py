@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import warnings
 
-import multisim._precompiled.material_properties as _mp
-import multisim.utility_functions as _uf
+from multisim import matprops as mp
+from multisim import ut
 
 
 class Meters:
@@ -133,7 +133,7 @@ class Meters:
         df['T_rf'] = self._simenv.parts[cold_part].res[:, cold_cell]
         df['T_diff'] = df['T_ff'] - df['T_rf']
         df['massflow_kgps'] = mflow.copy()  # copy to fix this value
-        df['volume_flow_m3ps'] = df['massflow_kgps'] / _mp.rho_water(
+        df['volume_flow_m3ps'] = df['massflow_kgps'] / mp.rho_water(
             df['T_rf'].values
         )
         # get massflow backup array for only positive values:
@@ -153,17 +153,14 @@ class Meters:
             df['flown_volume_pos_m3'] = np.cumsum(  # only pos. cumsum
                 massflow_bkp
                 * self._simenv.time_step_vec
-                / _mp.rho_water(df['T_rf'].values)
+                / mp.rho_water(df['T_rf'].values)
             )
         # get heatflow in [kW]
         df['heatflow_kW'] = (
             (df['T_ff'] - df['T_rf'])
             * df['massflow_kgps']
             / 1e3
-            * (
-                _mp.cp_water(df['T_rf'].values)
-                + _mp.cp_water(df['T_ff'].values)
-            )
+            * (mp.cp_water(df['T_rf'].values) + mp.cp_water(df['T_ff'].values))
             / 2
         )
         hf_bkp = df['heatflow_kW'].copy()  # bkp heatflow for only-pos.-cumsum
@@ -188,7 +185,7 @@ class Meters:
                 'please simply resample by hand. This method has done nothing '
                 'else than simple resampling before...'
             )
-            df = _uf.process_unevenly_spaced_timeseries(
+            df = ut.process_unevenly_spaced_timeseries(
                 data=df, freq=freq, how=how
             )
 
@@ -314,7 +311,7 @@ class Meters:
 
         df = pd.DataFrame(index=self._time_index)  # make dataframe
         # get volumeflow
-        df[name] = self._simenv.parts[part].res_dm[:, idx_dm] / _mp.rho_water(
+        df[name] = self._simenv.parts[part].res_dm[:, idx_dm] / mp.rho_water(
             self._simenv.parts[part].res[:, cell]
         )
 
