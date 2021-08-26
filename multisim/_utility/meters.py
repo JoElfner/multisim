@@ -160,7 +160,10 @@ class Meters:
             (df['T_ff'] - df['T_rf'])
             * df['massflow_kgps']
             / 1e3
-            * (_mp.cp_water(df['T_rf'].values) + _mp.cp_water(df['T_ff'].values))
+            * (
+                _mp.cp_water(df['T_rf'].values)
+                + _mp.cp_water(df['T_ff'].values)
+            )
             / 2
         )
         hf_bkp = df['heatflow_kW'].copy()  # bkp heatflow for only-pos.-cumsum
@@ -373,9 +376,11 @@ class Meters:
         """
 
         warnings.warn(
-            ('`pred_real_plot` is deprecated. Maybe it will be re-added in a '
-            'future version'),
-            DeprecationWarning
+            (
+                '`pred_real_plot` is deprecated. Maybe it will be re-added in a '
+                'future version'
+            ),
+            DeprecationWarning,
         )
         # sources: ashrae und schittgabler zeitreihenanalyse für R oder so...
         # move outside of meters to be able to use it on all kind of TS?
