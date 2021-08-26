@@ -31,7 +31,7 @@ If you want to stick to fixed releases, you can stick to the version published o
 
 Fixed releases may be **outdated** by several months, so I recommend cloning this repository.
 
-For slightly more detailed building, distribution and installation instructions, see [INSTALL.rst](https://github.com/JoElfner/multisim/blob/master/INSTALL.rst).
+For slightly more detailed building, distribution and installation instructions, see [INSTALL.rst](INSTALL.rst).
 
 ## Components
 
