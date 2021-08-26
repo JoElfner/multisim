@@ -57,6 +57,8 @@ The following basic parts are currently available:
 * Pipe
 * Thermal storage (TES)
 * Heat exchanger
+    * Numeric (by solution of differential equations)
+    * Non-numeric *condensing flue gas* heat exchanger based on fitting an ElasticNet regression to measurement data (*very* specific to the type of HEX)
 
 Parts derived by class inheritance of the basic parts:
 * Heated pipe
@@ -103,10 +105,15 @@ The following compound parts can be used:
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
 ### Meters
-There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443) (file utility_functions.py requires *heavy* refactoring...), which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
+There is also a list of [**sensors/meters**](multisim/utility/meters.py) which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
 * Temperature sensor
 * Mass flow sensor
 * Heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
+
+### Utility functions
+The file [utility_functions](multisim/utility_functions.py) provides methods for pre- and post-processing of input/output data and basic plotting/statistic analysis. Also methods to open the `*.hdf5` files, which are used to store the results on disk, are provided.
+
+**But**: `utility_functions.py` requires **heavy** refactoring!! This is scheduled for the next release.
 
 ## Examples
 
