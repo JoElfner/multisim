@@ -18,7 +18,9 @@ Furthermore the solver can handle steps in flow variables due to interference of
 
 - **Developer/maintainer:** https://www.linkedin.com/in/johannes-elfner
 
-## Install
+## Short documentation
+
+### Install
 
 To install the newest snapshot of MultiSim:
 1. Make a local clone of this repository or download the release to the installation path
@@ -33,7 +35,7 @@ Fixed releases may be **outdated** by several months, so I recommend cloning thi
 
 For slightly more detailed building, distribution and installation instructions, see [INSTALL.rst](INSTALL.rst).
 
-## Components
+### Components
 
 MultiSim supports different types of components, most notably:
 * Parts which require differential equations to be solved (called "basic parts" hereafter)
@@ -43,7 +45,7 @@ MultiSim supports different types of components, most notably:
 * Compound parts consisting of multiple parts, actuators, controllers and boundary conditions
 * Meters to track process variables of specific important parts/cells and perform basic calculations on-the-fly
 
-##### Basic parts
+#### Basic parts
 The following basic parts are currently available:
 * Pipe
 * Thermal storage (TES)
@@ -53,7 +55,7 @@ Parts derived by class inheritance of the basic parts:
 * Heated pipe
 * Branched pipe, pipe with valve, pipe with pump (these are also compound parts)
 
-##### Actuators and connectors
+#### Actuators and connectors
 The following actuators and connectors can be installed:
 * Three way connector
 * Mixing valve/splitting valve/three way valve
@@ -63,7 +65,7 @@ The following actuators and connectors can be installed:
 
 All actuators/connectors can be controlled by controllers, set to a static value or follow a predefined behaviour by defining a time series.
 
-##### Controllers
+#### Controllers
 [parts/controllers](multisim/parts/controllers.py) defines the following controllers:
 * PID controller
 * Bang–bang controller (also 2 step or on–off controller) with a hysteresis
@@ -80,7 +82,7 @@ All controllers support setting:
 PID controllers additionally support semi-automatic tuning by Ziegler-Nichols method.
 Thus preferred tuning method for PID controllers is Ziegler-Nichols, since the parameters `Kp_crit` and `T_crit` can be passed directly to the controller while specifying the aggressiveness of the PID controller with rules like `classic` or `pessen-int` (Pessen integral rule).
 
-##### Compound parts
+#### Compound parts
 Compound parts consisting of multiple other parts and controllers can be found in [parts/part_modules](multisim/parts/part_modules).
 Part dimensions, such as pipe diameters, and controller coefficients have been fit to a wide range of flow speeds and temperatures, but may be adjusted if controls show instabilities or if the solver requires too many retries to find a stable solution.
 The following compound parts can be used:
@@ -93,20 +95,14 @@ The following compound parts can be used:
 
 New parts and controllers can be added either by defining completely new classes or by inheriting from existing parts.
 
-##### Meters
+#### Meters
 There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443) (file utility_functions.py requires *heavy* refactoring...), which can be "installed" at any (numeric) cell of each part to track the state of this cell or perform calculations like energy flows, cumulated mass and energy flows etc. on the fly, such as:
 * Temperature sensor
 * Mass flow sensor
 * Heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
 
 
-Short documentation
-===================
-
-coming soon
-
-Validation
-==========
+### Validation
 
 MultiSim has been fully validated following standard ANSI/BPI-2400-S-2015. A stricter set of statistic measures than provided in the standard has been used.
 
