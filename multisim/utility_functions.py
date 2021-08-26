@@ -2805,7 +2805,7 @@ class Meters:
 #        check if TS is even AND if freq is the same as measurement-TS-freq
 
 
-# %% and again some basic statistics. the order here is just baaad
+# %% and again some basic statistics. the order here is just random
 def is_evenly_spaced(data, return_freq=False):
     """
     This function checks if a pandas Series or DataFrame with DatetimeIndex is
