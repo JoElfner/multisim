@@ -22,7 +22,7 @@ Furthermore the solver can handle steps in flow variables due to interference of
 
 The short documentation consists of:
 * [Installation instructions](#install)
-* Description of available [Components](#omponents)
+* Description of available [Components](#components)
 * Basic [examples](#Examples)
 * Summary of the [validation](#Validation) of the simulation software
 * [Known limitations and To-do](#known-limitations-and-to-do)
@@ -108,6 +108,9 @@ There is also a list of [**sensors/meters**](multisim/utility_functions.py#L2443
 * Mass flow sensor
 * Heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
 
+### Examples
+
+coming soon
 
 ### Validation
 
@@ -115,13 +118,8 @@ MultiSim has been fully validated following standard ANSI/BPI-2400-S-2015. A str
 
 Since MultiSim was part of a PhD thesis, validation results will be added as soon as the thesis has been published (approximately December 2021).
 
-Examples
-========
 
-coming soon
-
-Known limitations and To-do
-===========================
+### Known limitations and To-do
 
 Even though MultiSim is **fully operational**, many things have to be *refactored*,
 *replaced*, *improved* or *deprecated*. Especially the core class `SimEnv` and the
@@ -157,5 +155,3 @@ Other enhancements could be:
 
 MultiSim depends mainly on `numpy`, `numba`, `pandas`, `scipy`, and
 `matplotlib`. For some parts `scikit-learn` is a dependency.
-
-For building, distribution and installation instructions, see [INSTALL.rst](https://github.com/JoElfner/multisim/blob/master/INSTALL.rst) (deprecated, will be updated soon).
