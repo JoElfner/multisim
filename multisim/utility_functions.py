@@ -27,7 +27,7 @@ from scipy import stats
 from .simenv import SimEnv
 from .precomp_funs import cp_water as _cp_water, rho_water as _rho_water
 
-# ignore FutureWarnings:
+# ignore FutureWarnings and import deprecation warnings:
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -2442,6 +2442,14 @@ class NetPlotter(SimEnv):
 # %% METERS
 class Meters:
     def __init__(self, simenv, start_time):
+        warnings.warn(
+            (
+                '`utility_functions.Meters` class is deprecated due to ongoing '
+                'refactoring of this module and will be removed in a future '
+                'version. Please use `multisim.Meters` instead.'
+            ),
+            DeprecationWarning,
+        )
         self._simenv = simenv  # save for attribute lookup
 
         self.start_time = pd.to_datetime(start_time)

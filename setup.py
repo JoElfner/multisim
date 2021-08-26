@@ -19,7 +19,7 @@ download_url = 'https://github.com/JoElfner/multisim/archive/v{0}.tar.gz'
 EMAIL = 'johannes.elfner@hm.edu'
 AUTHOR = 'Johannes Elfner'
 REQUIRES_PYTHON = '>=3.7.9'
-VERSION = '0.10.0'
+VERSION = '0.11.0'
 
 download_url = download_url.format(VERSION)
 
