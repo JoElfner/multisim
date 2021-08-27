@@ -1090,7 +1090,7 @@ class SimEnv:
         name : str
             Name of the boundary condition. Must start with `'BC_'`.
         constant : bool
-            If theBC is constant (True) or transient (False).
+            If the BC is constant (True) or transient (False).
         temperature : int, float, np.ndarray, pd.Series, pd.DataFrame
             Temperature to set as BC.
 
@@ -1344,18 +1344,20 @@ class SimEnv:
 
         Parameters
         ----------
-        * : TYPE
-            DESCRIPTION.
-        time_series : TYPE
-            DESCRIPTION.
-        open_port : TYPE, optional
-            DESCRIPTION. The default is None.
+        time_series : pd.Series, pd.DataFrame
+            Time series to set as boundary condition. Timeframe of the series
+            must be longer than the total simulation timeframe.
+        open_port : None, str, optional
+            Set boundary condition to this open port. The default is None.
         part : TYPE, optional
-            DESCRIPTION. The default is None.
-        variable_name : TYPE, optional
-            DESCRIPTION. The default is None.
-        array_index : TYPE, optional
-            DESCRIPTION. The default is None.
+            Set boundary condition to this part. The default is None.
+        variable_name : None, str, optional
+            Variable name of the boundary condition, f.i. 'T' for temperature,
+            'dm' for massflow, 'T_amb' for ambient temperature.
+            The default is None.
+        array_index : int, optional
+            Array index (cell index) where to set the boundary condition to.
+            Only applies if setting it to a part. The default is None.
 
         Returns
         -------
@@ -1595,20 +1597,15 @@ class SimEnv:
 
     def add_control(self, Controls_module, name, **kwargs):
         """
-        Add controls to the simulation environment.
-
-        The control type has to be passed via the argument `Controls_module`
-        as a Class type. Refer to the `.controls` module to get more
-        information.
+        Add a controller to the simulation environment.
 
         Parameters
         ----------
         Controls_module : Class
-            DESCRIPTION.
-        name : TYPE
-            DESCRIPTION.
-        **kwargs : TYPE
-            DESCRIPTION.
+            Reference to controller class, **NOT the instance!** Simply pass
+            the un-initialized part class without braces!
+        name : str
+            Unique name for the controller.
 
         Returns
         -------
@@ -4797,6 +4794,24 @@ class SimEnv:
         self.timestep = 1.0  # this is the adaptive step final value
 
     def initialize_sim(self, *, build_simenv=True, reset_simenv=False):
+        """
+        Initialize the simulation environment.
+
+        This is: Build all parts, controllers etc., preallocate arrays,
+        calculate topology, etc...
+
+        Parameters
+        ----------
+        build_simenv : bool, optional
+            Build the sim. env. or make a dry run? The default is True.
+        reset_simenv : bool, optional
+            Reset the sim. env? The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
 
         if build_simenv:
             self._build_simenv()
@@ -5594,7 +5609,7 @@ class SimEnv:
 
     def return_stored_data(self):
         """
-        Return stored result data.
+        Return result data stored on disk.
 
         Raises
         ------
