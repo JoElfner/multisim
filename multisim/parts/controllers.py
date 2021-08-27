@@ -55,7 +55,7 @@ class PID(Controls):
                 'If a controller of the kinds P/I and/or D '
                 'is chosen, the loop tuning method for how to set the '
                 'K-coefficients has to be given with `loop_tuning=X`.\n'
-                '    `loop_tuning=\'manual\'`: Coefficients have to be given'
+                '    `loop_tuning=\'manual\'`: Coefficients have to be given '
                 'with `Kp=P, Ki=I, Kd=D`.\n'
                 '    `loop_tuning=\'tune\'`: Tuning mode for Ziegler-Nichols '
                 'to find a set of `Kp_crit` and `t_crit` values. In this '
@@ -291,54 +291,6 @@ class PID(Controls):
             self.ki *= self.ki_mult
             self.kd *= self.kd_mult
 
-        # ADAPTIVE COEFFICIENTS:
-        # assert that adapt_coefficients is given and a bool value:
-        err_str = (
-            self._base_err
-            + self._arg_err
-            + '`adapt_coefficients=True/False` has to be given.\n'
-            'If set to True, the PID controller coefficients (Kp, Ki, Kd) '
-            'will be automatically adapted to the current simulation '
-            'timestep to avoid controller instabilities. When using adaptive '
-            'timesteps in the simulation, this is mandatory. To use this '
-            'functionality, the norm timestep `norm_timestep=X`, at which the '
-            'coefficients were designed, must be given.\n'
-            'If set to False, the controller will always use the same '
-            'coefficients regardless of the timestep.'
-        )
-        assert 'adapt_coefficients' in kwargs, err_str.format(
-            'adapt_coefficients'
-        )
-        assert type(kwargs['adapt_coefficients']) == bool, err_str.format(
-            'adapt_coefficients'
-        )
-        # save state:
-        self.adapt_coeff = kwargs['adapt_coefficients']
-        # assert that it is True if adaptive timesteps are being used:
-        if self._models.adaptive_steps:
-            assert self.adapt_coeff, err_str.format('adapt_coefficients')
-        # check for given parameters if True:
-        if self.adapt_coeff:
-            print(
-                'adapt_coefficients is deprecated due to problems with '
-                'stability. Even if set to True, coefficients will not be '
-                'adapated to the timestep.'
-            )
-            # assert that norm timestep is given and of correct type:
-            assert 'norm_timestep' in kwargs, err_str.format('norm_timestep')
-            err_str = (
-                self._base_err
-                + self._arg_err.format('norm_timestep')
-                + '`norm_timestep` must be given as integer or float value.'
-            )
-            assert isinstance(kwargs['norm_timestep'], (int, float)), err_str
-            # save norm timestep:
-            self.norm_timestep = kwargs['norm_timestep']
-            # save standard k-coefficients as norm coefficients:
-            self.norm_kp = self.kp
-            self.norm_ki = self.ki
-            self.norm_kd = self.kd
-
         # DERIVATIVE TERM LOW PASS FILTERING
         # assert that info about filtering is given if there is a derivative
         # term
@@ -421,18 +373,19 @@ class PID(Controls):
         self.prev_i_term = 0.0
 
     def run_controller(self, timestep):
-        # check if k-coefficients have to be recalculated due to using adaptive
-        # timesteps:
-        if self.adapt_coeff:
-            # get factor to multiply coefficients with:
-            self.coeff_factor = timestep / self.norm_timestep
-            self.coeff_factor = 1
-            # multiply coefficients with the factor to get timestep adjusted
-            # coefficients:
-            self.kp = self.norm_kp * self.coeff_factor
-            self.ki = self.norm_ki * self.coeff_factor ** 2
-            self.kd = self.norm_kd * self.coeff_factor ** 2
+        """
+        Calculate control value (CV) of PID controller.
 
+        Parameters
+        ----------
+        timestep : float
+            Timestep in simulation environment.
+
+        Returns
+        -------
+        None.
+
+        """
         # check if discrete or continuous time controller:
         if self.discrete_time:
             # if integral term is in the controller, the velocity algorithm is
