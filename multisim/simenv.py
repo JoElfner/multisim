@@ -470,6 +470,7 @@ class SimEnv:
         if not save:  # skip the rest if not saving to disk
             self._disksaving_set = True  # checker if options were treated
             self._save_every_n_steps = 1e6  # max steps without disksaving
+            self.__infer_start_date = False  # do not infer date if not storing
             if not self.suppress_printing:
                 print('No disksaving set. Maximum no. of steps set to 1e6.')
             return
