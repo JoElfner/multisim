@@ -23,6 +23,7 @@ Furthermore the solver can handle steps in flow variables due to interference of
 The short documentation consists of:
 * [Installation instructions](#install)
 * Description of available [Components](#components)
+* [Getting startet](#getting-started)
 * Basic [examples](#Examples)
 * Summary of the [validation](#Validation) of the simulation software
 * [Known limitations and To-do](#known-limitations-and-to-do)
@@ -114,6 +115,16 @@ There is also a list of [**sensors/meters**](multisim/_utility/meters.py) which 
 The file [utility_functions](multisim/utility_functions.py) provides methods for pre- and post-processing of input/output data and basic plotting/statistic analysis. Also methods to open the `*.hdf5` files, which are used to store the results on disk, are provided.
 
 **But**: `utility_functions.py` requires **heavy** refactoring!! This is scheduled for the next release.
+
+## Getting started
+Import MultiSim and create your simulation environment instance with:
+```python
+import multisim as ms
+
+my_sim = ms.SimEnv()
+```
+
+Now simply follow the detailed step-by-step instructions printed to the console.
 
 ## Examples
 

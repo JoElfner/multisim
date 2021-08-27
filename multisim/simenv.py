@@ -32,6 +32,21 @@ class SimEnv:
     """
 
     def __init__(self, suppress_printing=False):
+        """
+        Initialize the simulation model environment.
+
+        Parameters
+        ----------
+        suppress_printing : bool, optional
+            Tries to suppress printing of all outputs to the console.
+            Recommended if you want to run multiple simulations in queue or in
+            parallel. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
         # check variable if simulation environment has been intialized.
         # WARNING: THIS DOES NOT MEAN, THAT THE INSTANCE IS NOT INITIALIZED!
         self._initialized = False
@@ -239,8 +254,9 @@ class SimEnv:
         timeframe: int, float
             Total timedelta in [s] over which the calculation will run.
         adaptive_steps : bool
-            If adaptive stepsizes with embedded Runge-Kutta methods shall be
-            used.
+            Use adaptive stepsizes with embedded Runge-Kutta methods to
+            minimize the discretization error of the ODEs. If True, more
+            options can be specified.
 
         Returns
         -------
@@ -450,6 +466,48 @@ class SimEnv:
         complevel=9,
         complib='zlib',
     ):
+        """
+        Set disksaving of the simulation results.
+
+        Parameters
+        ----------
+        save: bool, optional
+            Store the simulation results on disk? The default is True.
+        save_every_n_steps : int, optional
+            After how many steps to store intermediate results on disk and
+            clear the RAM. The smaller the RAM, the lower the number.
+            The default is 100000.
+        sim_name: None, str, optional
+            Define the name of the simulation to use in the filename. If None,
+            name will be inferred from the instance variable name. The default
+            is None.
+        path: str, optional
+            Path to the storage location. The default is r'.\results\\'.
+        start_date: str, pd.DateTime, optional
+            Start date to use for time series stored in the disk storage. Can
+            be set to 'infer' to infer from boundary condition time series (if
+            given) or the current date. The default is '2019-09-01 00:00:00'.
+        resample_final: bool, optional
+            Resample the final results to the resample frequency
+            `resample_freq`. The default is True.
+        resample_freq: str, optional
+            Resample frequency for final resampling, if `resample_final` is
+            set. The default is '1s'.
+        create_new_folder: bool, optional
+            Create a new folder if path is not existing. The default is True.
+        overwrite: bool, optional
+            Overwrite old simulations if names match. The default is False.
+        complevel: int, optional
+            Compression level of the HDF5 store. The default is 9.
+        complib: str, optional
+            Compression library to use for the HDF5 store. 'zlib' is a good
+            deal between access speed and size. The default is 'zlib'.
+
+        Returns
+        -------
+        None.
+
+        """
 
         self.__save_to_disk = save  # save save state
 
@@ -533,18 +591,23 @@ class SimEnv:
         # set checker to True
         self._disksaving_set = True
 
-    def set_solver(self, solver, **kwargs):
+    def set_solver(self, solver='heun', **kwargs):
         """
-        Set the solver-method. The solver-method has to be passed to 'solver'
-        as a string. The following solver-methods are currently supported:
+        Set method used to solve the system of differential equations.
 
-        Supported solver-methods
-        ------------------------
-        Heun\'s Method: solver = 'heun'
-            Sets the solver to use Heun\'s Method to solve the equation system.
-        Runge-Kutta-4 Method: solver = 'rk4'
-            Sets the solver to use Runge-Kutta-4 Method (classic
-            Runge-Kutta Method) to solve the equation system.
+        Parameters
+        ----------
+        solver: str, optional
+            Solver method to use. Currently all solvers except for Heun's
+            method are deprecated. Heun is a good mix of speed and accuracy
+            when solving differential equations in interference with
+            controllers. Other methods such as RK4(5) will be reimplemented
+            in future releases. The default is 'zlib'.
+
+        Returns
+        -------
+        None.
+
         """
 
         # assert that the timeframe is already set:
@@ -633,7 +696,8 @@ class SimEnv:
         Parameters
         ----------
         part : Class
-            Reference to part class.
+            Reference to part class, **NOT the instance!** Simply pass the
+            un-initialized part class without braces!
         name : str
             Name of the part.
         store_results : bool, int, slice, list, tuple, optional
@@ -1031,7 +1095,7 @@ class SimEnv:
         name : str
             Name of the boundary condition. Must start with `'BC_'`.
         constant : bool
-            If theBC is constant (True) or transient (False).
+            If the BC is constant (True) or transient (False).
         temperature : int, float, np.ndarray, pd.Series, pd.DataFrame
             Temperature to set as BC.
 
@@ -1285,18 +1349,20 @@ class SimEnv:
 
         Parameters
         ----------
-        * : TYPE
-            DESCRIPTION.
-        time_series : TYPE
-            DESCRIPTION.
-        open_port : TYPE, optional
-            DESCRIPTION. The default is None.
+        time_series : pd.Series, pd.DataFrame
+            Time series to set as boundary condition. Timeframe of the series
+            must be longer than the total simulation timeframe.
+        open_port : None, str, optional
+            Set boundary condition to this open port. The default is None.
         part : TYPE, optional
-            DESCRIPTION. The default is None.
-        variable_name : TYPE, optional
-            DESCRIPTION. The default is None.
-        array_index : TYPE, optional
-            DESCRIPTION. The default is None.
+            Set boundary condition to this part. The default is None.
+        variable_name : None, str, optional
+            Variable name of the boundary condition, f.i. 'T' for temperature,
+            'dm' for massflow, 'T_amb' for ambient temperature.
+            The default is None.
+        array_index : int, optional
+            Array index (cell index) where to set the boundary condition to.
+            Only applies if setting it to a part. The default is None.
 
         Returns
         -------
@@ -1536,20 +1602,15 @@ class SimEnv:
 
     def add_control(self, Controls_module, name, **kwargs):
         """
-        Add controls to the simulation environment.
-
-        The control type has to be passed via the argument `Controls_module`
-        as a Class type. Refer to the `.controls` module to get more
-        information.
+        Add a controller to the simulation environment.
 
         Parameters
         ----------
         Controls_module : Class
-            DESCRIPTION.
-        name : TYPE
-            DESCRIPTION.
-        **kwargs : TYPE
-            DESCRIPTION.
+            Reference to controller class, **NOT the instance!** Simply pass
+            the un-initialized part class without braces!
+        name : str
+            Unique name for the controller.
 
         Returns
         -------
@@ -4742,6 +4803,24 @@ class SimEnv:
         self.timestep = 1.0  # this is the adaptive step final value
 
     def initialize_sim(self, *, build_simenv=True, reset_simenv=False):
+        """
+        Initialize the simulation environment.
+
+        This is: Build all parts, controllers etc., preallocate arrays,
+        calculate topology, etc...
+
+        Parameters
+        ----------
+        build_simenv : bool, optional
+            Build the sim. env. or make a dry run? The default is True.
+        reset_simenv : bool, optional
+            Reset the sim. env? The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
 
         if build_simenv:
             self._build_simenv()
@@ -5540,7 +5619,7 @@ class SimEnv:
 
     def return_stored_data(self):
         """
-        Return stored result data.
+        Return result data stored on disk.
 
         Raises
         ------

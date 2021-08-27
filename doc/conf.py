@@ -38,7 +38,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'matplotlib.sphinxext.plot_directive',
-    'numpydoc']
+    'numpydoc',
+]
 
 # Generate the API documentation when building
 autosummary_generate = True
@@ -114,7 +115,8 @@ html_theme_options = {
         ("Guidelines", "guidelines"),
         ("FAQ", "faq"),
         ("What's new", "changelog"),
-        ("Contribute", "contributing")],
+        ("Contribute", "contributing"),
+    ],
 }
 
 # html_logo = 'pictures/none.png'
@@ -135,15 +137,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'a4paper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'h',
@@ -153,8 +152,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'multisim.tex', 'MultiSim Documentation',
-     'Johannes Elfner', 'manual'),
+    (
+        master_doc,
+        'multisim.tex',
+        'MultiSim Documentation',
+        'Johannes Elfner',
+        'manual',
+    ),
 ]
 
 
@@ -162,10 +166,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'MultiSim', 'MultiSim Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'MultiSim', 'MultiSim Documentation', [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -174,9 +175,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'MultiSim', 'MultiSim Documentation',
-     author, 'MultiSim', 'Thermal simulation tool for heating appliances',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'MultiSim',
+        'MultiSim Documentation',
+        author,
+        'MultiSim',
+        'Thermal simulation tool for heating appliances',
+        'Miscellaneous',
+    ),
 ]
 
 
@@ -192,4 +199,5 @@ intersphinx_mapping = {
     'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
     'matplotlib': ('http://matplotlib.org/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'sklearn': ('http://scikit-learn.org/stable', None)}
+    'sklearn': ('http://scikit-learn.org/stable', None),
+}
