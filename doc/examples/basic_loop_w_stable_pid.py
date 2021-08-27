@@ -4,7 +4,7 @@ import pandas as pd
 
 import multisim as ms
 
-sp_pid = 40.  # setpoint for the PID in degree celsius
+sp_pid = 40.0  # setpoint for the PID in degree celsius
 theta_low = 20.0  # degree celsius
 theta_high = pd.Series(
     data=50.0, index=pd.date_range('2021-01-01', periods=2000, freq='1s')
@@ -86,10 +86,7 @@ my_sim_a.connect_ports(
     first_part='pipe_in', first_port='AB', scnd_part='TES', scnd_port='in',
 )
 my_sim_a.connect_ports(
-    first_part='TES',
-    first_port='out',
-    scnd_part='pipe_out',
-    scnd_port='in',
+    first_part='TES', first_port='out', scnd_part='pipe_out', scnd_port='in',
 )
 my_sim_a.connect_ports(
     first_part='pipe_out',
@@ -99,13 +96,32 @@ my_sim_a.connect_ports(
 )
 
 
-my_sim_a.add_control(ms.ap.PID, name='pid_valve', actuator='pipe_in', process_CV_mode='part_specific',
-                     CV_saturation=(0,1), controlled_part='pipe_in', controlled_port=-1, reference_part='none',
-                     setpoint=sp_pid, sub_controller=False, off_state=0., time_domain='continuous', deadtime=0.,
-                     slope=(-.1, .1), invert=True,
-                     terms='PID', loop_tuning='manual', Kp=.01, Ki=.0005, Kd=.00005,
-                     adapt_coefficients=True, norm_timestep=1., filter_derivative=False,
-                     anti_windup=.5)
+my_sim_a.add_control(
+    ms.ap.PID,
+    name='pid_valve',
+    actuator='pipe_in',
+    process_CV_mode='part_specific',
+    CV_saturation=(0, 1),
+    controlled_part='pipe_in',
+    controlled_port=-1,
+    reference_part='none',
+    setpoint=sp_pid,
+    sub_controller=False,
+    off_state=0.0,
+    time_domain='continuous',
+    deadtime=0.0,
+    slope=(-0.1, 0.1),
+    invert=True,
+    terms='PID',
+    loop_tuning='manual',
+    Kp=0.01,
+    Ki=0.0005,
+    Kd=0.00005,
+    adapt_coefficients=True,
+    norm_timestep=1.0,
+    filter_derivative=False,
+    anti_windup=0.5,
+)
 
 my_sim_a.initialize_sim()
 
