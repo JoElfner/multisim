@@ -90,7 +90,7 @@ class Controls:
             '    - \'direct\': The CV is passed directly, without further '
             'manipulation, from the controller to the actuator.\n'
             '    - \'part_specific\': The CV is passed to the actuator '
-            'part\'s `_proc_ctrl()`-method, where it will be manipulated '
+            'part\'s `_process_cv()`-method, where it will be manipulated '
             'and assigned to the correct location.\n'
             '    - \'custom\': The CV will be manipulated by a custom '
             'function, which needs to be given with `process_cv_func=Y` '
@@ -319,18 +319,18 @@ class Controls:
                 'given with `actuator_port=X`, where X is either the '
                 'port name as a string or the cell index as integer value.)'
             ).format(self.actuator)
-            assert 'actuator_port' in kwargs, err_str
-            self.act_port = kwargs['actuator_port']
-            # check actuator port and get index if not already int:
-            self.act_port = self.__check_args(
-                'actuator',
-                'actuator_port',
-                actuator=self.actuator,
-                actuator_port=(self.act_port),
-            )[1]
-            # set the in-or-outlet, which is not chosen as actuator port,
-            # as the second port to be controlled by the algorithm:
-            self.act_port_scnd = 1 - self.act_port
+            # assert 'actuator_port' in kwargs, err_str  # TODO: deprecated!
+            # self.act_port = kwargs['actuator_port']  # TODO: deprecated!
+            # # check actuator port and get index if not already int:
+            # self.act_port = self.__check_args(  # TODO: deprecated!
+            #     'actuator',  # TODO: deprecated!
+            #     'actuator_port',  # TODO: deprecated!
+            #     actuator=self.actuator,  # TODO: deprecated!
+            #     actuator_port=(self.act_port),  # TODO: deprecated!
+            # )[1]  # TODO: deprecated!
+            # # set the in-or-outlet, which is not chosen as actuator port,
+            # # as the second port to be controlled by the algorithm:
+            # self.act_port_scnd = 1 - self.act_port  # TODO: deprecated!
         # LINKING ALGORITHM:
         # if linked controller, the current actuator will be
         # linked to another actuator, so that the current actuator will always

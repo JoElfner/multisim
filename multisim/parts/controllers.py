@@ -55,7 +55,7 @@ class PID(Controls):
                 'If a controller of the kinds P/I and/or D '
                 'is chosen, the loop tuning method for how to set the '
                 'K-coefficients has to be given with `loop_tuning=X`.\n'
-                '    `loop_tuning=\'manual\'`: Coefficients have to be given'
+                '    `loop_tuning=\'manual\'`: Coefficients have to be given '
                 'with `Kp=P, Ki=I, Kd=D`.\n'
                 '    `loop_tuning=\'tune\'`: Tuning mode for Ziegler-Nichols '
                 'to find a set of `Kp_crit` and `t_crit` values. In this '

@@ -71,7 +71,7 @@ class SimEnv:
         usage_helper = (
             'Simulation environment {0} created.\n\n'
             'Next steps:\n'
-            '    - set disk-saving with `{0}.set_savetodisk()` to save '
+            '    - set disk-saving with `{0}.set_disksaving()` to save '
             'results to a pandas HDFStore. This must be set for simulations '
             'with many timesteps and numeric cells to avoid overflowing '
             'the memory. More than 50% of the available memory should never '
@@ -95,9 +95,9 @@ class SimEnv:
             '`{0}.initialize_sim()`\n'
             '    - start the simulation with `{0}.start_sim()`\n'
             '    - once the simulation is finished, use the '
-            '`utility_functions` module to add measurements/meters like heat '
-            'meters by import the class `Meters` and/or plot the numeric '
-            'errors of the simulation with the class `NetPlotter`\n'
+            '`Meters` class to add measurements/meters like heat '
+            'meters and/or plot the numeric errors of the simulation with the '
+            'class `NetPlotter`\n'
             '    - access results and meters as a pandas DataFrame with '
             '`{0}.return_stored_data()` or load results from a previously '
             'completed simulation with `load_sim_results()` from the '
@@ -451,24 +451,14 @@ class SimEnv:
         complib='zlib',
     ):
 
-        self.__save_to_disk = save
+        self.__save_to_disk = save  # save save state
 
-        if not save:  # skip if false
-            self._disksaving_set = True  # checker if options were treated
-            self._save_every_n_steps = 1e6  # max steps without disksaving
-            if not self.suppress_printing:
-                print('No disksaving set. Maximum no. of steps set to 1e6.')
-            return
+        self._disk_store = {}  # dict for storing disk saving info
 
-        sim_name = self._simenv_name if sim_name is None else sim_name
-        now = pd.datetime.now()
-
-        self._save_every_n_steps = int(save_every_n_steps)
-
-        self._disk_store = {}
+        # check start date
         if start_date != 'infer':
             self._disk_store['start_date'] = pd.to_datetime(start_date)
-            # also intermiadte val for disk saving steps
+            # also intermediate val for disk saving steps
             self._disk_store['curr_step_start_date'] = self._disk_store[
                 'start_date'
             ]
@@ -476,6 +466,20 @@ class SimEnv:
         else:
             self.__infer_start_date = True
             self._disk_store['start_date'] = None
+
+        if not save:  # skip the rest if not saving to disk
+            self._disksaving_set = True  # checker if options were treated
+            self._save_every_n_steps = 1e6  # max steps without disksaving
+            if not self.suppress_printing:
+                print('No disksaving set. Maximum no. of steps set to 1e6.')
+            return
+
+        # get sim name and current time to name disk storage
+        sim_name = self._simenv_name if sim_name is None else sim_name
+        now = pd.datetime.now()
+
+        self._save_every_n_steps = int(save_every_n_steps)
+
         # path to disk store
         self._disk_store['path'] = os.path.abspath(
             '{path}{iso_date}_{name}.{typ}'.format(
@@ -544,8 +548,8 @@ class SimEnv:
 
         # assert that the timeframe is already set:
         err_str = (
-            'The timeframe of the simulation environmnet has the be '
-            'set before setting the solver!'
+            'The timeframe of the simulation environmnet has to be '
+            'set before defining the solver!'
         )
         assert self._timeframe_set, err_str
         # list of supported solvers: DEPRECATED! ONLY HEUN SUPPORTED NOW
@@ -565,7 +569,7 @@ class SimEnv:
             'solvers has been deprecated. Major solver method refactoring '
             '(outsourcing of the solver steps to a method should be the first '
             'step to make a flexibile implementation with an arbitrary step '
-            'number applicable) is required before implementing new solvers.'
+            'number applicable) is required before reimplementing solvers.'
         )
 
         # construct private method name:
@@ -1112,7 +1116,7 @@ class SimEnv:
                 'For parts with multiple actuator ports, like a 3 way valve, '
                 'the given values will always be assigned to the first '
                 'actuator port, for example port A for a 3 way valve.'
-            )
+            ).format(self._unit)
             assert 'const_val' in kwargs or 'time_series' in kwargs, err_str
             assert not (
                 'const_val' in kwargs and 'time_series' in kwargs
@@ -1329,7 +1333,7 @@ class SimEnv:
             getattr(time_series.index, 'inferred_freq', None) is not None
         ), 'Index not evenly spaced, monotonic or without missing values!'
         assert time_series.index.values.dtype == 'datetime64[ns]', err_str
-        # check for matching start dates if it should not be inferred
+        # check for matching start dates if it is not be inferred
         if self._disksaving_set and not self.__infer_start_date:
             assert time_series.index[0] == self._disk_store['start_date'], (
                 'Start date for disksaving does not match boundary condition '
@@ -1386,7 +1390,7 @@ class SimEnv:
                 'Error while assigning boundary condition to: `{0}`\n'
                 'The index of `time_series` has to cover at least a '
                 'timeframe a few seconds longer than the simulation '
-                'environment timeframe, to avoid running into '
+                'environment timeframe to avoid running into '
                 'indexing problems!'
             ).format(err_name)
             assert (
@@ -1975,9 +1979,10 @@ class SimEnv:
         else:
             # else if first part is BC:
             err_str = (
-                'The boundary condition `{0}` was not '
+                'While connecting boundary condition `{0}` with part `{1}`:\n'
+                'Boundary condition `{0}` was not '
                 'found!\nThe following boundary conditions have been '
-                'added to the simulation environment:\n'.format(first_port)
+                'added to the simulation environment:\n'.format(first_port, scnd_part)
                 + str(list(self.boundary_conditions))
             )
             assert first_port in self.boundary_conditions, err_str
@@ -2898,12 +2903,13 @@ class SimEnv:
 
         # assert if port exists in part:
         err_str = (
-            'The port `{0}` was not found at part `{1}`.\n'
+            'Port `{0}` was not found at part `{1}`. The following ports '
+            'exist at `{1}`: {2}\n'
             'This error might also be caused by trying to pass a mix of an '
             'all-ports-identifier and port names to a function which can take '
             'multiple ports as parameters, for example when defining port '
             'specifications.'
-        ).format(port, part)
+        ).format(port, part, repr(cls.port_names))
         assert port in cls.port_names, err_str
 
         if target == 'temperature':  # for temperature
@@ -3419,9 +3425,9 @@ class SimEnv:
             'for all ports have to be passed separately.\n'
             'The passed \'pipe_specs\'-dict must be a 2-level dict and '
             'look like:\n'
-            'pipe_specs={\'in\': {\'pipe_type\': \'EN10255-medium\', '
+            'pipe_specs={\'in\': {\'pipe_type\': \'EN10255_medium\', '
             '\'DN\': \'DN50\'},\n'
-            '            \'out\': {\'pipe_type\': \'EN10255-heavy\', '
+            '            \'out\': {\'pipe_type\': \'EN10255_heavy\', '
             '\'DN\': \'DN65\'}}\n'
             'Here `in` and `out` are the respective port identifiers. '
             'For other port names, these need to match the identifiers.'
@@ -4798,9 +4804,10 @@ class SimEnv:
         self.stepnum[0] += self._total_stepnum
 
         # open store without context manager for remaining storage operations:
-        self._disk_store['store_tmp'] = pd.HDFStore(
-            self._disk_store['path_tmp'], mode='r+'
-        )
+        if self.__save_to_disk:
+            self._disk_store['store_tmp'] = pd.HDFStore(
+                self._disk_store['path_tmp'], mode='r+'
+            )
 
         # save to disk, if activated (default)
         if self.__save_to_disk:
