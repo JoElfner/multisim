@@ -1982,7 +1982,9 @@ class SimEnv:
                 'While connecting boundary condition `{0}` with part `{1}`:\n'
                 'Boundary condition `{0}` was not '
                 'found!\nThe following boundary conditions have been '
-                'added to the simulation environment:\n'.format(first_port, scnd_part)
+                'added to the simulation environment:\n'.format(
+                    first_port, scnd_part
+                )
                 + str(list(self.boundary_conditions))
             )
             assert first_port in self.boundary_conditions, err_str
