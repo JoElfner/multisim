@@ -20,6 +20,7 @@ __all__ = [
     'dimless_no',
     'matprops',
     'Meters',
+    'plotting',
     'pf',
     'se',
     '_sp',
