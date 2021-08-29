@@ -10,7 +10,7 @@ import pandas as pd
 import warnings
 
 from multisim import matprops as mp
-from .. import utility_functions as ut  # TODO
+from multisim import ut as ut
 
 
 class Meters:
