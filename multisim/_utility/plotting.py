@@ -17,7 +17,7 @@ import scipy.stats as _sst
 import multisim.stat_err_meas as _sem
 
 
-def df_to_heatmap(
+def heatmap_from_df(
     df,
     ax=None,
     figsize=(16 / 2.54, 10 / 2.54),
@@ -201,11 +201,71 @@ def prediction_realization_scatter(
     err_loc='bottom right',
     legend_kwds=dict(),
     auto_label=True,
-    sprache='eng',
+    language='eng',
     plot_every=1,
     fig_kwds=dict(figsize=(8 / 2.54, 8 / 2.54)),
     err_vals=None,
 ):
+    """
+    Plot prediction-realization (PR) scatter plot.
+
+    Parameters
+    ----------
+    y : np.array, pd.Series, pd.DataFrame
+        Realization/measurement/oberserved data.
+    y_hat : np.array, pd.Series, pd.DataFrame
+        Predicted/forecast/simulated data.
+    ax : matplotlib.axes, optional
+        Axes to plot on. If not provided, a new figure will be created. The
+        default is None.
+    aspect : str, int, float, optional
+        Aspect ratio to use for axes. The default is 'eqaul'.
+    ax_scaling_tight : bool, optional
+        Use tight scaling for the axes. The default is False.
+    errors : tuple, optional
+        Statistical error measures to print in the plot. The default is
+        ('R2', 'MSE', 'CV(RMSE)', 'NMBE').
+    scttr_kwds : dict, optional
+        Additional arguments to pass on to matplotlib.scatter. The default
+        is dict(c='C0', s=6, fc='none', ec='C0', alpha=1.0).
+    diag_kwds : dict, optional
+        Additional arguments to pass on to plotting the halfing diagonal. The
+        default is dict(color='k', ls='-', lw=1).
+    plt_err_range : str, optional
+        Plot error range around the diagonal. The default is 'RMSE'.
+    err_rng_kwds : dict, optional
+        Additional arguments to pass on to plotting the error range. The
+        default is dict(color='k', ls='--', lw=1).
+    err_kwds : dict, optional
+        Additional arguments to define the box-style around the error measures.
+        The default is dict(
+        bbox=dict(boxstyle="round", fc="w", ec="k", alpha=0.5, pad=0.2)).
+    err_loc : str, optional
+        Where to place the box with the error measures. The default is
+        'bottom right'.
+    err_rng_kwds : dict, optional
+        Additional arguments to pass on to legend creation. The default is
+        dict().
+    auto_label : bool, optional
+        Label x- and y-axis automatically using SI-style.
+    language : str, optional
+        Language to use for labeling. The default is 'eng'.
+    plot_every : int, optional
+        Plot every n points to reduce plot size. The default is 1.
+    fig_kwds : dict, optional
+        Additional arguments to pass on to figure creation. The
+        default is dict(figsize=(8 / 2.54, 8 / 2.54)).
+    err_vals : None, tuple, optional
+        Error values to use for annotation. The default is None.
+
+    Returns
+    -------
+    fig : matplotlib.figure
+        Figure containing the plot.
+    ax : matplotlib.axes
+        Axes containing the plot.
+
+    """
     if ax is None:
         fig, ax = plt.subplots(1, 1, **fig_kwds)
     else:
@@ -217,13 +277,13 @@ def prediction_realization_scatter(
     )
     minmax_range = pr_max - pr_min
 
-    assert sprache in ('eng', 'de')
-    if sprache == 'eng':
+    assert language in ('eng', 'de')
+    if language == 'eng':
         datap = 'Data points'
         bsline = 'Bisecting line'
         xlabel = 'Measurement'
         ylabel = 'Prediction'
-    elif sprache == 'de':
+    elif language == 'de':
         datap = 'Datenpunkte'
         bsline = '$y = x$'
         xlabel = 'Messwerte'
@@ -270,8 +330,8 @@ def prediction_realization_scatter(
 
 
 def prediction_realization_2d_kde(
-    x,
     y,
+    y_hat,
     steps=100,
     ax=None,
     contour=True,
@@ -291,14 +351,76 @@ def prediction_realization_2d_kde(
     plt_kwds={},
     **err_kwds
 ):
-    """Make a prediction-realization plot with a 2D-KDE."""
+    """
+    Plot 2-dimensional prediction-realization (PR) KDE plot.
+
+    Uses gaussian kernel density estimate
+
+    Parameters
+    ----------
+    y : np.array, pd.Series, pd.DataFrame
+        Realization/measurement/oberserved data.
+    y_hat : np.array, pd.Series, pd.DataFrame
+        Predicted/forecast/simulated data.
+    steps : int, optional
+        Steps to use for calculation the gaussian kernel density estimate. The
+        default is 100.
+    ax : matplotlib.axes, optional
+        Axes to plot on. If not provided, a new figure will be created. The
+        default is None.
+    contour : bool, optional
+        Plot as a contour plot. The default is True.
+    cmap : str, optional
+        Colormap to use. The default is 'Blues'.
+    norm : bool, optional
+        Normalize linearly to vmin-vmax range **OR** set to 'log' for
+        logarithmic normalization between vmin and vmax. The default is True.
+    vmin : None, int, float, optional
+        Minimum value to display. The default is None.
+    vmax : None, int ,float, optional
+        Maximum value to display. The default is None.
+    cont_lines : bool, optional
+        Display contour lines if plotting as a contour plot. The default
+        is True.
+    cbar : bool, optional
+        Plot colorbar. The default is True.
+    line_color : str, optional
+        Color for halfing diagonal. The default is 'k'.
+    fontsize : int, optional
+        Font size for error measures. The default is 8.
+    aspect : str, int, float, optional
+        Aspect ratio to use for axes. The default is 'eqaul'.
+    extend : str, optional
+        Extend values or clip under vmin, over vmax or both. The default
+        is 'both'.
+    cm_under : str, optional
+        Color to use for values clipped under vmin. The default is 'w'.
+    cm_over : str, optional
+        Color to use for values clipped over vmax. The default is 'k'.
+    errors : tuple, optional
+        Statistical error measures to put into axis. The default
+        is ('R2', 'CV(RMSE)', 'NMBE').
+    plt_kwds : dict, optional
+        Additional arguments to pass on to the plotting methods (either
+        matplotlib.imshow, matplotlib.contour or matplotlib.contourf). The
+        default is dict().
+    **err_kwds : keyword arguments, optional
+        Additional keyword arguments to pass to error calculation
+
+    Returns
+    -------
+    {'fig': fig, 'ax': ax, 'mappable': im, 'cbar': cbar} : dict
+        Dictionary of created plotting objects.
+
+    """
     if ax is None:
         fig, ax = plt.subplots()
     else:
         fig = ax.get_figure()
     assert isinstance(steps, (int, complex))
+    # calculate gaussian kernel
     steps = 100 * 1j if isinstance(steps, int) else steps
-    m1, m2 = x.copy(), y.copy()
+    m1, m2 = y.copy(), y_hat.copy()
     xmin, xmax, ymin, ymax = m1.min(), m1.max(), m2.min(), m2.max()
     X, Y = _np.mgrid[xmin:xmax:steps, ymin:ymax:steps]
     positions = _np.vstack([X.ravel(), Y.ravel()])
@@ -395,7 +517,7 @@ def prediction_realization_2d_kde(
     ax.set_aspect(aspect)
     ax.grid(True)
 
-    annotate_errors(ax=ax, y=x, y_hat=y, errors=errors, err_kwds=err_kwds)
+    annotate_errors(ax=ax, y=y_hat, y_hat=y, errors=errors, err_kwds=err_kwds)
 
     return {'fig': fig, 'ax': ax, 'mappable': im, 'cbar': cbar}
 
@@ -576,6 +698,35 @@ def annotate_errors(
         bbox=dict(boxstyle="round", fc="w", ec="k", alpha=0.5, pad=0.2)
     ),
 ):
+    """
+    Annotate statistical error measures in a plot.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes
+        Axes to add error measures to.
+    y : np.array, pd.Series, pd.DataFrame
+        Realization/measurement/oberserved data.
+    y_hat : np.array, pd.Series, pd.DataFrame
+        Predicted/forecast/simulated data.
+    errors : tuple
+        Errors to calculate.
+    err_loc : str, optional
+        Location where to print errors in the axes. The default
+        is 'bottom right'.
+    err_vals : None, dict, optional
+        Instead of calculating errors, use these values. The default is None.
+    fontsize : int, optional
+        Fontsize to use for printing errors. The default is 8.
+    err_kwds : dict, optional
+        Box style to use for printing errors. The default is
+        dict(bbox=dict(boxstyle="round", fc="w", ec="k", alpha=0.5, pad=0.2)).
+
+    Returns
+    -------
+    None.
+
+    """
     annot_str = ''
     if 'R2' in errors:
         if err_vals is None or 'R2' not in err_vals:
@@ -626,22 +777,27 @@ def annotate_axes(
 
     Parameters
     ----------
-    axes : matplotlib.Axes
-        DESCRIPTION.
+    axes : tuple, matplotlib.Axes
+        Axes to print annotations to. If tuple, label each consequently.
     fig : matplotlib.Figure, optional
-        DESCRIPTION. The default is None.
+        Figure of which axis should be labeled. The default is None.
     annotations : list, tuple, string, optional
-        DESCRIPTION. The default is None.
+        Annotations to use. If None, the lower case alphabet will be used.
+        The default is None.
     loc : string, optional
-        DESCRIPTION. The default is 'top left'.
-    # xy : TYPE, optional
-        DESCRIPTION. The default is [(.05, .95)].
+        Location in each axes to print annotations to. The default
+        is 'top left'.
     bbox : dict, optional
-        DESCRIPTION. The default is dict(boxstyle="round", fc="w", ec="k", alpha=.8, pad=0.35).
+        Boxstyle to use for annotations. The default is
+        dict(boxstyle="round", fc="w", ec="k", alpha=.8, pad=0.35).
     txt_offset : int, float, optional
-        DESCRIPTION. The default is 8.
-    **kwds : TYPE
-        DESCRIPTION.
+        Text offset from axes border in points. The default is 8.
+    xy_offset : tuple, optional
+        Additional xy-offset from axes border in points. The default is (0, 0).
+    fontsize : int, optional
+        Fontsize for annotating the axes. The default is 9.
+    **kwds : keyword arguments
+        Additional alignment arguments to pass on the matplotlib.annotate.
 
     Returns
     -------
