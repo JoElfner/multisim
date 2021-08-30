@@ -13,6 +13,14 @@ theta_high = pd.Series(
     data=50.0, index=pd.date_range('2021-01-01', periods=1000, freq='1s')
 )
 theta_high.iloc[300:] = 85.0
+
+# create simulation environment
+my_sim_a = ms.Models()
+# set disksaving, simulatiion timeframe and solver
+my_sim_a.set_disksaving(save=True, start_date='infer', sim_name='sim_a')
+my_sim_a.set_timeframe(timeframe=900, adaptive_steps=True)
+my_sim_a.set_solver(solver='heun', allow_implicit=False)
+
 # define pipe specifications for all pipes and ports
 pipe_specs = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN25'}}
 # set general specifications for all parts
@@ -24,13 +32,6 @@ general_specs = dict(
     material='carbon_steel',
     pipe_specs=pipe_specs,
 )
-
-# create simulation environment
-my_sim_a = ms.Models()
-# set disksaving, simulatiion timeframe and solver
-my_sim_a.set_disksaving(save=True, start_date='infer', sim_name='sim_a')
-my_sim_a.set_timeframe(timeframe=900, adaptive_steps=True)
-my_sim_a.set_solver(solver='heun', allow_implicit=False)
 
 # add parts
 my_sim_a.add_part(
