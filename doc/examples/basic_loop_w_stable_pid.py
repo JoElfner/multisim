@@ -2,7 +2,6 @@
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 import multisim as ms
@@ -117,15 +116,9 @@ my_sim_a.add_control(
     invert=False,
     terms='PID',
     loop_tuning='ziegler-nichols',
-    # loop_tuning='manual',
     rule='classic',
     Kp_crit=0.025,
-    # T_crit=36.0,
     T_crit=5.0,
-    # Ki=1 / 100,
-    # Kp=2.5e-2,
-    # Ki=5e-2,
-    # Kd=5e-5,
     filter_derivative=False,
     anti_windup=1.0,
 )
@@ -197,7 +190,7 @@ ax_valve_theta.set_xlabel('simulation time in min:s')
 ax_valve_flow.xaxis.set_major_formatter(mpl.dates.DateFormatter('%M:%S'))
 fig_valve.tight_layout(pad=0.1)
 
-fig_valve.savefig('./figures/basic_example_valve.svg')
+# fig_valve.savefig('./figures/basic_example_valve.svg')
 
 # %% plot TES temperature as heatmap
 
@@ -217,4 +210,4 @@ ms.plotting.heatmap_from_df(
     plt_kwds={'shading': 'gouraud'},
 )
 
-fig_tes.savefig('./figures/basic_example_tes.png', dpi=200)
+# fig_tes.savefig('./figures/basic_example_tes.png', dpi=200)
