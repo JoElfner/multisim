@@ -156,7 +156,7 @@ class PID(Controls):
                     'method requires the critical proportional gain '
                     '`Kp_crit=X`, which is the lowest proportional gain '
                     'at which the output of the control loop has stable '
-                    'and consistent oscillations after initiating a jump of'
+                    'and consistent oscillations after initiating a step of '
                     'the process variable, as well as the '
                     'oscillation period `T_crit=Y` in [s].\n'
                     'To get these values, make this controller a '
@@ -167,7 +167,7 @@ class PID(Controls):
                     'the process variable occur. Now set this `Kp` value '
                     'to `Kp_crit` and the oscillation period to `T_crit` '
                     'with `loop_tuning=\'ziegler-nichols\'`.\n`Ki` and '
-                    '`Kd` must not be passed.'
+                    '`Kd` must not be given.'
                 )
                 err_str_rules = (
                     self._base_err
