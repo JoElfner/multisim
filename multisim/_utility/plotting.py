@@ -14,7 +14,7 @@ import numpy as _np
 import pandas as _pd
 import scipy.stats as _sst
 
-import multisim.stat_err_meas as _sem
+from . import stat_error_measures as _sem
 
 
 def heatmap_from_df(

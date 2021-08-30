@@ -10,7 +10,7 @@ from . import simenv as se  # TODO: deprecated?
 from . import std_parts as _sp
 from . import utility_functions as ut  # TODO: deprecate as soon as refactored
 from ._utility import Meters
-from ._utility import stat_error_measures as stat_err_meas
+from ._utility import stat_err_meas
 from ._utility import plotting
 
 __all__ = [
