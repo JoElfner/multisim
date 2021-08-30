@@ -140,6 +140,8 @@ With the temperature of the water flowing into port B of 'pipe_in' describing a 
 This small example covers controlling the mixing temperature of the three-way-valve via a stable PID controller.
 The PID controller is tuned using the class Ziegler-Nichols rule.
 
+The full executable example as a Python script can be found at [doc/examples/basic_loop_w_stable_pid.py](doc/examples/basic_loop_w_stable_pid.py).
+
 To set up the simulation environment, first start by loading the required modules and defining boundary conditions like the temperatures and temperature time series:
 ```python
 import matplotlib as mpl
