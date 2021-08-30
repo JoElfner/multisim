@@ -14,6 +14,8 @@ import numpy as _np
 import pandas as _pd
 import scipy.stats as _sst
 
+import multisim.stat_err_meas as _sem
+
 
 def df_to_heatmap(
     df,
@@ -66,25 +68,29 @@ def df_to_heatmap(
     linewidth : int, float, optional
         linewidth (lines between filled areas) to pass to
         matplotlib.pcolormesh. The default is 0.
-    limit_to_valid_data : TYPE, optional
-        DESCRIPTION. The default is True.
-    log_cbar : TYPE, optional
-        DESCRIPTION. The default is False.
-    plt_kwds : TYPE, optional
-        DESCRIPTION. The default is {}.
-    cbar_kwds : TYPE, optional
-        DESCRIPTION. The default is {}.
-    extend_over : TYPE, optional
-        DESCRIPTION. The default is None.
-    extend_under : TYPE, optional
-        DESCRIPTION. The default is None.
+    limit_to_valid_data : bool, optional
+        Find first valid indices for x and y axis. Cuts out np.nan areas.
+        The default is True.
+    log_cbar : bool, optional
+        Logarithmic scaling for colorbar. The default is False.
+    plt_kwds : dict, optional
+        Additional arguments to pass on to matplotlib.pcolormesh. The default
+        is {}.
+    cbar_kwds : dict, optional
+        Additional arguments to pass on to the colorbar. The default is {}.
+    extend_over : None, str, tuple, optional
+        Set color for out-of-bound values larger than vmax. Will be applied to
+        `cmap.set_over()`. The default is None.
+    extend_under : None, str, tuple, optional
+        Set color for out-of-bound values lower than vmin. Will be applied to
+        `cmap.set_under()`. The default is None.
 
     Returns
     -------
-    fig : TYPE
-        DESCRIPTION.
-    ax : TYPE
-        DESCRIPTION.
+    fig : matplotlib.figure
+        Figure containing the plot.
+    ax : matplotlib.axes
+        Axes containing the plot.
 
     """
 
@@ -178,7 +184,7 @@ def df_to_heatmap(
     return fig, ax
 
 
-def plot_pr_scatter(
+def prediction_realization_scatter(
     y,
     y_hat,
     ax=None,
@@ -200,7 +206,6 @@ def plot_pr_scatter(
     fig_kwds=dict(figsize=(8 / 2.54, 8 / 2.54)),
     err_vals=None,
 ):
-    """Make a prediction-realization scatter plot."""
     if ax is None:
         fig, ax = plt.subplots(1, 1, **fig_kwds)
     else:
@@ -264,7 +269,7 @@ def plot_pr_scatter(
     return fig, ax
 
 
-def plot_2d_kde(
+def prediction_realization_2d_kde(
     x,
     y,
     steps=100,
@@ -574,25 +579,25 @@ def annotate_errors(
     annot_str = ''
     if 'R2' in errors:
         if err_vals is None or 'R2' not in err_vals:
-            r2 = _sf.r_squared(y, y_hat)
+            r2 = _sem.r_squared(y, y_hat)
         else:
             r2 = err_vals['R2']
         annot_str += r'$R^2={0:.3f}$'.format(r2) + '\n'
     if 'MSE' in errors:
         if err_vals is None or 'MSE' not in err_vals:
-            mse = _sf.mean_squared_err(y, y_hat)
+            mse = _sem.mean_squared_err(y, y_hat)
         else:
             mse = err_vals['MSE']
         annot_str += r'$MSE={0:.3G}$'.format(mse) + '\n'
     if 'CV(RMSE)' in errors:
         if err_vals is None or 'CV(RMSE)' not in err_vals:
-            cvrmse = _sf.cv_rmse(y, y_hat)
+            cvrmse = _sem.cv_rmse(y, y_hat)
         else:
             cvrmse = err_vals['CV(RMSE)']
         annot_str += r'$CV(RMSE)={0:.3f}$'.format(cvrmse) + '\n'
     if 'NMBE' in errors:
         if err_vals is None or 'NMBE' not in err_vals:
-            nmbe = _sf.normalized_err(y, y_hat, err_method='MSD', norm='mean')
+            nmbe = _sem.normalized_err(y, y_hat, err_method='MSD', norm='mean')
         else:
             nmbe = err_vals['NMBE']
         annot_str += r'$NMBE={0:.3f}$'.format(nmbe)
