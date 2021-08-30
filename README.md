@@ -353,6 +353,8 @@ ax_valve_theta.set_xlabel('simulation time in min:s')
 ax_valve_flow.xaxis.set_major_formatter(mpl.dates.DateFormatter('%M:%S'))
 fig_valve.tight_layout(pad=0.1)
 ```
+As you can see, the PID tuned with the Ziegler-Nichols method reaches the new SP quite fast and stable:
+![Valve temperature and massflow](/doc/examples/figures/basic_example_valve.svg)]
 
 And finally plot a heatmap of the TES temperature:
 ```python
@@ -372,7 +374,9 @@ ms.plotting.heatmap_from_df(
     plt_kwds={'shading': 'gouraud'},
 )
 ```
-
+Which yields the temperature of the TES over the time:
+As you can see, the PID tuned with the Ziegler-Nichols method reaches the new SP quite fast and stable:
+![TES temperature](/doc/examples/figures/basic_example_tes.png)]
 
 
 ### Instable PID controller
