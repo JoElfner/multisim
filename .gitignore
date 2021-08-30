@@ -40,6 +40,7 @@ GTAGS
 *.o
 *.o.d
 *.py[ocd]
+*.nb[ci]
 *.so
 
 # Python files #
@@ -98,8 +99,10 @@ TODO.rst
 _deprecated_setup.py
 deprecated
 *_nonopt.py
+doc/examples/results
 multisim/data_class.py
 multisim/parts/__pycache__
 multisim/__pycache__
-multisim/__pycache__
+multisim/_precompiled/__pycache__
+multisim/_utility/__pycache__
 tests/__pycache__
