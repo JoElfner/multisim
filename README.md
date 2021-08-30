@@ -377,7 +377,6 @@ ms.plotting.heatmap_from_df(
 )
 ```
 Which yields the temperature of the TES over the time:
-As you can see, the PID tuned with the Ziegler-Nichols method reaches the new SP quite fast and stable:
 ![TES temperature](/doc/examples/figures/basic_example_tes.png)
 
 
