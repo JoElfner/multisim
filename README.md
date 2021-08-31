@@ -390,6 +390,9 @@ MultiSim has been fully validated following standard ANSI/BPI-2400-S-2015. A str
 
 Since MultiSim was part of a PhD thesis, validation results will be added as soon as the thesis has been published (approximately December 2021).
 
+One of the systems simulated to validate MultiSim, was the following heating and PWH (potable water hot) appliance:
+![validation appliance scheme](/doc/figures/sim_valild_chp.svg)
+
 
 ## Known limitations and To-do
 
