@@ -10,9 +10,9 @@
 # MultiSim - A simulation tool for energy systems
 
 <p float="left">
-  <img src="/doc/figures/sim_valild_chp_scheme.svg" width="100" />
-  <img src="/doc/figures/rightarrow.svg" width="25" />
-  <img src="/doc/figures/valid_chp_tes_temperature_en_simside.png" width="100" />
+  <img src="/doc/figures/sim_valild_chp_scheme.svg" width="300" />
+  <img src="/doc/figures/rightarrow.svg" width="100" />
+  <img src="/doc/figures/valid_chp_tes_temperature_en_simside.png" width="200" />
 </p>
 
 MultiSim is a simulation tool for energy systems consisting of multiple different parts like pipes, storages, valves, heat exchangers, etc.
