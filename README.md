@@ -9,11 +9,7 @@
 
 # MultiSim - A simulation tool for energy systems
 
-<p float="center">
-  <img src="/doc/figures/sim_valild_chp_scheme.svg" width="400" />
-  <img src="/doc/figures/rightarrow.svg" width="150" />
-  <img src="/doc/figures/valid_chp_tes_temperature_en_simside.png" width="300" />
-</p>
+![MultiSim logo](/doc/figures/logo.svg)
 
 MultiSim is a simulation tool for energy systems consisting of multiple different parts like pipes, storages, valves, heat exchangers, etc.
 F.i. technical appliances such as space or water heating appliances can be designed, simulated and optimized.
