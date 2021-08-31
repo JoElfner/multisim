@@ -403,6 +403,7 @@ Finally, the heatmap plot of the TES temperature, plotted with [multisim.plottin
 
 ![validation appliance heatmap](/doc/figures/valid_chp_tes_temperature_en.png)
 
+Further validation results of other parts and with more plots will be added to the full documentation as soon as everything is officially published and can be referenced.
 
 ## Known limitations and To-do
 
