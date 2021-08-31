@@ -9,15 +9,6 @@ import multisim as ms
 # disable writing bytecode to avoid creating pycache
 sys.dont_write_bytecode = True
 
-print(
-    'see https://eth-brownie.readthedocs.io/en/stable/tests-pytest-intro.html#isolation-fixtures'
-    'for how to revert states between tests.'
-)
-print(
-    'and to parametrize tests: '
-    'https://eth-brownie.readthedocs.io/en/stable/tests-pytest-intro.html#parametrizing-tests'
-)
-
 
 # %% Init sim model as isolated fixture
 # make the tested state a fixture for further testing
