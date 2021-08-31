@@ -54,6 +54,7 @@ MultiSim supports different types of components, most notably:
 * Boundary Conditions like in- and outflows to ambience, both stationary and time series based
 * [Compound parts](#Compound-parts) consisting of multiple parts, actuators, controllers and boundary conditions
 * [Meters](#Meters) to track process variables of specific important parts/cells and perform basic calculations on-the-fly
+* [Utility tools](#Utility-tools) for pre- and postprocessing, plotting, loading and storing data, ...
 
 ### Basic parts
 The following basic parts are currently available:
@@ -113,10 +114,15 @@ There is also a list of [**sensors/meters**](multisim/_utility/meters.py) which 
 * Mass flow sensor
 * Heat meter (power, mass flow, volume flow, temperature of hot and cold part, cumulated values)
 
-### Utility functions
+### Utility tools
 The file [utility_functions](multisim/utility_functions.py) provides methods for pre- and post-processing of input/output data and basic plotting/statistic analysis. Also methods to open the `*.hdf5` files, which are used to store the results on disk, are provided.
 
 **But**: `utility_functions.py` requires **heavy** refactoring!! This is scheduled for the next release.
+
+Some parts have already been refactored to [multisim/_utility/](multisim/_utility):
+* [Meters](multisim/_utility/meters.py), also see section [Meters](#Meters)
+* [plotting](multisim/_utility/plotting.py) provides basic plotting methods for validation and heatmap plots and also some formatting helpers. More will be added soon.
+* [Statistical error measures](multisim/_utility/stat_error_measures.py) provides basic error measures useful for validation, such as the (adjusted) coefficient of determination, MSE, RMSE, CV(RMSE), NME, ...
 
 ## Getting started
 Import MultiSim and create your simulation environment instance with:
