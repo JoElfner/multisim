@@ -121,7 +121,7 @@ The file [utility_functions](multisim/utility_functions.py) provides methods for
 
 Some parts have already been refactored to [multisim/_utility/](multisim/_utility):
 * [Meters](multisim/_utility/meters.py), also see section [Meters](#Meters)
-* [plotting](multisim/_utility/meters.py) provides basic plotting methods for validation and heatmap plots and also some formatting helpers. More will be added soon.
+* [plotting](multisim/_utility/plotting.py) provides basic plotting methods for validation and heatmap plots and also some formatting helpers. More will be added soon.
 * [Statistical error measures](multisim/_utility/stat_error_measures.py) provides basic error measures useful for validation, such as the (adjusted) coefficient of determination, MSE, RMSE, CV(RMSE), NME, ...
 
 ## Getting started
