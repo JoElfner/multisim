@@ -393,6 +393,10 @@ Since MultiSim was part of a PhD thesis, validation results will be added as soo
 One of the systems simulated to validate MultiSim, was the following heating and PWH (potable water hot) appliance:
 ![validation appliance scheme](/doc/figures/sim_valild_chp.svg)
 
+The 2D-KDE prediction-realization plot, created with [prediction_realization_2d_kde](multisim/utility/plotting.py/prediction_realization_2d_kde) shows that almost all points lie close to the halving diagonal:
+![validation appliance kde](/doc/figures/valid_chp_kde_en.svg)
+This is also confirmed by the statistical error measures in the plots. The coefficient of determination is, in both cases, `>0.9`. ANSI defines validation bounds of `CV(RMSE) <= 0.3` and `|NME| <= 0.05`. Both bounds are satisfied.
+
 
 ## Known limitations and To-do
 
