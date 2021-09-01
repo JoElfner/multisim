@@ -142,11 +142,6 @@ def test_pipe_with_pump(make_sim, theta_init, theta_amb, massflow, expected):
     assert np.all(testsim.parts['pipe'].res[-1].round(2) == expected)
 
 
-# %% run test
-# pytest.main()
-
-# %% remove all files created by test:
-# remove files created by simulation
-# fls_tof = os.listdir('./test_output_files')
-# for f in fls_tof:
-#     os.remove(os.path.join('./test_output_files', f))
+# %% run tests locally
+if __name__ == 'main':
+    pytest.main()
