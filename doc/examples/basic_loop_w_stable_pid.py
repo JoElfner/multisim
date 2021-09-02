@@ -25,44 +25,44 @@ my_sim_a.set_solver(solver='heun', allow_implicit=False)
 pipe_specs = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN25'}}
 # set general specifications for all parts
 general_specs = dict(
-    insulation_thickness=1e-2,
-    insulation_lambda=0.035,
-    T_init=theta_low,
-    T_amb=theta_low,
+    insulation_thickness=1e-2,  # insulation around pipe in meters
+    insulation_lambda=0.035,  # insulation heat conductivity in W/(m*K)
+    T_init=theta_low,  # initial temperature of all cells
+    T_amb=theta_low,  # ambient temperature of all parts
     material='carbon_steel',
     pipe_specs=pipe_specs,
 )
 
 # add parts
-my_sim_a.add_part(
+my_sim_a.add_part(  # add pipe_in with the valve to control
     part=ms.ap.PipeWith3wValve,
     name='pipe_in',
-    length=2.0,
-    grid_points=20,
-    valve_location=5,
-    start_portA_opening=0.5,
-    lower_limit=0.0,
-    upper_limit=1.0,
+    length=2.0,  # in meters
+    grid_points=20,  # number of numeric cells to calculate
+    valve_location=5,  # location of the three-way-valve in grid_points
+    start_portA_opening=0.5,  # initialize the valve
+    lower_limit=0.0,  # lower limit for the valve, can be 0 <= x < 1
+    upper_limit=1.0,  # upper limit for the valve, can be 0 < x <= 1
     **general_specs,
 )
 my_sim_a.add_part(
-    part=ms.ap.Tes,
+    part=ms.ap.Tes,  # add a thermal energy storage
     name='TES',
-    volume=0.5,
+    volume=0.5,  # volume in m**3
     grid_points=20,
-    outer_diameter=1.0,
-    shell_thickness=5e-3,
-    new_ports=None,
+    outer_diameter=1.0,  # outer diameter in meters
+    shell_thickness=5e-3,  # shell/casing thickness in meters
+    new_ports=None,  # add no additional ports/connectors
     **general_specs,
 )
 my_sim_a.add_part(
-    part=ms.ap.PipeWithPump,
+    part=ms.ap.PipeWithPump,  # add a pipe with a pump
     name='pipe_out',
     length=1.0,
     grid_points=10,
-    start_massflow=0.75,
-    ctrl_required=False,
-    const_val=0.75,
+    start_massflow=0.75,  # initialize massflow in kg/s
+    ctrl_required=False,  # set to constant or time series based
+    const_val=0.75,  # constant massflow
     **general_specs,
 )
 
@@ -102,26 +102,26 @@ my_sim_a.connect_ports(
 my_sim_a.add_control(
     ms.ap.PID,
     name='pid_valve',
-    actuator='pipe_in',
-    process_CV_mode='part_specific',
-    CV_saturation=(0.0, 1.0),
-    controlled_part='pipe_in',
-    controlled_port=-1,
-    reference_part='none',
-    setpoint=sp_pid,
-    sub_controller=False,
-    off_state=0.0,
-    time_domain='discrete',
-    deadtime=0.0,
-    slope=(-0.1, 0.1),
-    invert=False,
-    terms='PID',
-    loop_tuning='ziegler-nichols',
-    rule='classic',
-    Kp_crit=0.025,
-    T_crit=5.0,
-    filter_derivative=False,
-    anti_windup=1.0,
+    actuator='pipe_in',  # controlled actuator
+    process_CV_mode='part_specific',  # allow post-processing of CV in part
+    CV_saturation=(0.0, 1.0),  # clip CV
+    controlled_part='pipe_in',  # part where the PV is found
+    controlled_port=-1,  # port or cell where the PV is found in its part
+    reference_part='none',  # use another part as source of the SP
+    setpoint=sp_pid,  # use defined constant value
+    sub_controller=False,  # controller action is not depending on another ctrl
+    off_state=0.0,  # which value shows that the controller is off?
+    time_domain='discrete',  # integral and derivative calculation type
+    deadtime=0.0,  # in seconds
+    slope=(-0.1, 0.1),  # in units/s
+    invert=False,  # invert action to allow reversed operation
+    terms='PID',  # which coefficients to use
+    loop_tuning='ziegler-nichols',  # semi-automatic loop tuning or manual?
+    rule='classic',  # loop tuning rule
+    Kp_crit=0.025,  # critical Kp value
+    T_crit=5.0,  # period of the oscillations in seconds
+    filter_derivative=False,  # low pass filter of the derivative term
+    anti_windup=1.0,  # anti windup for the integral term
 )
 
 # initialize simulation (set up parts and controllers, preallocate arrays,
@@ -136,7 +136,7 @@ meters.heat_meter(
     name='hm',
     warm_part='pipe_in',
     warm_cell=-1,
-    cold_part='pipe_out',
+    cold_part='pipe_out',  # massflows will be calculted on the cold cell
     cold_cell=0,
 )
 meters.massflow(name='mflow_A', part='pipe_in', cell=0)

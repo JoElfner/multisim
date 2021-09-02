@@ -185,10 +185,10 @@ Next define specifications for pipes and the ports at each pipe. Dimensions can 
 pipe_specs = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN25'}}
 # set general specifications for all parts
 general_specs = dict(
-    insulation_thickness=1e-2,
-    insulation_lambda=0.035,
-    T_init=theta_low,
-    T_amb=theta_low,
+    insulation_thickness=1e-2,  # insulation around pipe in meters
+    insulation_lambda=0.035,  # insulation heat conductivity in W/(m*K)
+    T_init=theta_low,  # initial temperature of all cells
+    T_amb=theta_low,  # ambient temperature of all parts
     material='carbon_steel',
     pipe_specs=pipe_specs,
 )
