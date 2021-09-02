@@ -72,6 +72,7 @@ MANIFEST
 *.sqlite
 *.h5
 *.h5_tmp
+*REPORT.csv
 
 # Patches #
 ###########
