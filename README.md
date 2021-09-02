@@ -446,12 +446,12 @@ One of the systems simulated to validate MultiSim, was the following heating and
 
 ![validation appliance scheme](/doc/figures/sim_valild_chp_scheme.svg)
 
-The 2D-KDE prediction-realization plot, created with [multisim.plotting.prediction_realization_2d_kde](multisim/utility/plotting.py) shows that almost all points lie close to the halving diagonal:
+The 2D-KDE prediction-realization plot, created with [multisim.plotting.prediction_realization_2d_kde](multisim/_utility/plotting.py) shows that almost all points lie close to the halving diagonal:
 
 ![validation appliance kde](/doc/figures/valid_chp_kde_en.svg)
 This is also confirmed by the statistical error measures in the plots. The coefficient of determination is, in both cases, `>0.9`. ANSI defines validation bounds of `CV(RMSE) <= 0.3` and `|NME| <= 0.05`. Both bounds are satisfied.
 
-Finally, the heatmap plot of the TES temperature, plotted with [multisim.plotting.heatmap_from_df](multisim/utility/plotting.py), shows only minor differences:
+Finally, the heatmap plot of the TES temperature, plotted with [multisim.plotting.heatmap_from_df](multisim/_utility/plotting.py), shows only minor differences:
 
 ![validation appliance heatmap](/doc/figures/valid_chp_tes_temperature_en.png)
 

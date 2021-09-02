@@ -1,1 +1,0 @@
-**MultiSim** is a thermal simulation tool for heating appliances. It is written in Python 3. Core packages are SciPy and NumPy.
