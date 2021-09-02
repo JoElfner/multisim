@@ -424,10 +424,11 @@ my_sim.add_control(
 )
 ```
 
-Now the PID is stable at first and reaches equilibrium even faster than the stable PID. But this comes at the cost of persistent instability once a larger step in the PV is introduced, such as after 5 minutes:
+Now the PID is stable at first and reaches equilibrium even faster than the stable PID.
+But this comes at the cost of persistent instability once a larger step in the PV is introduced, such as after 5 minutes:
 ![Instable valve temperature and massflow](/doc/examples/figures/basic_example_valve_instable.svg)
 
-Since the amplitude of the oscillations is still small and the product of the period with the massflow small compared to the TES volume, the effect on the temperature in the TES is negligible:
+Since the amplitude of the oscillations is still small and the product of the period with the massflow is small compared to the TES volume, the effect on the temperature in the TES is negligible:
 ![TES temperature instable](/doc/examples/figures/basic_example_tes_instable.png)
 
 Assuming in more complex systems other controllers are relying on a stable output of this controller, even oscillations this small my cause a chain reaction leading to an undesired behavior of the complete system. Furthermore instabilities may cause the solver to require much smaller steps to solve the differential equations.
