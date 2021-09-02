@@ -172,11 +172,11 @@ theta_high.iloc[300:] = 85.0
 Now create an instance of the simulation environment, and set some basic options:
 ```python
 # create simulation environment
-my_sim_a = ms.Models()
+my_sim = ms.Models()
 # set disksaving, simulatiion timeframe and solver
-my_sim_a.set_disksaving(save=True, start_date='infer', sim_name='sim_a')
-my_sim_a.set_timeframe(timeframe=900, adaptive_steps=True)
-my_sim_a.set_solver(solver='heun', allow_implicit=False)
+my_sim.set_disksaving(save=True, start_date='infer', sim_name='sim_a')
+my_sim.set_timeframe(timeframe=900, adaptive_steps=True)
+my_sim.set_solver(solver='heun', allow_implicit=False)
 ```
 
 Next define specifications for pipes and the ports at each pipe. Dimensions can be set individually for each port. In this case all ports and parts share the same specifications.
@@ -196,7 +196,7 @@ general_specs = dict(
 
 Now add the parts to the simulation environment:
 ```python
-my_sim_a.add_part(  # add pipe_in with the valve to control
+my_sim.add_part(  # add pipe_in with the valve to control
     part=ms.ap.PipeWith3wValve,
     name='pipe_in',
     length=2.0,  # in meters
@@ -207,7 +207,7 @@ my_sim_a.add_part(  # add pipe_in with the valve to control
     upper_limit=1.0,  # upper limit for the valve, can be 0 < x <= 1
     **general_specs,
 )
-my_sim_a.add_part(
+my_sim.add_part(
     part=ms.ap.Tes,  # add a thermal energy storage
     name='TES',
     volume=0.5,  # volume in m**3
@@ -217,7 +217,7 @@ my_sim_a.add_part(
     new_ports=None,  # add no additional ports/connectors
     **general_specs,
 )
-my_sim_a.add_part(
+my_sim.add_part(
     part=ms.ap.PipeWithPump,  # add a pipe with a pump
     name='pipe_out',
     length=1.0,
@@ -233,32 +233,32 @@ Add open ports (connections to ambient conditions, connections crossing the
 control volume of the simulation environment, other boundary conditions (BC)).
 Open ports can be either constant or time series based.
 ```python
-my_sim_a.add_open_port('BC_theta_low', constant=True, temperature=theta_low)
-my_sim_a.add_open_port('BC_theta_high', constant=False, temperature=theta_high)
-my_sim_a.add_open_port('BC_out', constant=True, temperature=theta_low)
+my_sim.add_open_port('BC_theta_low', constant=True, temperature=theta_low)
+my_sim.add_open_port('BC_theta_high', constant=False, temperature=theta_high)
+my_sim.add_open_port('BC_out', constant=True, temperature=theta_low)
 ```
 
 Connect parts at ports and also boundary conditions to parts:
 ```python
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='BoundaryCondition',
     first_port='BC_theta_low',
     scnd_part='pipe_in',
     scnd_port='B',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='BoundaryCondition',
     first_port='BC_theta_high',
     scnd_part='pipe_in',
     scnd_port='A',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='pipe_in', first_port='AB', scnd_part='TES', scnd_port='in',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='TES', first_port='out', scnd_part='pipe_out', scnd_port='in',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='pipe_out',
     first_port='out',
     scnd_part='BoundaryCondition',
@@ -270,7 +270,7 @@ Add and set PID control to control the 3-way-valve.
 Nomenclature: setpoint (SP), control variable (CV), process variable (PV).
 For this, the critical coefficient `Kp_crit` causing permanent oscillations and the period of the oscillations `T_crit` have to be estimated before. This can be done by increasing `Kp` of a PID controller set to `loop_tuning='manual'` and `terms='P'` until oscillations after a step start pertaining.
 ```python
-my_sim_a.add_control(
+my_sim.add_control(
     ms.ap.PID,
     name='pid_valve',
     actuator='pipe_in',  # controlled actuator
@@ -299,13 +299,13 @@ my_sim_a.add_control(
 Initialize simulation (set up parts and controllers, preallocate arrays,
 calculate topology...) and run it:
 ```python
-my_sim_a.initialize_sim()
-my_sim_a.start_sim()
+my_sim.initialize_sim()
+my_sim.start_sim()
 ```
 
 Add meters:
 ```python
-meters = ms.Meters(my_sim_a, start_time=theta_high.index[0])
+meters = ms.Meters(my_sim, start_time=theta_high.index[0])
 meters.temperature(name='theta_mix', part='pipe_in', cell=-1)
 meters.heat_meter(
     name='hm',
@@ -320,7 +320,7 @@ meters.massflow(name='mflow_AB', part='pipe_in', cell=-1)
 
 return results as a dictionary of kind `{part:{'res': temperatures, 'dm': massflows}}`:
 ```python
-results = my_sim_a.return_stored_data()
+results = my_sim.return_stored_data()
 ```
 
 For plotting of the results, define the plot index:
@@ -391,6 +391,46 @@ Which yields the temperature of the TES over the time:
 
 
 ### Instable PID controller
+Now we'll try what happens when we switch to manual loop tuning and increase the `Kp` coefficient to be slighty `Kp > Kp_crit`.
+Furthermore we add small integral and derivative terms `Ki` and `Kd`.
+
+You can find the full executable example as a Python script at [doc/examples/basic_loop_w_instable_pid.py](doc/examples/basic_loop_w_instable_pid.py).
+
+The only change compared to the previous stable PID example is within the controller construction in the following lines:
+```python
+my_sim.add_control(
+    ms.ap.PID,
+    name='pid_valve',
+    actuator='pipe_in',  # controlled actuator
+    process_CV_mode='part_specific',  # allow post-processing of CV in part
+    CV_saturation=(0.0, 1.0),  # clip CV
+    controlled_part='pipe_in',  # part where the PV is found
+    controlled_port=-1,  # port or cell where the PV is found in its part
+    reference_part='none',  # use another part as source of the SP
+    setpoint=sp_pid,  # use defined constant value
+    sub_controller=False,  # controller action is not depending on another ctrl
+    off_state=0.0,  # which value shows that the controller is off?
+    time_domain='discrete',  # integral and derivative calculation type
+    deadtime=0.0,  # in seconds
+    slope=(-0.1, 0.1),  # in units/s
+    invert=False,  # invert action to allow reversed operation
+    terms='PID',  # which coefficients to use
+    loop_tuning='ziegler-nichols',  # semi-automatic loop tuning or manual?
+    rule='classic',  # loop tuning rule
+    Kp_crit=0.025,  # critical Kp value
+    T_crit=5.0,  # period of the oscillations in seconds
+    filter_derivative=False,  # low pass filter of the derivative term
+    anti_windup=1.0,  # anti windup for the integral term
+)
+```
+
+Now the PID is stable at first and reaches equilibrium even faster than the stable PID. But this comes at the cost of persistent instability once a larger step in the PV is introduced, such as after 5 minutes:
+![Instable valve temperature and massflow](/doc/examples/figures/basic_example_valve_instable.svg)
+
+Since the amplitude of the oscillations is still small and the product of the period with the massflow small compared to the TES volume, the effect on the temperature in the TES is negligible:
+![TES temperature instable](/doc/examples/figures/basic_example_tes_instable.png)
+
+Assuming in more complex systems other controllers are relying on a stable output of this controller, even oscillations this small my cause a chain reaction leading to an undesired behavior of the complete system. Furthermore instabilities may cause the solver to require much smaller steps to solve the differential equations.
 
 ### Bang-bang controller
 

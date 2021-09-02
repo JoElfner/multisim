@@ -206,7 +206,7 @@ ms.plotting.heatmap_from_df(
     ax=ax_tes,
     ylabel=('TES height', 'm'),
     cbar=True,
-    cbar_label=(r'Temperature\; $\theta$', '°C'),
+    cbar_label=(r'Temperature\; \theta', '°C'),
     vmin=20.0,
     plt_kwds={'shading': 'gouraud'},
 )

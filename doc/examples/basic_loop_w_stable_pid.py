@@ -15,11 +15,11 @@ theta_high = pd.Series(
 theta_high.iloc[300:] = 85.0
 
 # create simulation environment
-my_sim_a = ms.Models()
+my_sim = ms.Models()
 # set disksaving, simulatiion timeframe and solver
-my_sim_a.set_disksaving(save=True, start_date='infer', sim_name='sim_a')
-my_sim_a.set_timeframe(timeframe=900, adaptive_steps=True)
-my_sim_a.set_solver(solver='heun', allow_implicit=False)
+my_sim.set_disksaving(save=True, start_date='infer', sim_name='sim_a')
+my_sim.set_timeframe(timeframe=900, adaptive_steps=True)
+my_sim.set_solver(solver='heun', allow_implicit=False)
 
 # define pipe specifications for all pipes and ports
 pipe_specs = {'all': {'pipe_type': 'EN10255_medium', 'DN': 'DN25'}}
@@ -34,7 +34,7 @@ general_specs = dict(
 )
 
 # add parts
-my_sim_a.add_part(  # add pipe_in with the valve to control
+my_sim.add_part(  # add pipe_in with the valve to control
     part=ms.ap.PipeWith3wValve,
     name='pipe_in',
     length=2.0,  # in meters
@@ -45,7 +45,7 @@ my_sim_a.add_part(  # add pipe_in with the valve to control
     upper_limit=1.0,  # upper limit for the valve, can be 0 < x <= 1
     **general_specs,
 )
-my_sim_a.add_part(
+my_sim.add_part(
     part=ms.ap.Tes,  # add a thermal energy storage
     name='TES',
     volume=0.5,  # volume in m**3
@@ -55,7 +55,7 @@ my_sim_a.add_part(
     new_ports=None,  # add no additional ports/connectors
     **general_specs,
 )
-my_sim_a.add_part(
+my_sim.add_part(
     part=ms.ap.PipeWithPump,  # add a pipe with a pump
     name='pipe_out',
     length=1.0,
@@ -68,30 +68,30 @@ my_sim_a.add_part(
 
 # add open ports (connections to ambient conditions, connections crossing the
 # control volume of the simulation environment)
-my_sim_a.add_open_port('BC_theta_low', constant=True, temperature=theta_low)
-my_sim_a.add_open_port('BC_theta_high', constant=False, temperature=theta_high)
-my_sim_a.add_open_port('BC_out', constant=True, temperature=theta_low)
+my_sim.add_open_port('BC_theta_low', constant=True, temperature=theta_low)
+my_sim.add_open_port('BC_theta_high', constant=False, temperature=theta_high)
+my_sim.add_open_port('BC_out', constant=True, temperature=theta_low)
 
 # connect parts and also boundary conditions to parts
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='BoundaryCondition',
     first_port='BC_theta_low',
     scnd_part='pipe_in',
     scnd_port='B',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='BoundaryCondition',
     first_port='BC_theta_high',
     scnd_part='pipe_in',
     scnd_port='A',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='pipe_in', first_port='AB', scnd_part='TES', scnd_port='in',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='TES', first_port='out', scnd_part='pipe_out', scnd_port='in',
 )
-my_sim_a.connect_ports(
+my_sim.connect_ports(
     first_part='pipe_out',
     first_port='out',
     scnd_part='BoundaryCondition',
@@ -99,7 +99,7 @@ my_sim_a.connect_ports(
 )
 
 # add and set PID control to control the 3-way-valve
-my_sim_a.add_control(
+my_sim.add_control(
     ms.ap.PID,
     name='pid_valve',
     actuator='pipe_in',  # controlled actuator
@@ -126,11 +126,11 @@ my_sim_a.add_control(
 
 # initialize simulation (set up parts and controllers, preallocate arrays,
 # calculate topology...)
-my_sim_a.initialize_sim()
-my_sim_a.start_sim()
+my_sim.initialize_sim()
+my_sim.start_sim()
 
 # add meters:
-meters = ms.Meters(my_sim_a, start_time=theta_high.index[0])
+meters = ms.Meters(my_sim, start_time=theta_high.index[0])
 meters.temperature(name='theta_mix', part='pipe_in', cell=-1)
 meters.heat_meter(
     name='hm',
@@ -144,7 +144,7 @@ meters.massflow(name='mflow_AB', part='pipe_in', cell=-1)
 
 # return results as a dictionary of kind
 # {part:{'res': temperatures, 'dm': massflows}}
-results = my_sim_a.return_stored_data()
+results = my_sim.return_stored_data()
 
 
 # %% plot results
@@ -206,7 +206,7 @@ ms.plotting.heatmap_from_df(
     ax=ax_tes,
     ylabel=('TES height', 'm'),
     cbar=True,
-    cbar_label=(r'Temperature\; $\theta$', '°C'),
+    cbar_label=(r'Temperature\; \theta', '°C'),
     vmin=20.0,
     plt_kwds={'shading': 'gouraud'},
 )
