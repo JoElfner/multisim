@@ -116,12 +116,12 @@ my_sim.add_control(
     slope=(-0.1, 0.1),  # in units/s
     invert=False,  # invert action to allow reversed operation
     terms='PID',  # which coefficients to use
-    loop_tuning='ziegler-nichols',  # semi-automatic loop tuning or manual?
-    rule='classic',  # loop tuning rule
-    Kp_crit=0.025,  # critical Kp value
-    T_crit=5.0,  # period of the oscillations in seconds
-    filter_derivative=False,  # low pass filter of the derivative term
-    anti_windup=1.0,  # anti windup for the integral term
+    loop_tuning='manual',  # no loop tuning set
+    Kp=0.03,  # Kp coefficient
+    Ki=0.02,  # Ki coefficient == 1/Ti
+    Kd=0.01,  # Kd coefficient == Td
+    filter_derivative=False,
+    anti_windup=1.,
 )
 
 # initialize simulation (set up parts and controllers, preallocate arrays,
@@ -191,7 +191,7 @@ ax_valve_theta.set_xlabel('simulation time in min:s')
 ax_valve_flow.xaxis.set_major_formatter(mpl.dates.DateFormatter('%M:%S'))
 fig_valve.tight_layout(pad=0.1)
 
-# fig_valve.savefig('./figures/basic_example_valve.svg')
+# fig_valve.savefig('./figures/basic_example_valve_instable.svg')
 
 # %% plot TES temperature as heatmap
 
@@ -211,4 +211,4 @@ ms.plotting.heatmap_from_df(
     plt_kwds={'shading': 'gouraud'},
 )
 
-# fig_tes.savefig('./figures/basic_example_tes.png', dpi=200)
+# fig_tes.savefig('./figures/basic_example_tes_instable.png', dpi=200)
