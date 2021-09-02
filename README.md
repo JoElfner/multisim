@@ -142,7 +142,7 @@ We will cover three basic examples in this section, all covering the temperature
 
 The appliance/setup to simulate is, in all three cases, the following:
 
-![example scheme PID](/doc/examples/figures/example_scheme_PID.svg)
+![example scheme PID](/doc/figures/example_scheme_PID.svg)
 
 With the temperature of the water flowing into port B of 'pipe_in' describing a step from 50.0 °C to 85.0 °C after 300 s.
 
@@ -415,12 +415,12 @@ my_sim.add_control(
     slope=(-0.1, 0.1),  # in units/s
     invert=False,  # invert action to allow reversed operation
     terms='PID',  # which coefficients to use
-    loop_tuning='ziegler-nichols',  # semi-automatic loop tuning or manual?
-    rule='classic',  # loop tuning rule
-    Kp_crit=0.025,  # critical Kp value
-    T_crit=5.0,  # period of the oscillations in seconds
-    filter_derivative=False,  # low pass filter of the derivative term
-    anti_windup=1.0,  # anti windup for the integral term
+    loop_tuning='manual',  # no loop tuning set
+    Kp=0.03,  # Kp coefficient
+    Ki=0.02,  # Ki coefficient == 1/Ti
+    Kd=0.01,  # Kd coefficient == Td
+    filter_derivative=False,
+    anti_windup=1.,
 )
 ```
 
@@ -433,6 +433,7 @@ Since the amplitude of the oscillations is still small and the product of the pe
 Assuming in more complex systems other controllers are relying on a stable output of this controller, even oscillations this small my cause a chain reaction leading to an undesired behavior of the complete system. Furthermore instabilities may cause the solver to require much smaller steps to solve the differential equations.
 
 ### Bang-bang controller
+coming soon
 
 ## Validation
 
