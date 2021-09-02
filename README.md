@@ -138,7 +138,7 @@ Now simply follow the detailed step-by-step instructions printed to the console.
 We will cover three basic examples in this section, all covering the temperature control of a three-way-valve flowing into a thermal energy storage (TES):
 1. A [stable PID controller](#Stable-PID-controller) (loop tuned with Ziegler-Nichols)
 2. An [instable PID controller](#Instable-PID-controller). Stable at first for small steps in the process variable, but instable with persisting oscillations for larger steps.
-3. A [bang-bang controller](#Bang-bang controller) to control the valve.
+3. A [bang-bang controller](#Bang-bang-controller) to control the pump.
 
 The appliance/setup to simulate is, in all three cases, the following:
 
