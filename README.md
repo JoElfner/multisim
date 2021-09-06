@@ -49,7 +49,7 @@ For slightly more detailed building, distribution and installation instructions,
 
 MultiSim supports different types of components, most notably:
 * [Parts](#Basic-parts) which require differential equations to be solved (called "basic parts" hereafter)
-* [Connectors and Actuators](#Actuators-and-connectors) which can effect flow variables, either controlled by controllers, stationary or time series based
+* [Connectors and Actuators](#Actuators-and-connectors) which can affect flow variables, either controlled by controllers, stationary or time series based
 * [Controllers](#Controllers) which control actuators
 * Boundary Conditions like in- and outflows to ambience, both stationary and time series based
 * [Compound parts](#Compound-parts) consisting of multiple parts, actuators, controllers and boundary conditions
