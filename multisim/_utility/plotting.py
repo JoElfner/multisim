@@ -229,7 +229,7 @@ def prediction_realization_scatter(
         Additional arguments to pass on to matplotlib.scatter. The default
         is dict(c='C0', s=6, fc='none', ec='C0', alpha=1.0).
     diag_kwds : dict, optional
-        Additional arguments to pass on to plotting the halfing diagonal. The
+        Additional arguments to pass on to plotting the halving diagonal. The
         default is dict(color='k', ls='-', lw=1).
     plt_err_range : str, optional
         Plot error range around the diagonal. The default is 'RMSE'.
@@ -385,7 +385,7 @@ def prediction_realization_2d_kde(
     cbar : bool, optional
         Plot colorbar. The default is True.
     line_color : str, optional
-        Color for halfing diagonal. The default is 'k'.
+        Color for halving diagonal. The default is 'k'.
     fontsize : int, optional
         Font size for error measures. The default is 8.
     aspect : str, int, float, optional

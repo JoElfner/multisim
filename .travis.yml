@@ -15,7 +15,7 @@ install:
 script:
     - black --skip-string-normalization --line-length 79 --check ./multisim/
     - flake8
-    - pytest --import-mode=importlib
+    - pytest --import-mode=importlib --junitxml=tests/reports/junit_report.xml --cov-report xml:tests/reports/cov.xml
     # - mypy
 
 after_success:
